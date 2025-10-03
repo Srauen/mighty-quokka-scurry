@@ -9,12 +9,13 @@ import { toast } from 'sonner';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardStats from '@/components/dashboard/DashboardStats';
 import DashboardChart from '@/components/dashboard/DashboardChart';
-import RebelsRankingCard from '@/components/dashboard/RebelsRankingCard';
+import TopTradersCard from '@/components/dashboard/TopTradersCard'; // Renamed component
 import SecurityStatusCard from '@/components/dashboard/SecurityStatusCard';
 import NotificationsCard from '@/components/dashboard/NotificationsCard';
-import WeatherWidget from '@/components/dashboard/WeatherWidget';
+import MarketStatusWidget from '@/components/dashboard/MarketStatusWidget'; // Renamed component
 import { mockDashboardData } from '@/lib/mockData';
 import { MockDashboardData } from '@/types/dashboard';
+import { useTheme } from '@/components/ThemeContext'; // Import useTheme
 
 interface Profile {
   first_name: string | null;
@@ -26,8 +27,9 @@ const Dashboard: React.FC = () => {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<MockDashboardData>(mockDashboardData); // Use mock data
+  const [profileLoading, setLoadingProfile] = useState(true);
+  const [dashboardData, setDashboardData] = useState<MockDashboardData>(mockDashboardData);
+  const { theme } = useTheme(); // Get current theme
 
   useEffect(() => {
     if (!loading && !user) {
@@ -39,7 +41,7 @@ const Dashboard: React.FC = () => {
 
   const fetchProfile = async () => {
     if (!user) return;
-    setProfileLoading(true);
+    setLoadingProfile(true);
     const { data, error } = await supabase
       .from('profiles')
       .select('first_name, last_name, avatar_url')
@@ -52,7 +54,7 @@ const Dashboard: React.FC = () => {
     } else if (data) {
       setProfile(data);
     }
-    setProfileLoading(false);
+    setLoadingProfile(false);
   };
 
   const handleSignOut = async () => {
@@ -63,9 +65,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  if (loading || profileLoading) {
+  if (loading || setLoadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground font-mono">
         Loading dashboard...
       </div>
     );
@@ -76,7 +78,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground py-8 px-4 sm:px-6 lg:px-8 font-mono">
+    <div className={`min-h-screen bg-background text-foreground py-8 px-4 sm:px-6 lg:px-8 font-mono ${theme === 'os-style' ? 'os-style' : ''}`}>
       <div className="max-w-7xl mx-auto space-y-8">
         <DashboardHeader profile={profile} onSignOut={handleSignOut} />
 
@@ -84,17 +86,14 @@ const Dashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <DashboardChart chartData={dashboardData.chartData} />
-          <RebelsRankingCard ranking={dashboardData.rebelsRanking} />
+          <TopTradersCard ranking={dashboardData.rebelsRanking} /> {/* Use TopTradersCard */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <SecurityStatusCard statusData={dashboardData.securityStatus} />
           <NotificationsCard notifications={dashboardData.notifications} />
-          <WeatherWidget widgetData={dashboardData.widgetData} />
+          <MarketStatusWidget widgetData={dashboardData.widgetData} /> {/* Use MarketStatusWidget */}
         </div>
-
-        {/* The original profile update section is removed to make way for the new dashboard design.
-            If you need to re-add profile editing, it could be a separate settings page. */}
       </div>
     </div>
   );

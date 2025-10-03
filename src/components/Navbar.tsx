@@ -6,16 +6,17 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { LineChart, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { Link } from 'react-router-dom';
+import { useTheme } from '@/components/ThemeContext'; // Import useTheme
 
 interface NavbarProps {
-  darkMode: boolean;
-  setDarkMode: (darkMode: boolean) => void;
+  // darkMode and setDarkMode are now handled by ThemeContext, so they are removed from props
   activeSection: string;
-  // startOnboarding: () => void; // No longer needed directly here
 }
 
-const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection }) => {
+const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
+  const { theme, setTheme } = useTheme(); // Use theme from context
+
   const navItems = [
     { name: "Home", href: "#hero" },
     { name: "Features", href: "#features" },
@@ -23,6 +24,8 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection })
     { name: "Team", href: "#team" },
     { name: "FAQ", href: "#faq" },
   ];
+
+  const isDarkMode = theme === 'dark' || theme === 'os-style';
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm transition-colors duration-300">
@@ -47,16 +50,16 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection })
           <div className="flex items-center space-x-2">
             <Switch
               id="dark-mode-toggle"
-              checked={darkMode}
-              onCheckedChange={setDarkMode}
+              checked={isDarkMode}
+              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
             />
             <Label htmlFor="dark-mode-toggle" className="text-gray-600 dark:text-gray-300">
-              {darkMode ? "Dark" : "Light"}
+              {isDarkMode ? "Dark" : "Light"}
             </Label>
           </div>
-          <Link to="/login"> {/* Changed to Link to /login */}
+          <Link to="/login">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Sign In {/* Changed button text */}
+              Sign In
             </Button>
           </Link>
         </div>
@@ -66,11 +69,11 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection })
           <div className="flex items-center space-x-2">
             <Switch
               id="dark-mode-toggle-mobile"
-              checked={darkMode}
-              onCheckedChange={setDarkMode}
+              checked={isDarkMode}
+              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
             />
             <Label htmlFor="dark-mode-toggle-mobile" className="text-gray-600 dark:text-gray-300">
-              {darkMode ? "Dark" : "Light"}
+              {isDarkMode ? "Dark" : "Light"}
             </Label>
           </div>
           <Sheet>
@@ -91,9 +94,9 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection })
                     {item.name}
                   </a>
                 ))}
-                <Link to="/login"> {/* Changed to Link to /login */}
+                <Link to="/login">
                   <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
-                    Sign In {/* Changed button text */}
+                    Sign In
                   </Button>
                 </Link>
               </nav>

@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, Clock, CalendarDays, TrendingUp } from 'lucide-react'; // Updated icons
 import { WidgetData } from '@/types/dashboard';
 
-interface WeatherWidgetProps {
+interface MarketStatusWidgetProps {
   widgetData: WidgetData;
 }
 
-const WeatherWidget: React.FC<WeatherWidgetProps> = ({ widgetData }) => {
+const MarketStatusWidget: React.FC<MarketStatusWidgetProps> = ({ widgetData }) => {
   return (
     <Card className="bg-card border border-border shadow-sm">
       <CardHeader>
@@ -37,4 +37,4 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ widgetData }) => {
   );
 };
 
-export default WeatherWidget;
+export default MarketStatusWidget;

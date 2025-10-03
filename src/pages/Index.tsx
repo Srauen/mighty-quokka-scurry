@@ -5,14 +5,15 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
-import FAQSection from "@/components/FAQSection"; // Updated import
+import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop";
 import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-react';
+import { useTheme } from '@/components/ThemeContext'; // Import useTheme
 
 const Index = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme(); // Use theme from context
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeSection, setActiveSection] = useState('hero');
   const [showOSSimulation, setShowOSSimulation] = useState(false);
@@ -20,15 +21,10 @@ const Index = () => {
   const heroRef = useRef<HTMLElement | null>(null);
   const featuresRef = useRef<HTMLElement | null>(null);
   const pricingRef = useRef<HTMLElement | null>(null);
-  const faqRef = useRef<HTMLElement | null>(null); // Updated ref name
+  const faqRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
+  // The dark mode state is now managed by the global ThemeContext
+  // The useEffect for classList is now handled by ThemeProvider
 
   useEffect(() => {
     if (showOSSimulation) return;
@@ -49,7 +45,7 @@ const Index = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    const sections = [heroRef, featuresRef, pricingRef, faqRef]; // Updated sections
+    const sections = [heroRef, featuresRef, pricingRef, faqRef];
     sections.forEach((ref) => {
       if (ref.current) {
         observer.observe(ref.current);
@@ -141,7 +137,7 @@ const Index = () => {
         "Portfolio optimization",
         "Priority email & chat support",
         "Multi-device sync",
-        "Flexible installment payments available" // Added installment statement
+        "Flexible installment payments available"
       ],
       popular: true,
     },
@@ -161,22 +157,21 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col font-sans"> {/* Apply font-sans here */}
       {showOSSimulation ? (
         <OSDesktop onExit={handleExitOSSimulation} />
       ) : (
         <>
           <Navbar
-            darkMode={darkMode}
-            setDarkMode={setDarkMode}
+            darkMode={theme === 'dark' || theme === 'os-style'} // Pass dark mode state based on theme
+            setDarkMode={(isDark) => setTheme(isDark ? 'dark' : 'light')} // Update theme based on toggle
             activeSection={activeSection}
-            startOnboarding={startOnboarding}
           />
           <main className="flex-grow">
             <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} onWatchDemo={handleWatchDemo} />
             <FeaturesSection sectionRef={featuresRef} features={features} />
             <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
-            <FAQSection sectionRef={faqRef} /> {/* Updated component */}
+            <FAQSection sectionRef={faqRef} />
           </main>
           <Footer />
           <OnboardingModal
