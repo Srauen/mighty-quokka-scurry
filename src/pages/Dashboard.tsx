@@ -14,7 +14,7 @@ import SecurityStatusCard from '@/components/dashboard/SecurityStatusCard';
 import NotificationsCard from '@/components/dashboard/NotificationsCard';
 import MarketStatusWidget from '@/components/dashboard/MarketStatusWidget';
 import { mockDashboardData } from '@/lib/mockData';
-import { MockDashboardData, DashboardStat, ChartData } from '@/types/dashboard';
+import { MockDashboardData, DashboardStat, ChartData, Notification } from '@/types/dashboard';
 import { useTheme } from '@/components/ThemeContext';
 import { useStockData } from '@/hooks/use-stock-data';
 
@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Effect to update dashboard data when stockData changes
+  // Effect to update dashboard data when stockData changes (for chart and stats)
   useEffect(() => {
     if (Object.keys(stockData).length === 0) return;
 
@@ -132,7 +132,43 @@ const Dashboard: React.FC = () => {
         chartData: chartDataForPeakStock,
       }));
     }
-  }, [stockData, stocksList]); // Depend on stockData and stocksList
+  }, [stockData, stocksList, dashboardData.dashboardStats]);
+
+  // Effect to generate real-time trading alerts
+  useEffect(() => {
+    if (Object.keys(stockData).length === 0) return;
+
+    const newAlerts: Notification[] = [];
+    const now = new Date().toISOString();
+
+    stocksList.forEach(stockId => {
+      const data = stockData[stockId];
+      if (data) {
+        // Alert for significant daily change (e.g., > 5% up or down)
+        if (Math.abs(data.dailyChange) > 5 && Math.abs(data.dailyChange) < 15) { // Threshold between 5% and 15% to avoid spamming for extreme changes
+          const type = data.dailyChange > 0 ? "success" : "error";
+          const message = `${stockId} price ${data.dailyChange > 0 ? 'surged' : 'dropped'} by ${data.dailyChange.toFixed(2)}% today! Current price: $${data.lastPrice.toFixed(2)}.`;
+          newAlerts.push({
+            id: `${stockId}-${now}-change`,
+            title: "PRICE ALERT",
+            message: message,
+            timestamp: now,
+            type: type,
+            read: false,
+            priority: "high",
+          });
+        }
+        // Add more alert conditions here if needed, e.g., volume spikes, specific price levels
+      }
+    });
+
+    if (newAlerts.length > 0) {
+      setDashboardData(prevData => ({
+        ...prevData,
+        notifications: [...newAlerts, ...prevData.notifications].slice(0, 20), // Keep max 20 notifications
+      }));
+    }
+  }, [stockData, stocksList]); // Trigger when stockData changes
 
   if (loading || profileLoading || Object.keys(stockData).length === 0) {
     return (
