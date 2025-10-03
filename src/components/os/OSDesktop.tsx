@@ -14,6 +14,7 @@ import OnboardingModal from '@/components/OnboardingModal'; // Import the multi-
 import { Button } from '@/components/ui/button';
 import { X, RotateCcw } from 'lucide-react'; // Import RotateCcw icon
 import { toast } from 'sonner';
+import { useStockData } from '@/hooks/use-stock-data'; // Import the new hook
 
 interface WindowState {
   id: string;
@@ -29,7 +30,6 @@ interface OSDesktopProps {
   onExit: () => void;
 }
 
-const stocksList = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'FB', 'NFLX', 'BABA', 'SBUX', 'KO', 'PEP', 'MCD', 'DIS', 'NKE', 'ADDYY', 'V', 'JPM', 'XOM', 'WMT', 'PG', 'MA', 'INTC', 'CSCO', 'CMCSA', 'PFE', 'T', 'VZ', 'CVX', 'HD', 'BA', 'MCO', 'BNS', 'RY', 'TD'];
 const initialNewsHeadlines = [
   "Market volatility expected after global events.",
   "Tech stocks surge on strong Q3 reports.",
@@ -105,11 +105,9 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [nextZIndex, setNextZIndex] = useState(100);
 
   // OS Global State with localStorage persistence
+  const { stockData, stocksList, initializeStockData } = useStockData(); // Use the new hook
   const [cashBalance, setCashBalance] = useState<number>(getInitialCashBalance(experienceLevel));
   const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(getInitialPortfolio());
-  const [stockData, setStockData] = useState<{
-    [key: string]: { prices: number[]; labels: string[] };
-  }>({});
   const [newsFeed, setNewsFeed] = useState<string[]>([]);
   const [tradingLog, setTradingLog] = useState<string[]>(getInitialTradingLog());
 
@@ -151,47 +149,15 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     }
   }, [experienceLevel]);
 
-  // Initialize stock data and news feed
+  // Initialize news feed
   useEffect(() => {
-    const initialStockData: { [key: string]: { prices: number[]; labels: string[] } } = {};
-    stocksList.forEach(stock => {
-      initialStockData[stock] = {
-        prices: [Math.floor(Math.random() * 200) + 100],
-        labels: [new Date().toLocaleTimeString()]
-      };
-    });
-    setStockData(initialStockData);
     // Initialize news feed with a few items, then let interval update
     setNewsFeed(initialNewsHeadlines.slice(0, 5).map(headline => `[${new Date().toLocaleTimeString()}] ${headline}`));
   }, []);
 
-  // Simulate price updates and news feed
+  // Simulate news feed
   useEffect(() => {
     if (!booted) return;
-
-    const priceUpdateInterval = setInterval(() => {
-      setStockData(prevStockData => {
-        const newStockData = { ...prevStockData };
-        stocksList.forEach(stock => {
-          if (!newStockData[stock]) {
-            newStockData[stock] = {
-              prices: [Math.floor(Math.random() * 200) + 100],
-              labels: [new Date().toLocaleTimeString()]
-            };
-          }
-          const lastPrice = newStockData[stock].prices[newStockData[stock].prices.length - 1];
-          const change = (Math.random() - 0.5) * 5;
-          const newPrice = Math.max(0, lastPrice + change);
-          newStockData[stock].prices.push(newPrice);
-          newStockData[stock].labels.push(new Date().toLocaleTimeString());
-          if (newStockData[stock].prices.length > 50) {
-            newStockData[stock].prices.shift();
-            newStockData[stock].labels.shift();
-          }
-        });
-        return newStockData;
-      });
-    }, 3000);
 
     const newsUpdateInterval = setInterval(() => {
       setNewsFeed(prevNews => {
@@ -204,7 +170,6 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     }, 5000);
 
     return () => {
-      clearInterval(priceUpdateInterval);
       clearInterval(newsUpdateInterval);
     };
   }, [booted]);
@@ -290,7 +255,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList]);
 
   const nextOSOnboardingStep = useCallback(() => {
     if (osOnboardingStep < 4) { // Assuming 4 steps in the original OnboardingModal

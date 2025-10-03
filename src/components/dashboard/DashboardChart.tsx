@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChartData, TimePeriod } from '@/types/dashboard';
 import {
   LineChart,
   Line,
@@ -14,23 +12,23 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { format } from 'date-fns';
+import { ChartData } from '@/types/dashboard';
 
 interface DashboardChartProps {
   chartData: ChartData;
 }
 
 const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
+  // The chartData prop now directly contains the data for the "peak" stock
+  // We'll default to 'week' data as it's the most frequently updated in our simulation
+  const data = chartData.week;
 
-  const data = chartData[timePeriod];
-
-  const formatYAxisPrice = (value: number) => `$${value.toFixed(0)}`;
+  const formatYAxisPrice = (value: number) => `$${value.toFixed(2)}`; // Show two decimal places for price
   const formatYAxisVolume = (value: number) => `${(value / 1000).toFixed(0)}k`;
-  const formatTooltipLabel = (value: string) => `Period: ${value}`;
+  const formatTooltipLabel = (value: string) => `Time: ${value}`; // Label for time
   const formatTooltipValue = (value: number, name: string) => {
     let formattedName = name.charAt(0).toUpperCase() + name.slice(1);
-    if (name === 'price') return [`$${value.toLocaleString()}`, formattedName];
+    if (name === 'price') return [`$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, formattedName];
     if (name === 'volume') return [`${value.toLocaleString()} units`, formattedName];
     if (name === 'sentiment') return [`${value}%`, formattedName];
     return [`${value.toLocaleString()}`, formattedName];
@@ -39,17 +37,8 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
   return (
     <Card className="bg-card border border-border shadow-sm col-span-full lg:col-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-foreground">Stock Performance Overview</CardTitle>
-        <Select value={timePeriod} onValueChange={(value: TimePeriod) => setTimePeriod(value)}>
-          <SelectTrigger className="w-[120px] bg-input border-border text-foreground">
-            <SelectValue placeholder="Select period" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border-border text-foreground">
-            <SelectItem value="week">Week</SelectItem>
-            <SelectItem value="month">Month</SelectItem>
-            <SelectItem value="year">Year</SelectItem>
-          </SelectContent>
-        </Select>
+        <CardTitle className="text-lg font-semibold text-foreground">Peak Stock Performance</CardTitle>
+        {/* Removed time period selector as it's now dynamically showing peak stock */}
       </CardHeader>
       <CardContent className="h-[350px] p-4">
         <ResponsiveContainer width="100%" height="100%">
