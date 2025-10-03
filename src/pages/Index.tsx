@@ -123,8 +123,8 @@ const Index = () => {
   const pricingPlans = [
     {
       name: "Basic Trader",
-      price: "$29",
-      period: "/month",
+      price: "Free",
+      period: "",
       features: [
         "Real-time market data",
         "Basic AI insights",
