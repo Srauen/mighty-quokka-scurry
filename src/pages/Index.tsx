@@ -10,10 +10,10 @@ import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop";
 import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-react';
-import { useTheme } from '@/components/ThemeContext'; // Import useTheme
+import { useTheme } from '@/components/ThemeContext';
 
 const Index = () => {
-  const { theme, setTheme } = useTheme(); // Use theme from context
+  const { theme, setTheme } = useTheme();
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeSection, setActiveSection] = useState('hero');
   const [showOSSimulation, setShowOSSimulation] = useState(false);
@@ -22,9 +22,6 @@ const Index = () => {
   const featuresRef = useRef<HTMLElement | null>(null);
   const pricingRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
-
-  // The dark mode state is now managed by the global ThemeContext
-  // The useEffect for classList is now handled by ThemeProvider
 
   useEffect(() => {
     if (showOSSimulation) return;
@@ -157,14 +154,14 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans"> {/* Apply font-sans here */}
+    <div className="min-h-screen flex flex-col font-sans">
       {showOSSimulation ? (
         <OSDesktop onExit={handleExitOSSimulation} />
       ) : (
         <>
           <Navbar
-            darkMode={theme === 'dark' || theme === 'os-style'} // Pass dark mode state based on theme
-            setDarkMode={(isDark) => setTheme(isDark ? 'dark' : 'light')} // Update theme based on toggle
+            darkMode={theme === 'dark' || theme === 'os-style'}
+            setDarkMode={(isDark) => setTheme(isDark ? 'dark' : 'light')}
             activeSection={activeSection}
           />
           <main className="flex-grow">

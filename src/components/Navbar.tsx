@@ -6,16 +6,16 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { LineChart, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Link } from 'react-router-dom';
-import { useTheme } from '@/components/ThemeContext'; // Import useTheme
+import { useTheme } from '@/components/ThemeContext';
 
 interface NavbarProps {
-  // darkMode and setDarkMode are now handled by ThemeContext, so they are removed from props
+  darkMode: boolean;
+  setDarkMode: (isDark: boolean) => void;
   activeSection: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
-  const { theme, setTheme } = useTheme(); // Use theme from context
+const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection }) => {
+  const { theme, setTheme } = useTheme();
 
   const navItems = [
     { name: "Home", href: "#hero" },
@@ -57,11 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
               {isDarkMode ? "Dark" : "Light"}
             </Label>
           </div>
-          <Link to="/login">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Sign In
-            </Button>
-          </Link>
+          {/* Sign In button removed */}
         </div>
 
         {/* Mobile Navigation */}
@@ -94,11 +90,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
                     {item.name}
                   </a>
                 ))}
-                <Link to="/login">
-                  <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
-                    Sign In
-                  </Button>
-                </Link>
+                {/* Sign In button removed */}
               </nav>
             </SheetContent>
           </Sheet>
