@@ -9,6 +9,7 @@ import StockChartApp from './apps/StockChartApp';
 import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
 import NewsFeedApp from './apps/NewsFeedApp';
+import OnboardingOSModal from './OnboardingOSModal'; // Import the new modal
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { toast } from 'sonner'; // Import toast for notifications
@@ -42,12 +43,22 @@ const initialNewsHeadlines = [
 ];
 
 // Helper functions to load/save from localStorage
-const getInitialCashBalance = () => {
+const getInitialCashBalance = (experienceLevel: string | null) => {
   if (typeof window !== 'undefined') {
     const savedCash = localStorage.getItem('os_cashBalance');
-    return savedCash ? parseFloat(savedCash) : 10000;
+    if (savedCash) return parseFloat(savedCash);
   }
-  return 10000;
+
+  // If no saved cash, determine based on experience level
+  switch (experienceLevel) {
+    case 'advanced':
+      return 50000;
+    case 'pro':
+      return 100000;
+    case 'beginner':
+    default:
+      return 10000;
+  }
 };
 
 const getInitialPortfolio = () => {
@@ -76,30 +87,35 @@ const getInitialTradingLog = () => {
   return [];
 };
 
+const getInitialExperienceLevel = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('os_experienceLevel') || null;
+  }
+  return null;
+};
+
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
+  const [showOnboardingOS, setShowOnboardingOS] = useState(false);
+  const [experienceLevel, setExperienceLevel] = useState<string | null>(getInitialExperienceLevel());
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(100);
 
   // OS Global State with localStorage persistence
-  const initialCash = getInitialCashBalance();
-  const initialPortfolio = getInitialPortfolio();
-  const initialTradingLog = getInitialTradingLog();
-
-  const [cashBalance, setCashBalance] = useState<number>(initialCash);
-  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(initialPortfolio);
+  const [cashBalance, setCashBalance] = useState<number>(getInitialCashBalance(experienceLevel));
+  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(getInitialPortfolio());
   const [stockData, setStockData] = useState<{
     [key: string]: { prices: number[]; labels: string[] };
   }>({});
   const [newsFeed, setNewsFeed] = useState<string[]>([]);
-  const [tradingLog, setTradingLog] = useState<string[]>(initialTradingLog);
+  const [tradingLog, setTradingLog] = useState<string[]>(getInitialTradingLog());
 
   // Show toast if data was loaded from local storage
   useEffect(() => {
-    if (typeof window !== 'undefined' && (initialCash !== 10000 || Object.keys(initialPortfolio).length > 0 || initialTradingLog.length > 0)) {
+    if (typeof window !== 'undefined' && (getInitialCashBalance(experienceLevel) !== 10000 || Object.keys(getInitialPortfolio()).length > 0 || getInitialTradingLog().length > 0)) {
       toast.info("Loaded saved trading data from previous session.", {
-        description: `Cash: $${initialCash.toFixed(2)}, Portfolio items: ${Object.keys(initialPortfolio).length}`,
+        description: `Cash: $${getInitialCashBalance(experienceLevel).toFixed(2)}, Portfolio items: ${Object.keys(getInitialPortfolio()).length}`,
         duration: 3000,
       });
     }
@@ -125,6 +141,13 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       localStorage.setItem('os_tradingLog', JSON.stringify(tradingLog));
     }
   }, [tradingLog]);
+
+  // Save experienceLevel to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && experienceLevel) {
+      localStorage.setItem('os_experienceLevel', experienceLevel);
+    }
+  }, [experienceLevel]);
 
   // Initialize stock data and news feed
   useEffect(() => {
@@ -269,8 +292,33 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
   const handleBootComplete = useCallback(() => {
     setBooted(true);
-    // Automatically open the Stock Chart app
+    if (!experienceLevel) { // Only show onboarding if not already set
+      setShowOnboardingOS(true);
+    } else {
+      openApp('stock-chart'); // Open chart directly if experience is set
+    }
+  }, [experienceLevel, openApp]);
+
+  const handleSelectExperience = useCallback((level: 'beginner' | 'advanced' | 'pro') => {
+    setExperienceLevel(level);
+    let newCash = 10000;
+    switch (level) {
+      case 'advanced':
+        newCash = 50000;
+        break;
+      case 'pro':
+        newCash = 100000;
+        break;
+      default:
+        newCash = 10000;
+        break;
+    }
+    setCashBalance(newCash);
+    localStorage.setItem('os_cashBalance', newCash.toString()); // Ensure immediate persistence
+    localStorage.setItem('os_experienceLevel', level); // Persist experience level
+    setShowOnboardingOS(false);
     openApp('stock-chart');
+    toast.success("Experience Set!", { description: `Starting with $${newCash.toFixed(2)} as a ${level} trader.` });
   }, [openApp]);
 
   const closeWindow = useCallback((id: string) => {
@@ -309,15 +357,19 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     <div className="relative w-full h-screen overflow-hidden bg-[#0d0f17] bg-[radial-gradient(circle_at_center,_#1a2033_0%,_#0d0f17_100%)] text-white">
       {!booted && <BootScreen onBootComplete={handleBootComplete} />}
 
-      {booted && (
+      {booted && showOnboardingOS && (
+        <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
+      )}
+
+      {booted && !showOnboardingOS && (
         <>
           <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-extrabold text-white text-shadow-lg animate-pulse-slow opacity-0 transition-opacity duration-1000">
             Stock OS
           </h1>
           <div className="absolute top-4 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
-            <Button variant="secondary" size="sm" onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white">
-              Exit OS
+            <Button variant="ghost" size="icon" onClick={onExit} className="text-gray-400 hover:text-white">
+              <X className="h-4 w-4" />
             </Button>
           </div>
 
