@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/utils/toast";
+import { showSuccess } from "@/utils/toast";
 import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap, Users, Mail, MapPin, Phone } from 'lucide-react';
 
 const Index = () => {
@@ -16,24 +16,6 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [onboardingStep, setOnboardingStep] = useState(0);
   const sectionsRef = useRef<{ [key: string]: HTMLElement | null }>({});
-
-  const { showSuccess } = useToast();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 100;
-      
-      Object.entries(sectionsRef.current).forEach(([section, element]) => {
-        if (element && scrollPosition >= element.offsetTop && 
-            scrollPosition < element.offsetTop + element.offsetHeight) {
-          setActiveSection(section);
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const startOnboarding = () => {
     setOnboardingStep(1);
