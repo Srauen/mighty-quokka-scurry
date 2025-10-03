@@ -51,6 +51,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
       <CardContent className="h-[350px] p-4">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
+            key={JSON.stringify(data)} {/* Added key to force re-render on data change */}
             data={data}
             margin={{
               top: 5,
@@ -61,8 +62,8 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
           >
             <defs>
               <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
+                <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/> {/* Changed to chart-1 (green) */}
+                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/> {/* Changed to chart-1 (green) */}
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -100,23 +101,23 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
               }}
               itemStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            {/* Volume Line (Blue, filled) */}
+            {/* Volume Line (Green, filled) */}
             <Area
               yAxisId="left"
               type="monotone"
               dataKey="volume"
-              stroke="hsl(var(--chart-2))"
+              stroke="hsl(var(--chart-1))" {/* Changed to chart-1 (green) */}
               fill="url(#colorVolume)"
               strokeWidth={2}
               name="Volume"
               dot={false} // No dots on the line
             />
-            {/* Price Line (Green, thin) */}
+            {/* Price Line (Blue, thin) */}
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="price"
-              stroke="hsl(var(--chart-1))"
+              stroke="hsl(var(--chart-2))" {/* Changed to chart-2 (blue) */}
               activeDot={{ r: 4 }} // Smaller active dot
               strokeWidth={1.5}
               name="Price"
