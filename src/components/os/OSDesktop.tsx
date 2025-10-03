@@ -12,7 +12,7 @@ import NewsFeedApp from './apps/NewsFeedApp';
 import OnboardingOSModal from './OnboardingOSModal';
 import OnboardingModal from '@/components/OnboardingModal'; // Import the multi-step onboarding modal
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, RotateCcw } from 'lucide-react'; // Import RotateCcw icon
 import { toast } from 'sonner';
 
 interface WindowState {
@@ -362,6 +362,18 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     setActiveWindowId(id);
   }, [nextZIndex]);
 
+  const resetOSData = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('os_cashBalance');
+      localStorage.removeItem('os_portfolio');
+      localStorage.removeItem('os_tradingLog');
+      localStorage.removeItem('os_experienceLevel');
+      toast.info("OS Data Reset", { description: "Your trading data has been cleared. The OS will restart." });
+      // Force a reload to re-initialize the OS with a fresh state
+      window.location.reload();
+    }
+  }, []);
+
   const activeAppIds = openWindows.filter(win => !win.minimized).map(win => win.id);
 
   return (
@@ -386,7 +398,10 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           </h1>
           <div className="absolute top-4 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
-            <Button variant="ghost" size="icon" onClick={onExit} className="text-gray-400 hover:text-white">
+            <Button variant="ghost" size="icon" onClick={resetOSData} className="text-gray-400 hover:text-white" aria-label="Reset OS Data">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onExit} className="text-gray-400 hover:text-white" aria-label="Exit OS">
               <X className="h-4 w-4" />
             </Button>
           </div>
