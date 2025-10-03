@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import { format } from 'date-fns'; // Import format from date-fns
 
 const stocksList = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'FB', 'NFLX', 'BABA', 'SBUX', 'KO', 'PEP', 'MCD', 'DIS', 'NKE', 'ADDYY', 'V', 'JPM', 'XOM', 'WMT', 'PG', 'MA', 'INTC', 'CSCO', 'CMCSA', 'PFE', 'T', 'VZ', 'CVX', 'HD', 'BA', 'MCO', 'BNS', 'RY', 'TD'];
 
@@ -25,7 +26,7 @@ export const useStockData = () => {
       const initialPrice = parseFloat((Math.random() * 200 + 100).toFixed(2)); // Random price between 100 and 300
       initialData[stock] = {
         prices: [initialPrice],
-        labels: [new Date().toLocaleTimeString()],
+        labels: [format(new Date(), 'MM/dd')], // Format date as MM/dd
         initialPrice: initialPrice,
         lastPrice: initialPrice,
         dailyChange: 0,
@@ -46,7 +47,7 @@ export const useStockData = () => {
             const initialPrice = parseFloat((Math.random() * 200 + 100).toFixed(2));
             newStockData[stock] = {
               prices: [initialPrice],
-              labels: [new Date().toLocaleTimeString()],
+              labels: [format(new Date(), 'MM/dd')],
               initialPrice: initialPrice,
               lastPrice: initialPrice,
               dailyChange: 0,
@@ -58,7 +59,7 @@ export const useStockData = () => {
           const newPrice = parseFloat(Math.max(0.01, lastPrice + change).toFixed(2)); // Ensure price doesn't go below 0.01
 
           newStockData[stock].prices.push(newPrice);
-          newStockData[stock].labels.push(new Date().toLocaleTimeString());
+          newStockData[stock].labels.push(format(new Date(), 'MM/dd')); // Format date as MM/dd
 
           // Keep only the last 50 data points for the chart
           if (newStockData[stock].prices.length > 50) {
