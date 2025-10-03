@@ -16,7 +16,7 @@ import MarketStatusWidget from '@/components/dashboard/MarketStatusWidget';
 import { mockDashboardData } from '@/lib/mockData';
 import { MockDashboardData, DashboardStat, ChartData } from '@/types/dashboard';
 import { useTheme } from '@/components/ThemeContext';
-import { useStockData } from '@/hooks/use-stock-data'; // Import the new hook
+import { useStockData } from '@/hooks/use-stock-data';
 
 interface Profile {
   first_name: string | null;
@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setLoadingProfile] = useState(true);
   const { theme } = useTheme();
-  const { stockData, stocksList } = useStockData(); // Use the new hook
+  const { stockData, stocksList } = useStockData();
 
   // State for dashboard data, initialized with mock data
   const [dashboardData, setDashboardData] = useState<MockDashboardData>(mockDashboardData);
@@ -69,9 +69,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Logic to find the "peak" stock for the chart and update dashboard stats
-  const peakStockData = useMemo(() => {
-    if (Object.keys(stockData).length === 0) return null;
+  // Effect to update dashboard data when stockData changes
+  useEffect(() => {
+    if (Object.keys(stockData).length === 0) return;
 
     let peakStockId: string | null = null;
     let maxDailyChange = -Infinity;
@@ -126,21 +126,13 @@ const Dashboard: React.FC = () => {
         ];
       }
 
-
       setDashboardData(prevData => ({
         ...prevData,
         dashboardStats: updatedStats,
         chartData: chartDataForPeakStock,
       }));
-
-      return {
-        selectedStockId: peakStockId,
-        chartData: chartDataForPeakStock,
-      };
     }
-    return null;
-  }, [stockData, stocksList, dashboardData.dashboardStats]);
-
+  }, [stockData, stocksList]); // Depend on stockData and stocksList
 
   if (loading || profileLoading || Object.keys(stockData).length === 0) {
     return (
@@ -162,7 +154,7 @@ const Dashboard: React.FC = () => {
         <DashboardStats stats={dashboardData.dashboardStats} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {peakStockData && <DashboardChart chartData={peakStockData.chartData} />}
+          {dashboardData.chartData && <DashboardChart chartData={dashboardData.chartData} />}
           <TopTradersCard ranking={dashboardData.rebelsRanking} />
         </div>
 
