@@ -4,8 +4,9 @@ import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { useSession } from '@/components/SessionContextProvider'; // Assuming this will be created next
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
+import { useSession } from '@/components/SessionContextProvider';
+import { Button } from '@/components/ui/button'; // Import Button component
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -18,11 +19,12 @@ const Login: React.FC = () => {
   }, [session, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-white">Sign In to Stock OS</h1>
         <Auth
           supabaseClient={supabase}
+          providers={[]} // No third-party providers for now
           appearance={{
             theme: ThemeSupa,
             variables: {
@@ -51,9 +53,15 @@ const Login: React.FC = () => {
             },
           }}
           theme="dark" // Using dark theme by default, can be adjusted
-          providers={[]} // No third-party providers for now
           redirectTo={window.location.origin + '/dashboard'}
         />
+        <div className="mt-6 text-center">
+          <Link to="/">
+            <Button variant="link" className="text-blue-600 dark:text-green-400 hover:underline">
+              ← Back to Home
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

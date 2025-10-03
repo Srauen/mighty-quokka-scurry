@@ -5,11 +5,16 @@ import { useSession } from '@/components/SessionContextProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardStats from '@/components/dashboard/DashboardStats';
+import DashboardChart from '@/components/dashboard/DashboardChart';
+import RebelsRankingCard from '@/components/dashboard/RebelsRankingCard';
+import SecurityStatusCard from '@/components/dashboard/SecurityStatusCard';
+import NotificationsCard from '@/components/dashboard/NotificationsCard';
+import WeatherWidget from '@/components/dashboard/WeatherWidget';
+import { mockDashboardData } from '@/lib/mockData';
+import { MockDashboardData } from '@/types/dashboard';
 
 interface Profile {
   first_name: string | null;
@@ -21,10 +26,8 @@ const Dashboard: React.FC = () => {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
   const [profileLoading, setProfileLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<MockDashboardData>(mockDashboardData); // Use mock data
 
   useEffect(() => {
     if (!loading && !user) {
@@ -48,27 +51,6 @@ const Dashboard: React.FC = () => {
       toast.error('Error', { description: 'Failed to load user profile.' });
     } else if (data) {
       setProfile(data);
-      setFirstName(data.first_name || '');
-      setLastName(data.last_name || '');
-      setAvatarUrl(data.avatar_url || '');
-    }
-    setProfileLoading(false);
-  };
-
-  const updateProfile = async () => {
-    if (!user) return;
-    setProfileLoading(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ first_name: firstName, last_name: lastName, avatar_url: avatarUrl, updated_at: new Date().toISOString() })
-      .eq('id', user.id);
-
-    if (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Error', { description: 'Failed to update profile.' });
-    } else {
-      toast.success('Success', { description: 'Profile updated successfully!' });
-      fetchProfile(); // Re-fetch to ensure state is consistent
     }
     setProfileLoading(false);
   };
@@ -83,7 +65,7 @@ const Dashboard: React.FC = () => {
 
   if (loading || profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         Loading dashboard...
       </div>
     );
@@ -94,64 +76,25 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">Welcome to your Dashboard, {profile?.first_name || user.email}!</h1>
+    <div className="min-h-screen bg-background text-foreground py-8 px-4 sm:px-6 lg:px-8 font-mono">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <DashboardHeader profile={profile} onSignOut={handleSignOut} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="bg-white dark:bg-gray-800 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl">Account Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.first_name || user.email || "User"} />
-                  <AvatarFallback>{profile?.first_name ? profile.first_name[0] : (user.email ? user.email[0].toUpperCase() : 'U')}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-lg font-semibold">{profile?.first_name} {profile?.last_name}</p>
-                  <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">User ID: {user.id}</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="avatarUrl">Avatar URL</Label>
-                <Input id="avatarUrl" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
-              </div>
-              <Button onClick={updateProfile} className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
-                Update Profile
-              </Button>
-            </CardContent>
-          </Card>
+        <DashboardStats stats={dashboardData.dashboardStats} />
 
-          <Card className="bg-white dark:bg-gray-800 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl">Subscription Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-400">
-                This section will display your active subscription, payment history, and options to manage your plan.
-                (Implementation for fetching subscriptions from the `subscriptions` table would go here.)
-              </p>
-              <Button variant="outline" className="mt-4 w-full">Manage Subscriptions</Button>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <DashboardChart chartData={dashboardData.chartData} />
+          <RebelsRankingCard ranking={dashboardData.rebelsRanking} />
         </div>
 
-        <div className="mt-8 text-center">
-          <Button onClick={handleSignOut} variant="destructive" className="px-8 py-3 text-lg">
-            Sign Out
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SecurityStatusCard statusData={dashboardData.securityStatus} />
+          <NotificationsCard notifications={dashboardData.notifications} />
+          <WeatherWidget widgetData={dashboardData.widgetData} />
         </div>
+
+        {/* The original profile update section is removed to make way for the new dashboard design.
+            If you need to re-add profile editing, it could be a separate settings page. */}
       </div>
     </div>
   );
