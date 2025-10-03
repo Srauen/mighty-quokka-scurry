@@ -6,21 +6,22 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { LineChart, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Link } from 'react-router-dom'; // Import Link for navigation
 
 interface NavbarProps {
   darkMode: boolean;
   setDarkMode: (darkMode: boolean) => void;
   activeSection: string;
-  startOnboarding: () => void;
+  // startOnboarding: () => void; // No longer needed directly here
 }
 
-const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, startOnboarding }) => {
+const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection }) => {
   const navItems = [
     { name: "Home", href: "#hero" },
     { name: "Features", href: "#features" },
     { name: "Pricing", href: "#pricing" },
     { name: "Team", href: "#team" },
-    { name: "FAQ", href: "#faq" }, // Changed from Contact to FAQ
+    { name: "FAQ", href: "#faq" },
   ];
 
   return (
@@ -53,9 +54,11 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, s
               {darkMode ? "Dark" : "Light"}
             </Label>
           </div>
-          <Button onClick={startOnboarding} className="bg-blue-600 hover:bg-blue-700 text-white">
-            Get Started
-          </Button>
+          <Link to="/login"> {/* Changed to Link to /login */}
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              Sign In {/* Changed button text */}
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Navigation */}
@@ -88,9 +91,11 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, s
                     {item.name}
                   </a>
                 ))}
-                <Button onClick={startOnboarding} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
-                  Get Started
-                </Button>
+                <Link to="/login"> {/* Changed to Link to /login */}
+                  <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
+                    Sign In {/* Changed button text */}
+                  </Button>
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
