@@ -107,14 +107,26 @@
     --background: 222.2 84% 4.9%; /* Dark background */
     --foreground: 210 40% 98%; /* Light text */
 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
     --primary: 142.1 76.2% 36.3%; /* Neon Green */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
@@ -124,6 +136,8 @@
     --chart-1: 142.1 76.2% 36.3%; /* Neon Green */
     --chart-2: 200 90% 50%; /* Bright Blue */
     --chart-3: 40 90% 50%; /* Bright Yellow */
+    --chart-4: 303.9 0.265 0.627; /* Purple */
+    --chart-5: 16.439 0.246 0.645; /* Orange */
   }
 }
 

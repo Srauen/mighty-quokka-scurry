@@ -8,20 +8,25 @@ import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
-import OSDesktop from "@/components/os/OSDesktop";
+import OSDesktop from "@/components/os/OSDesktop"; // Keep for demo
 import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-react';
 import { useTheme } from '@/components/ThemeContext';
+import { useNavigate } from 'react-router-dom';
+import { useSession } from '@/components/SessionContextProvider';
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeSection, setActiveSection] = useState('hero');
-  const [showOSSimulation, setShowOSSimulation] = useState(false);
+  const [showOSSimulation, setShowOSSimulation] = useState(false); // Still for demo
 
   const heroRef = useRef<HTMLElement | null>(null);
   const featuresRef = useRef<HTMLElement | null>(null);
   const pricingRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
+
+  const navigate = useNavigate();
+  const { session, isLoading } = useSession();
 
   useEffect(() => {
     if (showOSSimulation) return;
@@ -163,6 +168,7 @@ const Index = () => {
             darkMode={theme === 'dark' || theme === 'os-style'}
             setDarkMode={(isDark) => setTheme(isDark ? 'dark' : 'light')}
             activeSection={activeSection}
+            onSignIn={() => navigate('/login')} // Pass onSignIn prop
           />
           <main className="flex-grow">
             <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} onWatchDemo={handleWatchDemo} />

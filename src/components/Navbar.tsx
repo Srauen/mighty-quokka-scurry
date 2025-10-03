@@ -7,14 +7,16 @@ import { Label } from "@/components/ui/label";
 import { LineChart, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from '@/components/ThemeContext';
+import { Link } from 'react-router-dom';
 
 interface NavbarProps {
   darkMode: boolean;
   setDarkMode: (isDark: boolean) => void;
   activeSection: string;
+  onSignIn: () => void; // New prop for sign-in action
 }
 
-const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection }) => {
+const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, onSignIn }) => {
   const { theme, setTheme } = useTheme();
 
   const navItems = [
@@ -57,7 +59,9 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection })
               {isDarkMode ? "Dark" : "Light"}
             </Label>
           </div>
-          {/* Sign In button removed */}
+          <Button onClick={onSignIn} className="bg-blue-600 hover:bg-blue-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
+            Sign In
+          </Button>
         </div>
 
         {/* Mobile Navigation */}
@@ -90,7 +94,9 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection })
                     {item.name}
                   </a>
                 ))}
-                {/* Sign In button removed */}
+                <Button onClick={onSignIn} className="bg-blue-600 hover:bg-blue-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
+                  Sign In
+                </Button>
               </nav>
             </SheetContent>
           </Sheet>
