@@ -27,7 +27,7 @@ const Dashboard: React.FC = () => {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [profileLoading, setLoadingProfile] = useState(true);
+  const [profileLoading, setLoadingProfile] = useState(true); // Correct state variable
   const [dashboardData, setDashboardData] = useState<MockDashboardData>(mockDashboardData);
   const { theme } = useTheme(); // Get current theme
 
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  if (loading || setLoadingProfile) {
+  if (loading || profileLoading) { {/* CORRECTED LINE */}
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground font-mono">
         Loading dashboard...
