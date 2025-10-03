@@ -61,8 +61,8 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
           >
             <defs>
               <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
+                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -100,23 +100,23 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
               }}
               itemStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            {/* Volume Line (Green, filled) */}
+            {/* Volume Line (Blue, filled) */}
             <Area
               yAxisId="left"
               type="monotone"
               dataKey="volume"
-              stroke="hsl(var(--chart-1))"
+              stroke="hsl(var(--chart-2))"
               fill="url(#colorVolume)"
               strokeWidth={2}
               name="Volume"
               dot={false} // No dots on the line
             />
-            {/* Price Line (Blue, thin) */}
+            {/* Price Line (Green, thin) */}
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="price"
-              stroke="hsl(var(--chart-2))"
+              stroke="hsl(var(--chart-1))"
               activeDot={{ r: 4 }} // Smaller active dot
               strokeWidth={1.5}
               name="Price"

@@ -10,9 +10,9 @@ export interface DashboardStat {
 
 export interface ChartDataPoint {
   date: string;
-  spendings: number;
-  sales: number;
-  coffee: number;
+  price: number;
+  volume: number;
+  sentiment: number;
 }
 
 export interface ChartData {
