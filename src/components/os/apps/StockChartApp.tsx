@@ -165,7 +165,7 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
         </div>
       </div>
       <div className="relative flex-grow w-full h-full min-h-[200px] bg-[#1f2937] rounded-lg p-4">
-        <Line ref={chartRef} data={chartData} options={chartOptions} />
+        <Line key={selectedStock} ref={chartRef} data={chartData} options={chartOptions} />
       </div>
     </div>
   );

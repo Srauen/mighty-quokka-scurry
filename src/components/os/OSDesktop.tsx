@@ -314,10 +314,10 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-extrabold text-white text-shadow-lg animate-pulse-slow opacity-0 transition-opacity duration-1000">
             Stock OS
           </h1>
-          <div className="absolute top-4 right-4 flex items-center space-x-2 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
+          <div className="absolute top-4 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
-            <Button variant="ghost" size="icon" onClick={onExit} className="text-gray-400 hover:text-white">
-              <X className="h-4 w-4" />
+            <Button variant="secondary" size="sm" onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white">
+              Exit OS
             </Button>
           </div>
 
