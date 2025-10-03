@@ -6,7 +6,7 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
 import TeamSection from "@/components/TeamSection";
-import ContactSection from "@/components/ContactSection";
+import FAQSection from "@/components/FAQSection"; // Updated import
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop";
@@ -22,7 +22,7 @@ const Index = () => {
   const featuresRef = useRef<HTMLElement | null>(null);
   const pricingRef = useRef<HTMLElement | null>(null);
   const teamRef = useRef<HTMLElement | null>(null);
-  const contactRef = useRef<HTMLElement | null>(null);
+  const faqRef = useRef<HTMLElement | null>(null); // Updated ref name
 
   useEffect(() => {
     if (darkMode) {
@@ -51,7 +51,7 @@ const Index = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    const sections = [heroRef, featuresRef, pricingRef, teamRef, contactRef];
+    const sections = [heroRef, featuresRef, pricingRef, teamRef, faqRef]; // Updated sections
     sections.forEach((ref) => {
       if (ref.current) {
         observer.observe(ref.current);
@@ -201,7 +201,7 @@ const Index = () => {
             <FeaturesSection sectionRef={featuresRef} features={features} />
             <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
             <TeamSection sectionRef={teamRef} teamMembers={teamMembers} />
-            <ContactSection sectionRef={contactRef} />
+            <FAQSection sectionRef={faqRef} /> {/* Updated component */}
           </main>
           <Footer />
           <OnboardingModal

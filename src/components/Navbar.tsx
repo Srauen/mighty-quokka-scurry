@@ -20,7 +20,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, s
     { name: "Features", href: "#features" },
     { name: "Pricing", href: "#pricing" },
     { name: "Team", href: "#team" },
-    { name: "Contact", href: "#contact" },
+    { name: "FAQ", href: "#faq" }, // Changed from Contact to FAQ
   ];
 
   return (
