@@ -9,12 +9,14 @@ import TeamSection from "@/components/TeamSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
+import OSDesktop from "@/components/os/OSDesktop"; // Import the OSDesktop
 import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-react';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeSection, setActiveSection] = useState('hero');
+  const [showOSSimulation, setShowOSSimulation] = useState(false); // New state for OS simulation
 
   const heroRef = useRef<HTMLElement | null>(null);
   const featuresRef = useRef<HTMLElement | null>(null);
@@ -31,6 +33,8 @@ const Index = () => {
   }, [darkMode]);
 
   useEffect(() => {
+    if (showOSSimulation) return; // Don't observe sections if OS is showing
+
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -61,7 +65,7 @@ const Index = () => {
         }
       });
     };
-  }, []);
+  }, [showOSSimulation]); // Re-run effect when showOSSimulation changes
 
   const startOnboarding = () => {
     setOnboardingStep(1);
@@ -73,6 +77,10 @@ const Index = () => {
     } else {
       setOnboardingStep(0); // Close modal
     }
+  };
+
+  const handleWatchDemo = () => {
+    setShowOSSimulation(true);
   };
 
   const features = [
@@ -174,24 +182,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        activeSection={activeSection}
-        startOnboarding={startOnboarding}
-      />
-      <main className="flex-grow">
-        <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} />
-        <FeaturesSection sectionRef={featuresRef} features={features} />
-        <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
-        <TeamSection sectionRef={teamRef} teamMembers={teamMembers} />
-        <ContactSection sectionRef={contactRef} />
-      </main>
-      <Footer />
-      <OnboardingModal
-        onboardingStep={onboardingStep}
-        nextOnboardingStep={nextOnboardingStep}
-      />
+      {showOSSimulation ? (
+        <OSDesktop />
+      ) : (
+        <>
+          <Navbar
+            darkMode={darkMode}
+            setDarkMode={setDarkMode}
+            activeSection={activeSection}
+            startOnboarding={startOnboarding}
+          />
+          <main className="flex-grow">
+            <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} onWatchDemo={handleWatchDemo} />
+            <FeaturesSection sectionRef={featuresRef} features={features} />
+            <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
+            <TeamSection sectionRef={teamRef} teamMembers={teamMembers} />
+            <ContactSection sectionRef={contactRef} />
+          </main>
+          <Footer />
+          <OnboardingModal
+            onboardingStep={onboardingStep}
+            nextOnboardingStep={nextOnboardingStep}
+          />
+        </>
+      )}
     </div>
   );
 };

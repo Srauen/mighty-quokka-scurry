@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import OSSimulator from "@/components/OSSimulator";
 
 interface HeroSectionProps {
   startOnboarding: () => void;
+  onWatchDemo: () => void; // New prop
   sectionRef: React.MutableRefObject<HTMLElement | null>;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, sectionRef }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, onWatchDemo, sectionRef }) => {
   return (
     <section 
       id="hero" 
@@ -42,6 +42,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, sectionRef }
               Start Free Trial
             </Button>
             <Button 
+              onClick={onWatchDemo} // Trigger the demo here
               variant="outline" 
               size="lg"
               className="px-8 py-4 text-lg border-2"
@@ -50,10 +51,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, sectionRef }
             </Button>
           </div>
 
-          {/* Integrated OS Simulator */}
-          <div className="mt-16 w-full h-[60vh] md:h-[70vh] lg:h-[80vh] rounded-2xl shadow-2xl overflow-hidden border-4 border-blue-500/50 dark:border-blue-400/50">
-            <OSSimulator />
-          </div>
+          {/* The OS Simulator will no longer be directly embedded here */}
         </div>
       </div>
     </section>
