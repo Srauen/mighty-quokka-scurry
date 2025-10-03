@@ -133,14 +133,15 @@ const Index = () => {
     },
     {
       name: "Pro Investor",
-      price: "$79",
+      price: "$25",
       period: "/month",
       features: [
         "Advanced AI predictions",
         "Premium charting tools",
         "Portfolio optimization",
         "Priority email & chat support",
-        "Multi-device sync"
+        "Multi-device sync",
+        "Flexible installment payments available" // Added installment statement
       ],
       popular: true,
     },
