@@ -23,7 +23,7 @@ const NotificationsCard: React.FC<NotificationsCardProps> = ({ notifications }) 
   return (
     <Card className="bg-card border border-border shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-foreground">Notifications</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Trading Alerts</CardTitle>
         <Bell className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
       <CardContent className="p-0">

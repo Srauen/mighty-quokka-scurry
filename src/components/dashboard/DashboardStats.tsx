@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDown, ArrowUp, CheckCircle, Clock, Bomb } from 'lucide-react';
+import { ArrowDown, ArrowUp, LineChart, TrendingUp, Briefcase } from 'lucide-react'; // Updated icons
 import { DashboardStat } from '@/types/dashboard';
 import { cn } from '@/lib/utils';
 
@@ -11,16 +11,16 @@ interface DashboardStatsProps {
 }
 
 const iconMap: { [key: string]: React.ElementType } = {
-  CheckCircle,
-  Clock,
-  Bomb,
+  LineChart, // New icon
+  TrendingUp, // New icon
+  Briefcase, // New icon
 };
 
 const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {stats.map((stat, index) => {
-        const IconComponent = iconMap[stat.icon] || CheckCircle;
+        const IconComponent = iconMap[stat.icon] || LineChart; // Default to LineChart
         return (
           <Card key={index} className="bg-card border border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

@@ -21,7 +21,7 @@ const SecurityStatusCard: React.FC<SecurityStatusCardProps> = ({ statusData }) =
   return (
     <Card className="bg-card border border-border shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-foreground">Security Status</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Platform Security</CardTitle>
         <ShieldCheck className="h-5 w-5 text-green-500" />
       </CardHeader>
       <CardContent className="space-y-4">

@@ -16,7 +16,7 @@ const RebelsRankingCard: React.FC<RebelsRankingCardProps> = ({ ranking }) => {
   return (
     <Card className="bg-card border border-border shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-foreground">Rebels Ranking</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Top Traders Leaderboard</CardTitle>
         <Trophy className="h-5 w-5 text-yellow-500" />
       </CardHeader>
       <CardContent className="p-0">
@@ -24,8 +24,8 @@ const RebelsRankingCard: React.FC<RebelsRankingCardProps> = ({ ranking }) => {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-[50px]">Rank</TableHead>
-              <TableHead>Rebel</TableHead>
-              <TableHead className="text-right">Points</TableHead>
+              <TableHead>Trader</TableHead>
+              <TableHead className="text-right">Profit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -48,7 +48,7 @@ const RebelsRankingCard: React.FC<RebelsRankingCardProps> = ({ ranking }) => {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <span className="font-bold text-primary">{rebel.points}</span>
+                  <span className="font-bold text-primary">${rebel.points.toLocaleString()}</span>
                   {rebel.streak && <span className="ml-2 text-xs text-yellow-500">{rebel.streak}</span>}
                 </TableCell>
               </TableRow>

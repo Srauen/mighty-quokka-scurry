@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cloud, MapPin, Thermometer, Clock } from 'lucide-react';
+import { Globe, Clock, CalendarDays, TrendingUp } from 'lucide-react'; // Updated icons
 import { WidgetData } from '@/types/dashboard';
 
 interface WeatherWidgetProps {
@@ -13,22 +13,25 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ widgetData }) => {
   return (
     <Card className="bg-card border border-border shadow-sm">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-foreground">Local Weather</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Global Market Status</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center space-x-3">
-          <MapPin className="h-5 w-5 text-muted-foreground" />
+          <Globe className="h-5 w-5 text-muted-foreground" />
           <p className="text-foreground">{widgetData.location}</p>
         </div>
         <div className="flex items-center space-x-3">
-          <Thermometer className="h-5 w-5 text-muted-foreground" />
-          <p className="text-foreground">{widgetData.temperature} - {widgetData.weather}</p>
+          <TrendingUp className="h-5 w-5 text-muted-foreground" />
+          <p className="text-foreground">{widgetData.weather}</p> {/* Now displays market status */}
         </div>
         <div className="flex items-center space-x-3">
           <Clock className="h-5 w-5 text-muted-foreground" />
           <p className="text-foreground">{widgetData.timezone}</p>
         </div>
-        <p className="text-sm text-muted-foreground">{widgetData.date}</p>
+        <div className="flex items-center space-x-3">
+          <CalendarDays className="h-5 w-5 text-muted-foreground" />
+          <p className="text-foreground">{widgetData.date}</p>
+        </div>
       </CardContent>
     </Card>
   );

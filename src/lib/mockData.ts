@@ -1,188 +1,118 @@
-import { MockDashboardData, ChatData, ChatUser, ChatConversation } from "@/types/dashboard"; // Import types from dashboard.ts
+import { MockDashboardData, ChatData, ChatUser, ChatConversation } from "@/types/dashboard";
 import { format } from "date-fns";
 
-// Mock Dashboard Data
+// Mock Dashboard Data for Stock OS
 export const mockDashboardData: MockDashboardData = {
   dashboardStats: [
     {
-      label: "ISSUES COMPLETED",
-      value: "49%",
-      description: "WEEKLY SCOPE",
+      label: "PORTFOLIO VALUE",
+      value: "$124,500",
+      description: "TOTAL ASSETS UNDER MANAGEMENT",
       intent: "positive",
-      icon: "CheckCircle", // Using Lucide icon name
+      icon: "LineChart", // Using Lucide icon name
       direction: "up"
     },
     {
-      label: "MINUTES LOST",
-      value: "642'",
-      description: "IN MEETINGS AND RABBIT HOLES",
-      intent: "negative",
-      icon: "Clock", // Using Lucide icon name
-      direction: "down"
+      label: "DAILY GAIN/LOSS",
+      value: "+2.35%",
+      description: "TODAY'S PERFORMANCE",
+      intent: "positive",
+      icon: "TrendingUp", // Using Lucide icon name
+      direction: "up"
     },
     {
-      label: "ACCIDENTS",
-      value: "0",
-      description: "THE CLIENT ALWAYS IS RIGHT",
+      label: "OPEN POSITIONS",
+      value: "7",
+      description: "ACTIVE TRADES",
       intent: "neutral",
-      icon: "Bomb", // Using Lucide icon name
-      tag: "4 weeks 🔥"
+      icon: "Briefcase", // Using Lucide icon name
+      tag: "High Volatility"
     }
   ],
   chartData: {
     week: [
-      {
-        date: "06/07",
-        sales: 50000,
-        spendings: 30000,
-        coffee: 10000
-      },
-      {
-        date: "07/07",
-        sales: 250000,
-        spendings: 15000,
-        coffee: 30000
-      },
-      {
-        date: "08/07",
-        sales: 200000,
-        spendings: 50000,
-        coffee: 25000
-      },
-      {
-        date: "09/07",
-        sales: 280000,
-        spendings: 60000,
-        coffee: 45000
-      },
-      {
-        date: "10/07",
-        sales: 120000,
-        spendings: 20000,
-        coffee: 15000
-      },
-      {
-        date: "11/07",
-        sales: 180000,
-        spendings: 55000,
-        coffee: 20000
-      },
-      {
-        date: "12/07",
-        sales: 500000,
-        spendings: 35000,
-        coffee: 20000
-      },
-      {
-        date: "13/07",
-        spendings: 60000,
-        sales: 130000,
-        coffee: 10000
-      }
+      { date: "Mon", price: 150, volume: 12000, sentiment: 70 },
+      { date: "Tue", price: 155, volume: 15000, sentiment: 75 },
+      { date: "Wed", price: 152, volume: 11000, sentiment: 68 },
+      { date: "Thu", price: 160, volume: 18000, sentiment: 80 },
+      { date: "Fri", price: 158, volume: 13000, sentiment: 72 },
+      { date: "Sat", price: 159, volume: 8000, sentiment: 73 },
+      { date: "Sun", price: 162, volume: 9500, sentiment: 78 }
     ],
     month: [
-      { date: "Jan", spendings: 45000, sales: 180000, coffee: 25000 },
-      { date: "Feb", spendings: 30000, sales: 120000, coffee: 20000 },
-      { date: "Mar", spendings: 65000, sales: 280000, coffee: 35000 },
-      { date: "Apr", spendings: 25000, sales: 160000, coffee: 18000 },
-      { date: "May", spendings: 80000, sales: 350000, coffee: 45000 },
-      { date: "Jun", spendings: 40000, sales: 90000, coffee: 25000 },
-      { date: "Jul", spendings: 70000, sales: 220000, coffee: 40000 },
-      { date: "Aug", spendings: 55000, sales: 170000, coffee: 30000 },
-      { date: "Sep", spendings: 60000, sales: 200000, coffee: 35000 },
-      { date: "Oct", spendings: 35000, sales: 140000, coffee: 22000 },
-      { date: "Nov", spendings: 75000, sales: 340000, coffee: 38000 },
-      { date: "Dec", spendings: 90000, sales: 420000, coffee: 50000 }
+      { date: "Week 1", price: 140, volume: 60000, sentiment: 65 },
+      { date: "Week 2", price: 148, volume: 75000, sentiment: 70 },
+      { date: "Week 3", price: 153, volume: 70000, sentiment: 72 },
+      { date: "Week 4", price: 160, volume: 85000, sentiment: 78 }
     ],
     year: [
-      {
-        date: "2020",
-        spendings: 280000,
-        sales: 580000,
-        coffee: 150000
-      },
-      {
-        date: "2021",
-        spendings: 320000,
-        sales: 650000,
-        coffee: 180000
-      },
-      {
-        date: "2022",
-        spendings: 450000,
-        sales: 950000,
-        coffee: 250000
-      },
-      {
-        date: "2023",
-        spendings: 200000,
-        sales: 520000,
-        coffee: 120000
-      },
-      { date: "2024", spendings: 380000, sales: 820000, coffee: 200000 }
+      { date: "Q1", price: 120, volume: 250000, sentiment: 60 },
+      { date: "Q2", price: 135, volume: 300000, sentiment: 68 },
+      { date: "Q3", price: 150, volume: 320000, sentiment: 75 },
+      { date: "Q4", price: 165, volume: 380000, sentiment: 82 }
     ]
   },
-  rebelsRanking: [
+  rebelsRanking: [ // Renamed to Top Traders in component
     {
       id: 1,
-      name: "KRIMSON",
-      handle: "@KRIMSON",
-      streak: "2 WEEKS STREAK 🔥",
-      points: 148,
-      avatar: "/avatars/user_krimson.png",
+      name: "AlphaTrader",
+      handle: "@AlphaTrader",
+      streak: "5 WEEKS PROFIT 🔥",
+      points: 14800, // Representing profit
+      avatar: "/public/avatars/user_krimson.png",
       featured: true,
-      subtitle: "2 WEEKS STREAK 🔥"
+      subtitle: "Highest Profit"
     },
     {
       id: 2,
-      name: "MATI",
-      handle: "@MATI",
+      name: "MarketMaestro",
+      handle: "@Maestro",
       streak: "",
-      points: 129,
-      avatar: "/avatars/user_mati.png"
+      points: 12900,
+      avatar: "/public/avatars/user_mati.png"
     },
     {
       id: 3,
-      name: "PEK",
-      handle: "@MATT",
+      name: "QuantKing",
+      handle: "@QuantKing",
       streak: "",
-      points: 108,
-      avatar: "/avatars/user_pek.png"
+      points: 10800,
+      avatar: "/public/avatars/user_pek.png"
     },
     {
       id: 4,
-      name: "JOYBOY",
-      handle: "@JOYBOY",
+      name: "AlgoAce",
+      handle: "@AlgoAce",
       streak: "",
-      points: 64,
-      avatar: "/avatars/user_joyboy.png"
+      points: 6400,
+      avatar: "/public/avatars/user_joyboy.png"
     }
   ],
   securityStatus: [
     {
-      title: "GUARD BOTS",
-      value: "124/124",
-      status: "[RUNNING...]",
+      title: "API CONNECTIVITY",
+      value: "Stable",
+      status: "[ONLINE]",
       variant: "success"
     },
     {
-      title: "FIREWALL",
-      value: "99.9%",
-      status: "[BLOCKED]",
+      title: "DATA ENCRYPTION",
+      value: "AES-256",
+      status: "[ACTIVE]",
       variant: "success"
     },
     {
-      title: "HTML WARNINGS",
-      value: "12042",
-      status: "[ACCESSIBILITY]",
+      title: "UNUSUAL ACTIVITY",
+      value: "0",
+      status: "[MONITORED]",
       variant: "warning"
     }
   ],
   notifications: [
     {
       id: "notif-1",
-      title: "PAYMENT RECEIVED",
-      message: "Your payment to Rampant Studio has been processed successfully.",
+      title: "TRADE EXECUTED",
+      message: "Bought 100 shares of AAPL at $175.20.",
       timestamp: "2024-07-10T13:39:00Z",
       type: "success",
       read: false,
@@ -190,47 +120,47 @@ export const mockDashboardData: MockDashboardData = {
     },
     {
       id: "notif-2",
-      title: "INTRO: JOYCO STUDIO AND V0",
-      message: "About us - We're a healthcare company focused on accessibility and innovation.",
+      title: "MARKET ALERT",
+      message: "GOOGL stock price dropped by 3% in the last hour.",
       timestamp: "2024-07-10T13:35:00Z",
-      type: "info",
+      type: "warning",
       read: false,
-      priority: "low"
+      priority: "high"
     },
     {
       id: "notif-3",
-      title: "SYSTEM UPDATE",
-      message: "Security patches have been applied to all guard bots.",
+      title: "SYSTEM MESSAGE",
+      message: "AI prediction model updated to v2.1.",
       timestamp: "2024-07-10T12:15:00Z",
       type: "info",
       read: true,
-      priority: "medium"
+      priority: "low"
     },
     {
       id: "notif-4",
-      title: "FIREWALL ALERT",
-      message: "Blocked 247 suspicious connection attempts in the last hour.",
+      title: "PORTFOLIO REVIEW",
+      message: "Your portfolio performance is ready for review.",
       timestamp: "2024-07-10T11:45:00Z",
-      type: "warning",
+      type: "info",
       read: true,
-      priority: "high"
+      priority: "medium"
     }
   ],
   widgetData: {
-    location: "Buenos Aires, Argentina",
-    timezone: "UTC-3",
-    temperature: "18°C",
-    weather: "Partly Cloudy",
+    location: "Global Markets",
+    timezone: "UTC",
+    temperature: "N/A", // Not relevant for market overview
+    weather: "Market Open", // Changed to market status
     date: format(new Date(), "EEEE, MMMM do, yyyy")
   }
 };
 
-// Mock Chat Data
+// Mock Chat Data (keeping as is, as it's not directly dashboard content)
 const currentUser: ChatUser = {
   id: "joyboy",
   name: "JOYBOY",
   username: "@JOYBOY",
-  avatar: "/public/avatars/user_joyboy.png", // Assuming avatars are in public/avatars
+  avatar: "/public/avatars/user_joyboy.png",
   isOnline: true,
 };
 
