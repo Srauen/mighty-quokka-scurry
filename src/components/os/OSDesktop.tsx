@@ -40,22 +40,58 @@ const initialNewsHeadlines = [
   "Pharmaceutical stock rallies on new drug approval."
 ];
 
+// Helper functions to load/save from localStorage
+const getInitialCashBalance = () => {
+  if (typeof window !== 'undefined') {
+    const savedCash = localStorage.getItem('os_cashBalance');
+    return savedCash ? parseFloat(savedCash) : 10000;
+  }
+  return 10000;
+};
+
+const getInitialPortfolio = () => {
+  if (typeof window !== 'undefined') {
+    const savedPortfolio = localStorage.getItem('os_portfolio');
+    try {
+      return savedPortfolio ? JSON.parse(savedPortfolio) : {};
+    } catch (e) {
+      console.error("Error parsing portfolio from localStorage", e);
+      return {};
+    }
+  }
+  return {};
+};
+
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(100);
 
-  // OS Global State
-  const [cashBalance, setCashBalance] = useState(10000);
-  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({});
+  // OS Global State with localStorage persistence
+  const [cashBalance, setCashBalance] = useState<number>(getInitialCashBalance());
+  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(getInitialPortfolio());
   const [stockData, setStockData] = useState<{
     [key: string]: { prices: number[]; labels: string[] };
   }>({});
   const [newsFeed, setNewsFeed] = useState<string[]>([]);
   const [tradingLog, setTradingLog] = useState<string[]>([]);
 
-  // Initialize stock data
+  // Save cashBalance to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('os_cashBalance', cashBalance.toString());
+    }
+  }, [cashBalance]);
+
+  // Save portfolio to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('os_portfolio', JSON.stringify(portfolio));
+    }
+  }, [portfolio]);
+
+  // Initialize stock data and news feed
   useEffect(() => {
     const initialStockData: { [key: string]: { prices: number[]; labels: string[] } } = {};
     stocksList.forEach(stock => {
