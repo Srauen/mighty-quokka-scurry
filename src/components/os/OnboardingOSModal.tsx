@@ -3,7 +3,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Rocket, Brain, Award } from 'lucide-react';
+import { Rocket, Brain, Award, TrendingUp } from 'lucide-react'; // Added TrendingUp
 
 interface OnboardingOSModalProps {
   isOpen: boolean;
