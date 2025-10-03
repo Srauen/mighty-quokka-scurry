@@ -150,7 +150,7 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
             <SelectTrigger id="stock-select" className="w-full bg-[#2d3748] border-[#4a5568] text-white focus:ring-2 focus:ring-indigo-500">
               <SelectValue placeholder="Select a stock" />
             </SelectTrigger>
-            <SelectContent className="bg-[#2d3748] border-[#4a5568] text-white">
+            <SelectContent className="bg-[#2d3748] border-[#4a5568] text-white z-[9999] max-h-[200px]">
               {stocksList.map((stock) => (
                 <SelectItem key={stock} value={stock}>
                   {stock}

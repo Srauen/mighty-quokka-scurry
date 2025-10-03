@@ -97,7 +97,7 @@ const TradingTerminalApp: React.FC<TradingTerminalAppProps> = ({
             <SelectTrigger className="w-full p-2 bg-[#2d3748] rounded-md border border-[#4a5568] text-white">
               <SelectValue placeholder="Select a stock" />
             </SelectTrigger>
-            <SelectContent className="bg-[#2d3748] border-[#4a5568] text-white">
+            <SelectContent className="bg-[#2d3748] border-[#4a5568] text-white z-[9999] max-h-[200px]">
                 {stocksList.map((stock) => (
                 <SelectItem key={stock} value={stock}>
                     {stock}
