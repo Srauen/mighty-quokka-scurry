@@ -9,10 +9,11 @@ import StockChartApp from './apps/StockChartApp';
 import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
 import NewsFeedApp from './apps/NewsFeedApp';
-import OnboardingOSModal from './OnboardingOSModal'; // Import the new modal
+import OnboardingOSModal from './OnboardingOSModal';
+import OnboardingModal from '@/components/OnboardingModal'; // Import the multi-step onboarding modal
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { toast } from 'sonner'; // Import toast for notifications
+import { toast } from 'sonner';
 
 interface WindowState {
   id: string;
@@ -96,7 +97,8 @@ const getInitialExperienceLevel = () => {
 
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
-  const [showOnboardingOS, setShowOnboardingOS] = useState(false);
+  const [showOnboardingOS, setShowOnboardingOS] = useState(false); // Controls experience selection modal
+  const [osOnboardingStep, setOsOnboardingStep] = useState(0); // Controls multi-step onboarding modal
   const [experienceLevel, setExperienceLevel] = useState<string | null>(getInitialExperienceLevel());
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
@@ -290,10 +292,19 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     });
   }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed]);
 
+  const nextOSOnboardingStep = useCallback(() => {
+    if (osOnboardingStep < 4) { // Assuming 4 steps in the original OnboardingModal
+      setOsOnboardingStep(prev => prev + 1);
+    } else {
+      setOsOnboardingStep(0); // Close multi-step onboarding
+      setShowOnboardingOS(true); // Open experience selection modal
+    }
+  }, [osOnboardingStep]);
+
   const handleBootComplete = useCallback(() => {
     setBooted(true);
-    if (!experienceLevel) { // Only show onboarding if not already set
-      setShowOnboardingOS(true);
+    if (!experienceLevel) {
+      setOsOnboardingStep(1); // Start multi-step onboarding
     } else {
       openApp('stock-chart'); // Open chart directly if experience is set
     }
@@ -314,9 +325,9 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         break;
     }
     setCashBalance(newCash);
-    localStorage.setItem('os_cashBalance', newCash.toString()); // Ensure immediate persistence
-    localStorage.setItem('os_experienceLevel', level); // Persist experience level
-    setShowOnboardingOS(false);
+    localStorage.setItem('os_cashBalance', newCash.toString());
+    localStorage.setItem('os_experienceLevel', level);
+    setShowOnboardingOS(false); // Close experience selection modal
     openApp('stock-chart');
     toast.success("Experience Set!", { description: `Starting with $${newCash.toFixed(2)} as a ${level} trader.` });
   }, [openApp]);
@@ -357,11 +368,18 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     <div className="relative w-full h-screen overflow-hidden bg-[#0d0f17] bg-[radial-gradient(circle_at_center,_#1a2033_0%,_#0d0f17_100%)] text-white">
       {!booted && <BootScreen onBootComplete={handleBootComplete} />}
 
+      {booted && osOnboardingStep > 0 && (
+        <OnboardingModal
+          onboardingStep={osOnboardingStep}
+          nextOnboardingStep={nextOSOnboardingStep}
+        />
+      )}
+
       {booted && showOnboardingOS && (
         <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
       )}
 
-      {booted && !showOnboardingOS && (
+      {booted && !showOnboardingOS && osOnboardingStep === 0 && (
         <>
           <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-extrabold text-white text-shadow-lg animate-pulse-slow opacity-0 transition-opacity duration-1000">
             Stock OS
