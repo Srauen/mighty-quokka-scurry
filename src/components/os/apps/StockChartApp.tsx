@@ -38,10 +38,20 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
   const chartRef = useRef<ChartJS<'line', number[], string> | null>(null);
 
   useEffect(() => {
+    // Ensure chart resizes when window changes or component mounts
     if (chartRef.current) {
       chartRef.current.resize();
     }
-  }, [selectedStock, stockData]);
+  }, [selectedStock]); // Only resize on stock change, data updates handled below
+
+  useEffect(() => {
+    // Explicitly update chart data when stockData changes
+    if (chartRef.current) {
+      chartRef.current.data.labels = stockData[selectedStock]?.labels || [];
+      chartRef.current.data.datasets[0].data = stockData[selectedStock]?.prices || [];
+      chartRef.current.update();
+    }
+  }, [stockData, selectedStock]); // Re-run when stockData or selectedStock changes
 
   const currentStockData = stockData[selectedStock] || { prices: [], labels: [] };
   const currentPrice = currentStockData.prices.length > 0 ? currentStockData.prices[currentStockData.prices.length - 1] : 0;
