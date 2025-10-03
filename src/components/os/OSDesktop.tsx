@@ -11,6 +11,7 @@ import PortfolioApp from './apps/PortfolioApp';
 import NewsFeedApp from './apps/NewsFeedApp';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+import { toast } from 'sonner'; // Import toast for notifications
 
 interface WindowState {
   id: string;
@@ -62,6 +63,19 @@ const getInitialPortfolio = () => {
   return {};
 };
 
+const getInitialTradingLog = () => {
+  if (typeof window !== 'undefined') {
+    const savedLog = localStorage.getItem('os_tradingLog');
+    try {
+      return savedLog ? JSON.parse(savedLog) : [];
+    } catch (e) {
+      console.error("Error parsing trading log from localStorage", e);
+      return [];
+    }
+  }
+  return [];
+};
+
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
@@ -69,13 +83,27 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [nextZIndex, setNextZIndex] = useState(100);
 
   // OS Global State with localStorage persistence
-  const [cashBalance, setCashBalance] = useState<number>(getInitialCashBalance());
-  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(getInitialPortfolio());
+  const initialCash = getInitialCashBalance();
+  const initialPortfolio = getInitialPortfolio();
+  const initialTradingLog = getInitialTradingLog();
+
+  const [cashBalance, setCashBalance] = useState<number>(initialCash);
+  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(initialPortfolio);
   const [stockData, setStockData] = useState<{
     [key: string]: { prices: number[]; labels: string[] };
   }>({});
   const [newsFeed, setNewsFeed] = useState<string[]>([]);
-  const [tradingLog, setTradingLog] = useState<string[]>([]);
+  const [tradingLog, setTradingLog] = useState<string[]>(initialTradingLog);
+
+  // Show toast if data was loaded from local storage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (initialCash !== 10000 || Object.keys(initialPortfolio).length > 0 || initialTradingLog.length > 0)) {
+      toast.info("Loaded saved trading data from previous session.", {
+        description: `Cash: $${initialCash.toFixed(2)}, Portfolio items: ${Object.keys(initialPortfolio).length}`,
+        duration: 3000,
+      });
+    }
+  }, []); // Run once on mount
 
   // Save cashBalance to localStorage whenever it changes
   useEffect(() => {
@@ -91,6 +119,13 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     }
   }, [portfolio]);
 
+  // Save tradingLog to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('os_tradingLog', JSON.stringify(tradingLog));
+    }
+  }, [tradingLog]);
+
   // Initialize stock data and news feed
   useEffect(() => {
     const initialStockData: { [key: string]: { prices: number[]; labels: string[] } } = {};
@@ -101,7 +136,8 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       };
     });
     setStockData(initialStockData);
-    setNewsFeed(initialNewsHeadlines.slice(0, 5));
+    // Initialize news feed with a few items, then let interval update
+    setNewsFeed(initialNewsHeadlines.slice(0, 5).map(headline => `[${new Date().toLocaleTimeString()}] ${headline}`));
   }, []);
 
   // Simulate price updates and news feed
@@ -147,10 +183,6 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       clearInterval(newsUpdateInterval);
     };
   }, [booted]);
-
-  const handleBootComplete = useCallback(() => {
-    setBooted(true);
-  }, []);
 
   const openApp = useCallback((appId: string) => {
     setOpenWindows((prevWindows) => {
@@ -234,6 +266,12 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       return [...prevWindows, newWindow];
     });
   }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed]);
+
+  const handleBootComplete = useCallback(() => {
+    setBooted(true);
+    // Automatically open the Stock Chart app
+    openApp('stock-chart');
+  }, [openApp]);
 
   const closeWindow = useCallback((id: string) => {
     setOpenWindows((prevWindows) => prevWindows.filter((win) => win.id !== id));
