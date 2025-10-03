@@ -9,14 +9,14 @@ import TeamSection from "@/components/TeamSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
-import OSDesktop from "@/components/os/OSDesktop"; // Import the OSDesktop
+import OSDesktop from "@/components/os/OSDesktop";
 import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-react';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeSection, setActiveSection] = useState('hero');
-  const [showOSSimulation, setShowOSSimulation] = useState(false); // New state for OS simulation
+  const [showOSSimulation, setShowOSSimulation] = useState(false);
 
   const heroRef = useRef<HTMLElement | null>(null);
   const featuresRef = useRef<HTMLElement | null>(null);
@@ -33,12 +33,12 @@ const Index = () => {
   }, [darkMode]);
 
   useEffect(() => {
-    if (showOSSimulation) return; // Don't observe sections if OS is showing
+    if (showOSSimulation) return;
 
     const observerOptions = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.5, // Adjust as needed
+      threshold: 0.5,
     };
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
@@ -65,7 +65,7 @@ const Index = () => {
         }
       });
     };
-  }, [showOSSimulation]); // Re-run effect when showOSSimulation changes
+  }, [showOSSimulation]);
 
   const startOnboarding = () => {
     setOnboardingStep(1);
@@ -75,12 +75,16 @@ const Index = () => {
     if (onboardingStep < 4) {
       setOnboardingStep(onboardingStep + 1);
     } else {
-      setOnboardingStep(0); // Close modal
+      setOnboardingStep(0);
     }
   };
 
   const handleWatchDemo = () => {
     setShowOSSimulation(true);
+  };
+
+  const handleExitOSSimulation = () => {
+    setShowOSSimulation(false);
   };
 
   const features = [
@@ -183,7 +187,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {showOSSimulation ? (
-        <OSDesktop />
+        <OSDesktop onExit={handleExitOSSimulation} />
       ) : (
         <>
           <Navbar

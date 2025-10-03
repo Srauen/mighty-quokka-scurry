@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { LineChart, Calculator } from 'lucide-react';
+import { LineChart, Calculator, TrendingUp, Briefcase, Newspaper } from 'lucide-react';
 
 interface OSTaskbarProps {
   openApp: (appId: string) => void;
@@ -11,8 +11,10 @@ interface OSTaskbarProps {
 const OSTaskbar: React.FC<OSTaskbarProps> = ({ openApp, activeApps }) => {
   const apps = [
     { id: 'stock-chart', icon: <LineChart className="w-7 h-7 text-green-400" /> },
+    { id: 'trading-terminal', icon: <TrendingUp className="w-7 h-7 text-yellow-400" /> },
+    { id: 'portfolio-manager', icon: <Briefcase className="w-7 h-7 text-blue-400" /> },
+    { id: 'news-feed', icon: <Newspaper className="w-7 h-7 text-purple-400" /> },
     { id: 'calculator', icon: <Calculator className="w-7 h-7 text-pink-400" /> },
-    // Add more apps here
   ];
 
   return (

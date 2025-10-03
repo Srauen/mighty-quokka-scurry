@@ -5,7 +5,12 @@ import BootScreen from './BootScreen';
 import OSWindow from './OSWindow';
 import OSTaskbar from './OSTaskbar';
 import CalculatorApp from './apps/CalculatorApp';
-// import StockChartApp from './apps/StockChartApp'; // Will add later
+import StockChartApp from './apps/StockChartApp';
+import TradingTerminalApp from './apps/TradingTerminalApp';
+import PortfolioApp from './apps/PortfolioApp';
+import NewsFeedApp from './apps/NewsFeedApp';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 
 interface WindowState {
   id: string;
@@ -17,11 +22,95 @@ interface WindowState {
   initialSize?: { width: string; height: string };
 }
 
-const OSDesktop: React.FC = () => {
+interface OSDesktopProps {
+  onExit: () => void;
+}
+
+const stocksList = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'FB', 'NFLX', 'BABA', 'SBUX', 'KO', 'PEP', 'MCD', 'DIS', 'NKE', 'ADDYY', 'V', 'JPM', 'XOM', 'WMT', 'PG', 'MA', 'INTC', 'CSCO', 'CMCSA', 'PFE', 'T', 'VZ', 'CVX', 'HD', 'BA', 'MCO', 'BNS', 'RY', 'TD'];
+const initialNewsHeadlines = [
+  "Market volatility expected after global events.",
+  "Tech stocks surge on strong Q3 reports.",
+  "Energy sector sees gains as oil prices stabilize.",
+  "Inflation concerns lead to interest rate hike speculation.",
+  "Analyst predicts strong year for renewable energy.",
+  "Major companies announce stock buyback programs.",
+  "New trade agreements could impact commodities.",
+  "Retail sector reports mixed holiday sales.",
+  "Cryptocurrency market shows signs of recovery.",
+  "Pharmaceutical stock rallies on new drug approval."
+];
+
+const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
-  const [nextZIndex, setNextZIndex] = useState(100); // Starting z-index for windows
+  const [nextZIndex, setNextZIndex] = useState(100);
+
+  // OS Global State
+  const [cashBalance, setCashBalance] = useState(10000);
+  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({});
+  const [stockData, setStockData] = useState<{
+    [key: string]: { prices: number[]; labels: string[] };
+  }>({});
+  const [newsFeed, setNewsFeed] = useState<string[]>([]);
+  const [tradingLog, setTradingLog] = useState<string[]>([]);
+
+  // Initialize stock data
+  useEffect(() => {
+    const initialStockData: { [key: string]: { prices: number[]; labels: string[] } } = {};
+    stocksList.forEach(stock => {
+      initialStockData[stock] = {
+        prices: [Math.floor(Math.random() * 200) + 100],
+        labels: [new Date().toLocaleTimeString()]
+      };
+    });
+    setStockData(initialStockData);
+    setNewsFeed(initialNewsHeadlines.slice(0, 5));
+  }, []);
+
+  // Simulate price updates and news feed
+  useEffect(() => {
+    if (!booted) return;
+
+    const priceUpdateInterval = setInterval(() => {
+      setStockData(prevStockData => {
+        const newStockData = { ...prevStockData };
+        stocksList.forEach(stock => {
+          if (!newStockData[stock]) {
+            newStockData[stock] = {
+              prices: [Math.floor(Math.random() * 200) + 100],
+              labels: [new Date().toLocaleTimeString()]
+            };
+          }
+          const lastPrice = newStockData[stock].prices[newStockData[stock].prices.length - 1];
+          const change = (Math.random() - 0.5) * 5;
+          const newPrice = Math.max(0, lastPrice + change);
+          newStockData[stock].prices.push(newPrice);
+          newStockData[stock].labels.push(new Date().toLocaleTimeString());
+          if (newStockData[stock].prices.length > 50) {
+            newStockData[stock].prices.shift();
+            newStockData[stock].labels.shift();
+          }
+        });
+        return newStockData;
+      });
+    }, 3000);
+
+    const newsUpdateInterval = setInterval(() => {
+      setNewsFeed(prevNews => {
+        const headline = initialNewsHeadlines[Math.floor(Math.random() * initialNewsHeadlines.length)];
+        const time = new Date().toLocaleTimeString();
+        const newNewsItem = `[${time}] ${headline}`;
+        const updatedNews = [newNewsItem, ...prevNews];
+        return updatedNews.slice(0, 20);
+      });
+    }, 5000);
+
+    return () => {
+      clearInterval(priceUpdateInterval);
+      clearInterval(newsUpdateInterval);
+    };
+  }, [booted]);
 
   const handleBootComplete = useCallback(() => {
     setBooted(true);
@@ -32,7 +121,6 @@ const OSDesktop: React.FC = () => {
       const existingWindow = prevWindows.find((win) => win.id === appId);
 
       if (existingWindow) {
-        // If minimized, restore it
         if (existingWindow.minimized) {
           const updatedWindows = prevWindows.map((win) =>
             win.id === appId ? { ...win, minimized: false } : win
@@ -40,12 +128,10 @@ const OSDesktop: React.FC = () => {
           setActiveWindowId(appId);
           return updatedWindows;
         }
-        // If already open, just bring to front
         setActiveWindowId(appId);
         return prevWindows;
       }
 
-      // Open new app
       setNextZIndex((prev) => prev + 1);
       const newWindow: WindowState = {
         id: appId,
@@ -64,19 +150,54 @@ const OSDesktop: React.FC = () => {
           break;
         case 'stock-chart':
           newWindow.title = 'Stock Chart';
-          // newWindow.component = <StockChartApp />; // Placeholder
-          newWindow.component = <div className="text-center p-4">Stock Chart App (Coming Soon!)</div>;
+          newWindow.component = <StockChartApp stocksList={stocksList} stockData={stockData} />;
           newWindow.initialSize = { width: '70vw', height: '70vh' };
           newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.35) };
           break;
+        case 'trading-terminal':
+          newWindow.title = 'Trading Terminal';
+          newWindow.component = (
+            <TradingTerminalApp
+              stocksList={stocksList}
+              stockData={stockData}
+              cashBalance={cashBalance}
+              portfolio={portfolio}
+              setCashBalance={setCashBalance}
+              setPortfolio={setPortfolio}
+              tradingLog={tradingLog}
+              setTradingLog={setTradingLog}
+            />
+          );
+          newWindow.initialSize = { width: '50vw', height: '60vh' };
+          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.25), y: window.innerHeight / 2 - (window.innerHeight * 0.3) };
+          break;
+        case 'portfolio-manager':
+          newWindow.title = 'Portfolio Manager';
+          newWindow.component = (
+            <PortfolioApp
+              portfolio={portfolio}
+              stockData={stockData}
+              cashBalance={cashBalance}
+              setPortfolio={setPortfolio}
+            />
+          );
+          newWindow.initialSize = { width: '70vw', height: '70vh' };
+          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.35) };
+          break;
+        case 'news-feed':
+          newWindow.title = 'Live News Feed';
+          newWindow.component = <NewsFeedApp newsFeed={newsFeed} />;
+          newWindow.initialSize = { width: '400px', height: '60vh' };
+          newWindow.initialPosition = { x: window.innerWidth - 420, y: window.innerHeight / 2 - (window.innerHeight * 0.3) };
+          break;
         default:
-          return prevWindows; // Don't open if app not found
+          return prevWindows;
       }
 
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed]);
 
   const closeWindow = useCallback((id: string) => {
     setOpenWindows((prevWindows) => prevWindows.filter((win) => win.id !== id));
@@ -101,7 +222,7 @@ const OSDesktop: React.FC = () => {
         setNextZIndex((prev) => prev + 1);
         return prevWindows
           .map((win) => (win.id === id ? { ...win, zIndex: nextZIndex } : win))
-          .sort((a, b) => a.zIndex - b.zIndex); // Re-sort to maintain order
+          .sort((a, b) => a.zIndex - b.zIndex);
       }
       return prevWindows;
     });
@@ -119,8 +240,11 @@ const OSDesktop: React.FC = () => {
           <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-extrabold text-white text-shadow-lg animate-pulse-slow opacity-0 transition-opacity duration-1000">
             Stock OS
           </h1>
-          <div className="absolute top-4 right-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
-            Cash Balance: <span id="cash-balance" className="text-green-400">$10,000.00</span>
+          <div className="absolute top-4 right-4 flex items-center space-x-2 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
+            <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
+            <Button variant="ghost" size="icon" onClick={onExit} className="text-gray-400 hover:text-white">
+              <X className="h-4 w-4" />
+            </Button>
           </div>
 
           {openWindows.map((win) => (
