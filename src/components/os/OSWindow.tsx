@@ -95,7 +95,7 @@ const OSWindow: React.FC<OSWindowProps> = ({
           ></button>
         </div>
       </div>
-      <div className="flex-grow p-4 overflow-y-auto text-gray-300">
+      <div className="flex-grow p-4 overflow-y-auto text-gray-300 custom-scrollbar">
         {children}
       </div>
     </div>

@@ -44,6 +44,7 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
   }, [selectedStock, stockData]);
 
   const currentStockData = stockData[selectedStock] || { prices: [], labels: [] };
+  const currentPrice = currentStockData.prices.length > 0 ? currentStockData.prices[currentStockData.prices.length - 1] : 0;
 
   const chartOptions = {
     responsive: true,
@@ -61,6 +62,19 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
     },
     plugins: {
       legend: { display: false },
+      title: {
+        display: true,
+        text: `${selectedStock} Price Chart`,
+        color: '#d1d5db',
+        font: {
+          size: 18,
+          weight: 'bold'
+        },
+        padding: {
+          top: 10,
+          bottom: 10
+        }
+      },
       tooltip: {
         mode: 'index' as const,
         intersect: false,
@@ -71,6 +85,18 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
         borderWidth: 1,
         cornerRadius: 6,
         padding: 10,
+        callbacks: {
+          label: function(context: any) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+            }
+            return label;
+          }
+        }
       }
     },
     animation: { duration: 1000, easing: 'easeOutQuart' as const }
@@ -106,23 +132,29 @@ const StockChartApp: React.FC<StockChartAppProps> = ({ stocksList, stockData }) 
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="mb-4">
-        <label htmlFor="stock-select" className="block text-sm font-medium mb-1 text-gray-300">Select a Stock</label>
-        <Select value={selectedStock} onValueChange={setSelectedStock}>
-          <SelectTrigger className="w-full bg-[#2d3748] border-[#4a5568] text-white">
-            <SelectValue placeholder="Select a stock" />
-          </SelectTrigger>
-          <SelectContent className="bg-[#2d3748] border-[#4a5568] text-white">
-            {stocksList.map((stock) => (
-              <SelectItem key={stock} value={stock}>
-                {stock}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="flex flex-col h-full p-2">
+      <div className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex-grow w-full sm:w-auto">
+          <label htmlFor="stock-select" className="block text-sm font-medium mb-1 text-gray-300">Select a Stock</label>
+          <Select value={selectedStock} onValueChange={setSelectedStock}>
+            <SelectTrigger id="stock-select" className="w-full bg-[#2d3748] border-[#4a5568] text-white focus:ring-2 focus:ring-indigo-500">
+              <SelectValue placeholder="Select a stock" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#2d3748] border-[#4a5568] text-white">
+              {stocksList.map((stock) => (
+                <SelectItem key={stock} value={stock}>
+                  {stock}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-right w-full sm:w-auto">
+          <p className="text-sm font-medium text-gray-300">Current Price:</p>
+          <p className="text-2xl font-bold text-green-400">${currentPrice.toFixed(2)}</p>
+        </div>
       </div>
-      <div className="relative flex-grow w-full h-full min-h-[200px]">
+      <div className="relative flex-grow w-full h-full min-h-[200px] bg-[#1f2937] rounded-lg p-4">
         <Line ref={chartRef} data={chartData} options={chartOptions} />
       </div>
     </div>
