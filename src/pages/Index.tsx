@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
-import TeamSection from "@/components/TeamSection";
 import FAQSection from "@/components/FAQSection"; // Updated import
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
@@ -21,7 +20,6 @@ const Index = () => {
   const heroRef = useRef<HTMLElement | null>(null);
   const featuresRef = useRef<HTMLElement | null>(null);
   const pricingRef = useRef<HTMLElement | null>(null);
-  const teamRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null); // Updated ref name
 
   useEffect(() => {
@@ -51,7 +49,7 @@ const Index = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    const sections = [heroRef, featuresRef, pricingRef, teamRef, faqRef]; // Updated sections
+    const sections = [heroRef, featuresRef, pricingRef, faqRef]; // Updated sections
     sections.forEach((ref) => {
       if (ref.current) {
         observer.observe(ref.current);
@@ -161,29 +159,6 @@ const Index = () => {
     },
   ];
 
-  const teamMembers = [
-    {
-      name: "Alice Johnson",
-      role: "CEO & Founder",
-      image: "/placeholder.svg",
-    },
-    {
-      name: "Bob Williams",
-      role: "Lead AI Engineer",
-      image: "/placeholder.svg",
-    },
-    {
-      name: "Charlie Brown",
-      role: "Head of Product",
-      image: "/placeholder.svg",
-    },
-    {
-      name: "Diana Miller",
-      role: "Chief Market Strategist",
-      image: "/placeholder.svg",
-    },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col">
       {showOSSimulation ? (
@@ -200,7 +175,6 @@ const Index = () => {
             <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} onWatchDemo={handleWatchDemo} />
             <FeaturesSection sectionRef={featuresRef} features={features} />
             <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
-            <TeamSection sectionRef={teamRef} teamMembers={teamMembers} />
             <FAQSection sectionRef={faqRef} /> {/* Updated component */}
           </main>
           <Footer />
