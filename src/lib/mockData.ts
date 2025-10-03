@@ -44,7 +44,8 @@ export const mockDashboardData: MockDashboardData = {
       { date: "Week 2", price: 148, volume: 75000, sentiment: 70 },
       { date: "Week 3", price: 153, volume: 70000, sentiment: 72 },
       { date: "Week 4", price: 160, volume: 85000, sentiment: 78 }
-    ],
+    ]
+    ,
     year: [
       { date: "Q1", price: 120, volume: 250000, sentiment: 60 },
       { date: "Q2", price: 135, volume: 300000, sentiment: 68 },
