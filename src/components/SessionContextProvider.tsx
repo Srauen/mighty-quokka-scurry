@@ -34,12 +34,12 @@ export const SessionContextProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
       } else if (event === 'SIGNED_OUT') {
         toast.info('Signed Out', { description: 'You have been signed out.' });
-        if (location.pathname !== '/login') {
+        if (location.pathname !== '/login' && location.pathname !== '/' && location.pathname !== '/terms-of-service') {
           navigate('/login');
         }
       } else if (event === 'INITIAL_SESSION' && !currentSession) {
         // If no session initially and not on login page, redirect to login
-        if (location.pathname !== '/login' && location.pathname !== '/terms-of-service') {
+        if (location.pathname !== '/login' && location.pathname !== '/' && location.pathname !== '/terms-of-service') {
           navigate('/login');
         }
       }
@@ -50,7 +50,7 @@ export const SessionContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       setSession(initialSession);
       setUser(initialSession?.user || null);
       setLoading(false);
-      if (!initialSession && location.pathname !== '/login' && location.pathname !== '/terms-of-service') {
+      if (!initialSession && location.pathname !== '/login' && location.pathname !== '/' && location.pathname !== '/terms-of-service') {
         navigate('/login');
       }
     });
