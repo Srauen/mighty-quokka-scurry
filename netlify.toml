@@ -2,6 +2,25 @@
   command = "npm install && npm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "20" # Specify a Node.js version, e.g., 20 or 18
+
+[context.production.environment]
+  VITE_SUPABASE_URL = "$VITE_SUPABASE_URL"
+  VITE_SUPABASE_ANON_KEY = "$VITE_SUPABASE_ANON_KEY"
+  VITE_SMTP_HOST = "$VITE_SMTP_HOST"
+  VITE_SMTP_PORT = "$VITE_SMTP_PORT"
+  VITE_SMTP_USER = "$VITE_SMTP_USER"
+  VITE_SMTP_PASS = "$VITE_SMTP_PASS"
+
+[context.deploy-preview.environment]
+  VITE_SUPABASE_URL = "$VITE_SUPABASE_URL"
+  VITE_SUPABASE_ANON_KEY = "$VITE_SUPABASE_ANON_KEY"
+  VITE_SMTP_HOST = "$VITE_SMTP_HOST"
+  VITE_SMTP_PORT = "$VITE_SMTP_PORT"
+  VITE_SMTP_USER = "$VITE_SMTP_USER"
+  VITE_SMTP_PASS = "$VITE_SMTP_PASS"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
