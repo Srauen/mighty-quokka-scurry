@@ -8,14 +8,16 @@ import TopTradersCard from '@/components/dashboard/TopTradersCard';
 import SecurityStatusCard from '@/components/dashboard/SecurityStatusCard';
 import NotificationsCard from '@/components/dashboard/NotificationsCard';
 import MarketStatusWidget from '@/components/dashboard/MarketStatusWidget';
-import PortfolioApp from '@/components/os/apps/PortfolioApp'; // Reusing the PortfolioApp
-import TradingTerminalApp from '@/components/os/apps/TradingTerminalApp'; // Reusing the TradingTerminalApp
-import NewsFeedApp from '@/components/os/apps/NewsFeedApp'; // Reusing the NewsFeedApp
+import PortfolioOverviewCard from '@/components/dashboard/PortfolioOverviewCard'; // New
+import LiveMarketTicker from '@/components/dashboard/LiveMarketTicker'; // New
+import TopMoversPanel from '@/components/dashboard/TopMoversPanel'; // New
+import RecentTradesFeed from '@/components/dashboard/RecentTradesFeed'; // New
+import NewsFeedApp from '@/components/os/apps/NewsFeedApp'; // Reusing NewsFeedApp
 import { mockStats, mockTopTraders, mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added import
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const initialNewsHeadlines = [
   "Market volatility expected after global events.",
@@ -34,7 +36,7 @@ const Dashboard: React.FC = () => {
   const { stockData, stocksList } = useStockData();
   const [cashBalance, setCashBalance] = useState<number>(10000);
   const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({});
-  const [tradingLog, setTradingLog] = useState<string[]>([]);
+  const [tradingLog, setTradingLog] = useState<string[]>([]); // Kept for potential future use or if TradingTerminalApp is re-added
   const [newsFeed, setNewsFeed] = useState<string[]>([]);
   const [userName, setUserName] = useState('Trader');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>(undefined);
@@ -63,7 +65,7 @@ const Dashboard: React.FC = () => {
 
         // Fetch user trading data (cash, portfolio)
         const { data: userData, error: userDataError } = await supabase
-          .from('user_trading_data') // Assuming a table for user trading data
+          .from('user_trading_data')
           .select('cash_balance, portfolio')
           .eq('user_id', user.id)
           .single();
@@ -157,68 +159,44 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-white font-mono">
       <DashboardHeader userName={userName} userAvatarUrl={userAvatarUrl} />
+      <LiveMarketTicker /> {/* Live Market Ticker Strip */}
       <main className="flex-grow p-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Top Row: Stats and Main Chart */}
-          <div className="lg:col-span-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 xl:grid-cols-4">
+          {/* Row 1: Stats and Portfolio Overview */}
+          <div className="lg:col-span-3 xl:col-span-4">
             <DashboardStats stats={currentStats} />
           </div>
-          <DashboardChart initialStocks={['AAPL', 'MSFT']} /> {/* Initial stocks for chart */}
 
-          {/* Right Column: Trading Terminal, Portfolio, News */}
-          <div className="grid grid-cols-1 gap-6">
-            <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
-              <CardHeader className="p-4 border-b border-gray-700">
-                <CardTitle className="text-lg font-semibold text-green-400">Trading Terminal</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow p-4">
-                <TradingTerminalApp
-                  stocksList={stocksList}
-                  stockData={stockData}
-                  cashBalance={cashBalance}
-                  portfolio={portfolio}
-                  setCashBalance={setCashBalance}
-                  setPortfolio={setPortfolio}
-                  tradingLog={tradingLog}
-                  setTradingLog={setTradingLog}
-                />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
-              <CardHeader className="p-4 border-b border-gray-700">
-                <CardTitle className="text-lg font-semibold text-green-400">Portfolio Manager</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow p-4">
-                <PortfolioApp
-                  portfolio={portfolio}
-                  stockData={stockData}
-                  cashBalance={cashBalance}
-                  setPortfolio={setPortfolio}
-                />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
-              <CardHeader className="p-4 border-b border-gray-700">
-                <CardTitle className="text-lg font-semibold text-green-400">Live News Feed</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow p-4">
-                <NewsFeedApp newsFeed={newsFeed} />
-              </CardContent>
-            </Card>
+          <div className="lg:col-span-2 xl:col-span-3">
+            <DashboardChart initialStocks={['AAPL', 'MSFT', 'GOOGL']} /> {/* Main Stock Chart */}
           </div>
 
-          {/* Bottom Row: Other Widgets */}
-          <TopTradersCard traders={mockTopTraders} />
-          <SecurityStatusCard status="secure" message="All systems operational. Your account is secure." />
-          <NotificationsCard notifications={mockNotifications} />
+          <PortfolioOverviewCard cashBalance={cashBalance} portfolio={portfolio} /> {/* Portfolio Overview Card */}
+
+          {/* Row 2: Top Movers, Recent Trades, News, Market Status */}
+          <TopMoversPanel /> {/* Top Movers Panel */}
+          <RecentTradesFeed /> {/* Recent Trades Feed */}
+
+          <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
+            <CardHeader className="p-4 border-b border-gray-700">
+              <CardTitle className="text-lg font-semibold text-green-400">Live News Feed</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow p-4">
+              <NewsFeedApp newsFeed={newsFeed} />
+            </CardContent>
+          </Card>
+
           <MarketStatusWidget
             status="open"
             marketIndex="S&P 500"
             indexValue={4567.89}
             indexChange={0.75}
           />
+
+          {/* Other Widgets */}
+          <TopTradersCard traders={mockTopTraders} />
+          <SecurityStatusCard status="secure" message="All systems operational. Your account is secure." />
+          <NotificationsCard notifications={mockNotifications} />
         </div>
       </main>
     </div>
