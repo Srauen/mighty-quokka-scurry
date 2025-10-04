@@ -13,7 +13,6 @@ import LiveMarketTicker from '@/components/dashboard/LiveMarketTicker';
 import TopMoversPanel from '@/components/dashboard/TopMoversPanel';
 import RecentTradesFeed from '@/components/dashboard/RecentTradesFeed';
 import NewsFeedApp from '@/components/os/apps/NewsFeedApp'; // Reusing NewsFeedApp for the dashboard news panel
-import DashboardTradingTerminal from '@/components/dashboard/DashboardTradingTerminal'; // New: Import DashboardTradingTerminal
 import { mockStats, mockTopTraders, mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { supabase } from '@/integrations/supabase/client';
@@ -173,21 +172,7 @@ const Dashboard: React.FC = () => {
 
           <PortfolioOverviewCard cashBalance={cashBalance} portfolio={portfolio} /> {/* Portfolio Overview Card */}
 
-          {/* Row 2: Trading Terminal, Top Movers, Recent Trades, News, Market Status */}
-          <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col lg:col-span-2 xl:col-span-2">
-            <CardHeader className="p-4 border-b border-gray-700">
-              <CardTitle className="text-lg font-semibold text-green-400">Trading Terminal</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-grow p-4">
-              <DashboardTradingTerminal
-                cashBalance={cashBalance}
-                portfolio={portfolio}
-                setCashBalance={setCashBalance}
-                setPortfolio={setPortfolio}
-              />
-            </CardContent>
-          </Card>
-
+          {/* Row 2: Top Movers, Recent Trades, News, Market Status */}
           <TopMoversPanel /> {/* Top Movers Panel */}
           <RecentTradesFeed /> {/* Recent Trades Feed */}
 
