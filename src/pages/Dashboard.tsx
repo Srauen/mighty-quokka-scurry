@@ -8,11 +8,12 @@ import TopTradersCard from '@/components/dashboard/TopTradersCard';
 import SecurityStatusCard from '@/components/dashboard/SecurityStatusCard';
 import NotificationsCard from '@/components/dashboard/NotificationsCard';
 import MarketStatusWidget from '@/components/dashboard/MarketStatusWidget';
-import PortfolioOverviewCard from '@/components/dashboard/PortfolioOverviewCard'; // New
-import LiveMarketTicker from '@/components/dashboard/LiveMarketTicker'; // New
-import TopMoversPanel from '@/components/dashboard/TopMoversPanel'; // New
-import RecentTradesFeed from '@/components/dashboard/RecentTradesFeed'; // New
-import NewsFeedApp from '@/components/os/apps/NewsFeedApp'; // Reusing NewsFeedApp
+import PortfolioOverviewCard from '@/components/dashboard/PortfolioOverviewCard';
+import LiveMarketTicker from '@/components/dashboard/LiveMarketTicker';
+import TopMoversPanel from '@/components/dashboard/TopMoversPanel';
+import RecentTradesFeed from '@/components/dashboard/RecentTradesFeed';
+import NewsFeedApp from '@/components/os/apps/NewsFeedApp'; // Reusing NewsFeedApp for the dashboard news panel
+import DashboardTradingTerminal from '@/components/dashboard/DashboardTradingTerminal'; // New: Import DashboardTradingTerminal
 import { mockStats, mockTopTraders, mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +37,6 @@ const Dashboard: React.FC = () => {
   const { stockData, stocksList } = useStockData();
   const [cashBalance, setCashBalance] = useState<number>(10000);
   const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({});
-  const [tradingLog, setTradingLog] = useState<string[]>([]); // Kept for potential future use or if TradingTerminalApp is re-added
   const [newsFeed, setNewsFeed] = useState<string[]>([]);
   const [userName, setUserName] = useState('Trader');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>(undefined);
@@ -173,7 +173,21 @@ const Dashboard: React.FC = () => {
 
           <PortfolioOverviewCard cashBalance={cashBalance} portfolio={portfolio} /> {/* Portfolio Overview Card */}
 
-          {/* Row 2: Top Movers, Recent Trades, News, Market Status */}
+          {/* Row 2: Trading Terminal, Top Movers, Recent Trades, News, Market Status */}
+          <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col lg:col-span-2 xl:col-span-2">
+            <CardHeader className="p-4 border-b border-gray-700">
+              <CardTitle className="text-lg font-semibold text-green-400">Trading Terminal</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow p-4">
+              <DashboardTradingTerminal
+                cashBalance={cashBalance}
+                portfolio={portfolio}
+                setCashBalance={setCashBalance}
+                setPortfolio={setPortfolio}
+              />
+            </CardContent>
+          </Card>
+
           <TopMoversPanel /> {/* Top Movers Panel */}
           <RecentTradesFeed /> {/* Recent Trades Feed */}
 
