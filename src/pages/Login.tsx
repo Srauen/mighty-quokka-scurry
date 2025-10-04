@@ -22,7 +22,7 @@ const Login: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white font-mono">
         <p>Loading authentication...</p>
       </div>
     );
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white p-4 font-mono">
       <Card className="w-full max-w-md bg-gray-900 border border-gray-700 shadow-lg">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
