@@ -15,6 +15,7 @@ import { mockStats, mockTopTraders, mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added import
 
 const initialNewsHeadlines = [
   "Market volatility expected after global events.",
