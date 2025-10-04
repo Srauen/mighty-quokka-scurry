@@ -22,10 +22,15 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [showBootScreen, setShowBootScreen] = useState(true);
+  const bootAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const bootAudio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-up-1854.mp3");
-    
+    bootAudioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-up-1854.mp3");
+    // Play audio shortly after component mounts
+    const playAudioTimeout = setTimeout(() => {
+      bootAudioRef.current?.play().catch(e => console.error("Audio playback failed:", e));
+    }, 500); // Play after 0.5 seconds
+
     const bootInterval = setInterval(() => {
       setProgress((prev) => {
         const newProgress = prev + 10;
@@ -35,9 +40,9 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
 
         if (newProgress >= 100) {
           clearInterval(bootInterval);
+          clearTimeout(playAudioTimeout); // Clear timeout if interval finishes early
           setTimeout(() => {
             setShowBootScreen(false);
-            bootAudio.play().catch(e => console.error("Audio playback failed:", e));
             onBootComplete();
           }, 1000); // Give a moment for the last message to display
           return 100;
@@ -46,7 +51,14 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
       });
     }, 200); // Faster updates for messages
 
-    return () => clearInterval(bootInterval);
+    return () => {
+      clearInterval(bootInterval);
+      clearTimeout(playAudioTimeout);
+      if (bootAudioRef.current) {
+        bootAudioRef.current.pause();
+        bootAudioRef.current.currentTime = 0;
+      }
+    };
   }, [onBootComplete]);
 
   if (!showBootScreen) return null;

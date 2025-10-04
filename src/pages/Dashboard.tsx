@@ -179,7 +179,7 @@ const Dashboard: React.FC = () => {
                 <CardTitle className="text-lg font-semibold text-green-400">Live News Feed</CardTitle>
               </CardHeader>
               <CardContent className="flex-grow p-4 flex items-center justify-center"> {/* Centered content */}
-                <NewsFeedApp newsFeed={currentNewsItem} /> {/* Pass single news item */}
+                <NewsFeedApp newsFeed={currentNewsItem ? [currentNewsItem] : []} /> {/* Pass single news item as an array */}
               </CardContent>
             </Card>
 

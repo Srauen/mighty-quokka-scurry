@@ -8,7 +8,7 @@ import CalculatorApp from './apps/CalculatorApp';
 import StockChartApp from './apps/StockChartApp';
 import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
-import NewsFeedApp from './apps/NewsFeedApp';
+import NewsFeedApp from './apps/NewsFeedApp'; // Keep for OS news feed
 import OnboardingOSModal from './OnboardingOSModal';
 import OnboardingModal from '@/components/OnboardingModal'; // Import the multi-step onboarding modal
 import { Button } from '@/components/ui/button';
@@ -108,7 +108,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const { stockData, stocksList, initializeStockData } = useStockData(); // Use the new hook
   const [cashBalance, setCashBalance] = useState<number>(getInitialCashBalance(experienceLevel));
   const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(getInitialPortfolio());
-  const [newsFeed, setNewsFeed] = useState<string[]>([]);
+  const [newsFeed, setNewsFeed] = useState<string[]>([]); // Array for OS news feed
   const [tradingLog, setTradingLog] = useState<string[]>(getInitialTradingLog());
 
   // Show toast if data was loaded from local storage
@@ -244,7 +244,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           break;
         case 'news-feed':
           newWindow.title = 'Live News Feed';
-          newWindow.component = <NewsFeedApp newsFeed={newsFeed} />;
+          newWindow.component = <NewsFeedApp newsFeed={newsFeed} />; // Pass the newsFeed array
           newWindow.initialSize = { width: '400px', height: '60vh' };
           newWindow.initialPosition = { x: window.innerWidth - 420, y: window.innerHeight / 2 - (window.innerHeight * 0.3) };
           break;
@@ -358,9 +358,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
       {booted && !showOnboardingOS && osOnboardingStep === 0 && (
         <>
-          <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-extrabold text-white text-shadow-lg animate-pulse-slow opacity-0 transition-opacity duration-1000">
-            Stock OS
-          </h1>
+          {/* Removed the static 'Stock OS' title after boot */}
           <div className="absolute top-4 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
             <Button variant="ghost" size="icon" onClick={resetOSData} className="text-gray-400 hover:text-white" aria-label="Reset OS Data">
