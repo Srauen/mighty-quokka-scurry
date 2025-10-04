@@ -12,7 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/components/ThemeContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, Download, Trash2, Bell, Settings, Globe, Info } from 'lucide-react';
+import { ChevronLeft, Download, Trash2, Bell, Settings, Globe, Info, Mail } from 'lucide-react'; // Added Mail icon
+import { sendEmail } from '@/utils/email'; // Import the new sendEmail utility
 
 interface Profile {
   first_name: string;
@@ -26,6 +27,7 @@ const DashboardSettings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile>({ first_name: '', last_name: '', avatar_url: '' });
   const [email, setEmail] = useState('');
+  const [testEmailRecipient, setTestEmailRecipient] = useState('');
 
   useEffect(() => {
     const getProfile = async () => {
@@ -34,6 +36,7 @@ const DashboardSettings: React.FC = () => {
 
       if (user) {
         setEmail(user.email || '');
+        setTestEmailRecipient(user.email || ''); // Pre-fill test email with user's email
         const { data, error } = await supabase
           .from('profiles')
           .select('first_name, last_name, avatar_url')
@@ -106,6 +109,30 @@ const DashboardSettings: React.FC = () => {
     toast.warning("Delete Account", { description: "Feature to delete account / reset data is not yet implemented. This action is irreversible!", duration: 5000 });
   };
 
+  const handleSendTestEmail = async () => {
+    if (!testEmailRecipient) {
+      toast.error("Email Required", { description: "Please enter a recipient email address." });
+      return;
+    }
+    toast.loading("Sending test email...", { id: 'test-email-toast' });
+    const { success, error } = await sendEmail({
+      to: testEmailRecipient,
+      subject: "Stock OS Test Email",
+      body: `
+        <h1>Hello from Stock OS!</h1>
+        <p>This is a test email sent from your Stock OS application using a Supabase Edge Function.</p>
+        <p>If you received this, your email integration is working correctly!</p>
+        <p>Best regards,<br/>The Stock OS Team</p>
+      `,
+    });
+
+    if (success) {
+      toast.success("Test Email Sent!", { description: `Check ${testEmailRecipient}'s inbox.`, id: 'test-email-toast' });
+    } else {
+      toast.error("Failed to Send Test Email", { description: error, id: 'test-email-toast' });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-white p-6 font-mono">
       <div className="w-full max-w-3xl mx-auto mb-6 flex items-center justify-between">
@@ -174,7 +201,32 @@ const DashboardSettings: React.FC = () => {
 
           <Separator className="bg-gray-700" />
 
-          {/* 2. Display & Theme */}
+          {/* 2. Email Settings */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-white flex items-center"><Mail className="mr-2 h-5 w-5 text-green-400" /> Email Settings</h3>
+            <div>
+              <Label htmlFor="test-email-recipient" className="text-gray-300">Send Test Email To</Label>
+              <Input
+                id="test-email-recipient"
+                type="email"
+                value={testEmailRecipient}
+                onChange={(e) => setTestEmailRecipient(e.target.value)}
+                placeholder="Enter recipient email"
+                className="mt-1 bg-gray-800 border-gray-700 text-white focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <Button onClick={handleSendTestEmail} className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center">
+              <Mail className="mr-2 h-4 w-4" /> Send Test Email
+            </Button>
+            <p className="text-sm text-gray-400">
+              Note: SMTP credentials are securely managed via Supabase Edge Functions.
+              Ensure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` are set as Supabase secrets.
+            </p>
+          </div>
+
+          <Separator className="bg-gray-700" />
+
+          {/* 3. Display & Theme */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-white flex items-center"><Settings className="mr-2 h-5 w-5 text-green-400" /> Display & Theme</h3>
             <div className="flex items-center justify-between">
@@ -196,7 +248,7 @@ const DashboardSettings: React.FC = () => {
 
           <Separator className="bg-gray-700" />
 
-          {/* 3. Notifications */}
+          {/* 4. Notifications */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-white flex items-center"><Bell className="mr-2 h-5 w-5 text-green-400" /> Notifications</h3>
             <div className="flex items-center justify-between">
@@ -215,7 +267,7 @@ const DashboardSettings: React.FC = () => {
 
           <Separator className="bg-gray-700" />
 
-          {/* 4. Data & Privacy */}
+          {/* 5. Data & Privacy */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-white flex items-center"><Download className="mr-2 h-5 w-5 text-green-400" /> Data & Privacy</h3>
             <Button onClick={handleExportData} variant="secondary" className="w-full bg-gray-700 hover:bg-gray-600 text-white flex items-center">
@@ -229,7 +281,7 @@ const DashboardSettings: React.FC = () => {
 
           <Separator className="bg-gray-700" />
 
-          {/* 5. Integrations */}
+          {/* 6. Integrations */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-white flex items-center"><Settings className="mr-2 h-5 w-5 text-green-400" /> Integrations</h3>
             <Button variant="secondary" className="w-full bg-gray-700 hover:bg-gray-600 text-white">API Keys / Third-Party Integrations (Coming Soon)</Button>
@@ -237,7 +289,7 @@ const DashboardSettings: React.FC = () => {
 
           <Separator className="bg-gray-700" />
 
-          {/* 6. Miscellaneous */}
+          {/* 7. Miscellaneous */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-white flex items-center"><Info className="mr-2 h-5 w-5 text-green-400" /> Miscellaneous</h3>
             <div className="flex items-center justify-between">
