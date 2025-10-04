@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/components/SessionContextProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart } from 'lucide-react';
+import { toast } from 'sonner'; // Import toast for notifications
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +27,16 @@ const Login: React.FC = () => {
       </div>
     );
   }
+
+  const handleAuthEvent = (event: string) => {
+    if (event === 'SIGNED_IN') {
+      toast.success("Signed In", { description: "Welcome back to Stock OS!" });
+    } else if (event === 'SIGNED_UP') {
+      toast.info("Verification Email Sent", { description: "Please check your email to verify your account." });
+    } else if (event === 'PASSWORD_RECOVERY') {
+      toast.info("Password Reset Email Sent", { description: "Check your email for instructions to reset your password." });
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white p-4">
@@ -65,6 +76,7 @@ const Login: React.FC = () => {
             theme="dark"
             providers={[]} // No third-party providers for now
             redirectTo={window.location.origin + '/dashboard'}
+            onAuthStateChange={(event) => handleAuthEvent(event)} // Add this handler
           />
         </CardContent>
       </Card>
