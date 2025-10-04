@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
   const { stockData, stocksList } = useStockData();
   const [cashBalance, setCashBalance] = useState<number>(10000);
   const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({});
-  const [newsFeed, setNewsFeed] = useState<string[]>([]);
+  const [currentNewsItem, setCurrentNewsItem] = useState<string | null>(null); // Changed to single news item
   const [userName, setUserName] = useState('Trader');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>(undefined);
 
@@ -106,17 +106,14 @@ const Dashboard: React.FC = () => {
 
   // Initialize news feed and simulate updates
   useEffect(() => {
-    setNewsFeed(initialNewsHeadlines.slice(0, 5).map(headline => `[${new Date().toLocaleTimeString()}] ${headline}`));
+    // Set initial news item
+    setCurrentNewsItem(`[${new Date().toLocaleTimeString()}] ${initialNewsHeadlines[0]}`);
 
     const newsUpdateInterval = setInterval(() => {
-      setNewsFeed(prevNews => {
-        const headline = initialNewsHeadlines[Math.floor(Math.random() * initialNewsHeadlines.length)];
-        const time = new Date().toLocaleTimeString();
-        const newNewsItem = `[${time}] ${headline}`;
-        const updatedNews = [newNewsItem, ...prevNews];
-        return updatedNews.slice(0, 20);
-      });
-    }, 5000);
+      const headline = initialNewsHeadlines[Math.floor(Math.random() * initialNewsHeadlines.length)];
+      const time = new Date().toLocaleTimeString();
+      setCurrentNewsItem(`[${time}] ${headline}`);
+    }, 20000); // Update every 20 seconds
 
     return () => clearInterval(newsUpdateInterval);
   }, []);
@@ -166,33 +163,35 @@ const Dashboard: React.FC = () => {
             <DashboardStats stats={currentStats} />
           </div>
 
+          {/* Row 2: Main Chart and Portfolio Overview */}
           <div className="lg:col-span-2 xl:col-span-3">
             <DashboardChart initialStocks={['AAPL', 'MSFT', 'GOOGL']} /> {/* Main Stock Chart */}
           </div>
-
           <PortfolioOverviewCard cashBalance={cashBalance} portfolio={portfolio} /> {/* Portfolio Overview Card */}
 
-          {/* Row 2: Top Movers, Recent Trades, News, Market Status */}
-          <TopMoversPanel /> {/* Top Movers Panel */}
-          <RecentTradesFeed /> {/* Recent Trades Feed */}
+          {/* Row 3: Top Movers, Recent Trades, News, Market Status - now grouped and smaller */}
+          <div className="lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <TopMoversPanel /> {/* Top Movers Panel */}
+            <RecentTradesFeed /> {/* Recent Trades Feed */}
 
-          <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
-            <CardHeader className="p-4 border-b border-gray-700">
-              <CardTitle className="text-lg font-semibold text-green-400">Live News Feed</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-grow p-4">
-              <NewsFeedApp newsFeed={newsFeed} />
-            </CardContent>
-          </Card>
+            <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
+              <CardHeader className="p-4 border-b border-gray-700">
+                <CardTitle className="text-lg font-semibold text-green-400">Live News Feed</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow p-4 flex items-center justify-center"> {/* Centered content */}
+                <NewsFeedApp newsFeed={currentNewsItem} /> {/* Pass single news item */}
+              </CardContent>
+            </Card>
 
-          <MarketStatusWidget
-            status="open"
-            marketIndex="S&P 500"
-            indexValue={4567.89}
-            indexChange={0.75}
-          />
+            <MarketStatusWidget
+              status="open"
+              marketIndex="S&P 500"
+              indexValue={4567.89}
+              indexChange={0.75}
+            />
+          </div>
 
-          {/* Other Widgets */}
+          {/* Other Widgets - these will now appear below the grouped section */}
           <TopTradersCard traders={mockTopTraders} />
           <SecurityStatusCard status="secure" message="All systems operational. Your account is secure." />
           <NotificationsCard notifications={mockNotifications} />
