@@ -49,7 +49,7 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between p-2 bg-charts-toolbar-bg backdrop-blur-lg border-b border-charts-border shadow-md relative z-10">
+    <div className="flex items-center p-2 bg-charts-toolbar-bg backdrop-blur-lg border-b border-charts-border shadow-md relative z-10">
       {/* Left: Sidebar Toggle and Insights Toggle */}
       <div className="flex items-center space-x-2 flex-shrink-0">
         <Button
@@ -75,15 +75,15 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
         </Button>
       </div>
 
-      {/* Center: App Title */}
-      <h2 className="text-lg font-semibold text-charts-text-primary flex items-center space-x-2 flex-shrink-0 mx-4">
+      {/* Center: App Title - now with mx-auto to center it, and flex-shrink-0 to prevent it from taking too much space */}
+      <h2 className="text-lg font-semibold text-charts-text-primary flex items-center space-x-2 flex-shrink-0 mx-auto">
         <span className="text-charts-accent">📊</span>
         <span>Charts</span>
       </h2>
 
-      {/* Right: Search Bar and Profile */}
-      <div className="flex items-center space-x-3 flex-grow justify-end">
-        <ChartsSearchBar onSearch={onSearch} /> {/* Using the new ChartsSearchBar component */}
+      {/* Right: Search Bar and Profile - now with ml-auto to push it to the right, and flex-grow on search bar */}
+      <div className="flex items-center space-x-3 ml-auto"> {/* Added ml-auto here */}
+        <ChartsSearchBar onSearch={onSearch} /> {/* This component has flex-grow */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
