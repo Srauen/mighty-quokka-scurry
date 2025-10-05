@@ -2,26 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, List, LayoutGrid, TrendingUp, TrendingDown, Star, LayoutDashboard, Brain, Settings, ChevronLeft, ChevronRight } from 'lucide-react'; // Added LayoutDashboard, Brain, Settings, Chevron icons
-import { mockNotifications } from '@/lib/mockData'; // Reusing mock notifications
+import { Bell, List, LayoutGrid, TrendingUp, TrendingDown, Star, LayoutDashboard, Brain, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { Link } from 'react-router-dom';
 
 const DashboardSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { stockData, stocksList } = useStockData();
-
-  const watchlistStocks = ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'NVDA'];
+  // Removed useStockData and mockNotifications as they are no longer needed directly in the sidebar for content.
 
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', link: '/dashboard' },
-    { id: 'watchlist', icon: Star, label: 'Watchlist' },
-    { id: 'ai-insights', icon: Brain, label: 'AI Insights' },
-    { id: 'alerts', icon: Bell, label: 'Alerts' },
-    { id: 'heatmap', icon: LayoutGrid, label: 'Heatmap' },
+    { id: 'watchlist', icon: Star, label: 'Watchlist', link: '/dashboard/watchlist' },
+    { id: 'ai-insights', icon: Brain, label: 'AI Insights', link: '/dashboard/ai-insights' },
+    { id: 'alerts', icon: Bell, label: 'Alerts', link: '/dashboard/alerts' },
+    { id: 'heatmap', icon: LayoutGrid, label: 'Heatmap', link: '/dashboard/heatmap' },
     { id: 'settings', icon: Settings, label: 'Settings', link: '/dashboard/settings' },
   ];
 
@@ -46,7 +44,7 @@ const DashboardSidebar: React.FC = () => {
         {navItems.map((item) => (
           <Link
             key={item.id}
-            to={item.link || '#'} // Use link if available, otherwise a placeholder
+            to={item.link}
             onClick={() => setActiveTab(item.id)}
             className={cn(
               "flex items-center py-2 px-3 rounded-md text-soft-white transition-colors duration-200 group",
@@ -63,92 +61,7 @@ const DashboardSidebar: React.FC = () => {
         ))}
       </nav>
 
-      {!isCollapsed && (
-        <div className="mt-auto pt-4 border-t border-gray-700">
-          {activeTab === 'watchlist' && (
-            <Card className="glassmorphic-card text-soft-white mb-4">
-              <CardHeader className="p-3 border-b border-gray-700">
-                <CardTitle className="text-md font-semibold text-electric-blue">My Watchlist</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3">
-                <ul className="space-y-2">
-                  {watchlistStocks.map((symbol) => {
-                    const data = stockData[symbol];
-                    const lastPrice = data?.lastPrice || 0;
-                    const dailyChange = data?.dailyChange || 0;
-                    const isPositive = dailyChange >= 0;
-
-                    return (
-                      <li key={symbol} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center space-x-2">
-                          <Star className="h-4 w-4 text-teal" />
-                          <span className="font-medium text-soft-white">{symbol}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-soft-white">${lastPrice.toFixed(2)}</span>
-                          <span className={cn(isPositive ? "text-teal" : "text-red-500", "flex items-center")}>
-                            {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                            {dailyChange.toFixed(2)}%
-                          </span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === 'alerts' && (
-            <Card className="glassmorphic-card text-soft-white mb-4">
-              <CardHeader className="p-3 border-b border-gray-700">
-                <CardTitle className="text-md font-semibold text-electric-blue">Recent Alerts</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3">
-                <ul className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                  {mockNotifications.length === 0 ? (
-                    <p className="text-gray-400 text-sm">No new alerts.</p>
-                  ) : (
-                    mockNotifications.slice(0, 5).map((notification) => (
-                      <li key={notification.id} className={`flex items-start space-x-2 text-sm ${notification.read ? 'text-gray-500' : 'text-soft-white'}`}>
-                        <Bell className={`h-4 w-4 ${notification.read ? 'text-gray-500' : 'text-teal'} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p>{notification.message}</p>
-                          <span className="text-xs text-gray-500">{notification.timestamp}</span>
-                        </div>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === 'ai-insights' && (
-            <Card className="glassmorphic-card text-soft-white mb-4">
-              <CardHeader className="p-3 border-b border-gray-700">
-                <CardTitle className="text-md font-semibold text-electric-blue">AI Insights Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3 text-gray-400 text-sm">
-                <p>Quick summary of top AI insights.</p>
-                <p className="mt-2">View full insights in the main panel.</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === 'heatmap' && (
-            <Card className="glassmorphic-card text-soft-white mb-4">
-              <CardHeader className="p-3 border-b border-gray-700">
-                <CardTitle className="text-md font-semibold text-electric-blue">Market Heatmap</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3 text-gray-400 text-sm">
-                <p>Market heatmap visualization coming soon!</p>
-                <p className="mt-2">This section will display a visual representation of market performance across different sectors or stocks.</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
+      {/* Removed conditional content rendering from sidebar as features now have dedicated pages */}
     </aside>
   );
 };

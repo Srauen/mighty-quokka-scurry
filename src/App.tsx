@@ -9,7 +9,11 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import DashboardSettings from "./pages/DashboardSettings";
 import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy"; // Import the new PrivacyPolicy component
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import WatchlistPage from "./pages/WatchlistPage"; // Import new page
+import AIInsightsPage from "./pages/AIInsightsPage"; // Import new page
+import AlertsPage from "./pages/AlertsPage"; // Import new page
+import HeatmapPage from "./pages/HeatmapPage"; // Import new page
 import { ThemeProvider } from "./components/ThemeContext";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 
@@ -28,8 +32,12 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/settings" element={<DashboardSettings />} />
+              <Route path="/dashboard/watchlist" element={<WatchlistPage />} /> {/* New route */}
+              <Route path="/dashboard/ai-insights" element={<AIInsightsPage />} /> {/* New route */}
+              <Route path="/dashboard/alerts" element={<AlertsPage />} /> {/* New route */}
+              <Route path="/dashboard/heatmap" element={<HeatmapPage />} /> {/* New route */}
               <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} /> {/* Add the new route */}
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
