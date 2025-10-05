@@ -93,61 +93,64 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
   };
 
   return (
-    <div className="flex flex-col flex-grow bg-charts-panel-bg backdrop-blur-lg p-4 rounded-mac-window shadow-lg border border-charts-border relative overflow-hidden">
-      {/* Floating Info Cards */}
-      <div className="absolute top-4 left-4 z-10 space-y-2">
-        <div className="bg-charts-toolbar-bg backdrop-blur-md p-3 rounded-lg shadow-md border border-charts-border">
-          <div className="text-charts-text-secondary text-xs">Current Price</div>
-          <div className="text-charts-text-primary text-2xl font-bold">${currentPrice.toFixed(2)}</div>
-          <div className={cn("flex items-center text-sm font-medium", isPositiveChange ? "text-teal" : "text-red-500")}>
-            {isPositiveChange ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
-            {dailyChange.toFixed(2)}%
+    <div className="flex flex-col flex-grow bg-charts-panel-bg backdrop-blur-lg rounded-mac-window shadow-lg border border-charts-border relative overflow-hidden">
+      {/* Header for Info Cards and Timeframe Controls */}
+      <div className="p-4 border-b border-charts-border flex justify-between items-start">
+        {/* Left: Price, Change, Volume, AI Prob */}
+        <div className="flex flex-col space-y-2">
+          <div className="flex flex-col">
+            <div className="text-charts-text-secondary text-xs">Current Price</div>
+            <div className="text-charts-text-primary text-2xl font-bold">${currentPrice.toFixed(2)}</div>
+            <div className={cn("flex items-center text-sm font-medium", isPositiveChange ? "text-teal" : "text-red-500")}>
+              {isPositiveChange ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
+              {dailyChange.toFixed(2)}%
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="text-charts-text-secondary text-xs">Volume</div>
+            <div className="text-charts-text-primary text-xl font-bold">{formatVolume(currentVolume)}</div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Brain className="h-5 w-5 text-charts-accent" />
+            <div>
+              <div className="text-charts-text-secondary text-xs">AI Profit Prob.</div>
+              <div className="text-charts-accent text-xl font-bold">{profitProbability.toFixed(0)}%</div>
+            </div>
           </div>
         </div>
-        <div className="bg-charts-toolbar-bg backdrop-blur-md p-3 rounded-lg shadow-md border border-charts-border">
-          <div className="text-charts-text-secondary text-xs">Volume</div>
-          <div className="text-charts-text-primary text-xl font-bold">{formatVolume(currentVolume)}</div>
-        </div>
-        <div className="bg-charts-toolbar-bg backdrop-blur-md p-3 rounded-lg shadow-md border border-charts-border flex items-center space-x-2">
-          <Brain className="h-5 w-5 text-charts-accent" />
-          <div>
-            <div className="text-charts-text-secondary text-xs">AI Profit Prob.</div>
-            <div className="text-charts-accent text-xl font-bold">{profitProbability.toFixed(0)}%</div>
-          </div>
-        </div>
-      </div>
 
-      {/* Timeframe Controls */}
-      <div className="absolute top-4 right-4 z-10 flex space-x-1 bg-charts-toolbar-bg backdrop-blur-md p-1 rounded-lg shadow-md border border-charts-border">
-        {['1', '5', '15', '30', '60', 'D', 'W', 'M'].map((tf) => (
-          <Button
-            key={tf}
-            variant="ghost"
-            size="sm"
-            onClick={() => setTimeframe(tf)}
-            className={cn(
-              "h-7 px-3 text-xs text-charts-text-secondary hover:text-charts-accent",
-              timeframe === tf && "bg-charts-panel-bg text-charts-accent"
-            )}
-          >
-            {tf === '1' ? '1m' : tf === '5' ? '5m' : tf === '15' ? '15m' : tf === '30' ? '30m' : tf === '60' ? '1h' : tf}
-          </Button>
-        ))}
+        {/* Right: Timeframe Controls */}
+        <div className="flex space-x-1 bg-charts-toolbar-bg backdrop-blur-md p-1 rounded-lg shadow-md border border-charts-border">
+          {['1', '5', '15', '30', '60', 'D', 'W', 'M'].map((tf) => (
+            <Button
+              key={tf}
+              variant="ghost"
+              size="sm"
+              onClick={() => setTimeframe(tf)}
+              className={cn(
+                "h-7 px-3 text-xs text-charts-text-secondary hover:text-charts-accent",
+                timeframe === tf && "bg-charts-panel-bg text-charts-accent"
+              )}
+            >
+              {tf === '1' ? '1m' : tf === '5' ? '5m' : tf === '15' ? '15m' : tf === '30' ? '30m' : tf === '60' ? '1h' : tf}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* TradingView Chart */}
-      <div className="flex-grow w-full h-full">
+      <div className="flex-grow w-full relative"> {/* Added relative for bottom overlay */}
         {scriptLoaded ? (
           <TradingViewWidget containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
         ) : (
           <div className="flex items-center justify-center h-full text-charts-text-secondary">Loading chart script...</div>
         )}
-      </div>
 
-      {/* AI Insights Overlay (Placeholder) */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-charts-toolbar-bg backdrop-blur-md p-2 rounded-lg shadow-md border border-charts-border text-charts-text-primary text-sm flex items-center space-x-2">
-        <Brain className="h-4 w-4 text-charts-accent animate-pulse-orb" />
-        <span>AI BUY SIGNAL +84% for {selectedStock}</span>
+        {/* AI Insights Overlay (Placeholder) - now positioned relative to this div */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-charts-toolbar-bg backdrop-blur-md p-2 rounded-lg shadow-md border border-charts-border text-charts-text-primary text-sm flex items-center space-x-2">
+          <Brain className="h-4 w-4 text-charts-accent animate-pulse-orb" />
+          <span>AI BUY SIGNAL +84% for {selectedStock}</span>
+        </div>
       </div>
     </div>
   );
