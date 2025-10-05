@@ -5,7 +5,6 @@ import BootScreen from './BootScreen';
 import OSWindow from './OSWindow';
 import OSTaskbar from './OSTaskbar';
 import CalculatorApp from './apps/CalculatorApp';
-import StockChartApp from './apps/StockChartApp';
 import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
 import NewsFeedApp from './apps/NewsFeedApp'; // Keep for OS news feed
@@ -15,6 +14,8 @@ import { Button } from '@/components/ui/button';
 import { X, RotateCcw } from 'lucide-react'; // Import RotateCcw icon
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data'; // Import the new hook
+import ChartTile from '@/components/dashboard/ChartTile'; // Import the new TradingView-style chart tile
+import FullChartModal from '@/components/dashboard/FullChartModal'; // Import the full chart modal
 
 interface WindowState {
   id: string;
@@ -103,6 +104,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(100);
+  const [fullSymbol, setFullSymbol] = useState<string | null>(null); // State for full-screen chart modal
 
   // OS Global State with localStorage persistence
   const { stockData, stocksList, initializeStockData } = useStockData(); // Use the new hook
@@ -174,6 +176,14 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     };
   }, [booted]);
 
+  const openFullChart = useCallback((sym: string) => {
+    setFullSymbol(sym);
+  }, []);
+
+  const closeFullChart = useCallback(() => {
+    setFullSymbol(null);
+  }, []);
+
   const openApp = useCallback((appId: string) => {
     setOpenWindows((prevWindows) => {
       const existingWindow = prevWindows.find((win) => win.id === appId);
@@ -208,7 +218,14 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           break;
         case 'stock-chart':
           newWindow.title = 'Stock Chart';
-          newWindow.component = <StockChartApp stocksList={stocksList} stockData={stockData} />;
+          // Use the new ChartTile component
+          newWindow.component = (
+            <ChartTile
+              symbol={`NASDAQ:${stocksList[0] || 'AAPL'}`} // Default to AAPL if stocksList is empty
+              index={0} // Only one chart tile in this window
+              openFull={openFullChart}
+            />
+          );
           newWindow.initialSize = { width: '70vw', height: '70vh' };
           newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.35) };
           break;
@@ -255,7 +272,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart]);
 
   const nextOSOnboardingStep = useCallback(() => {
     if (osOnboardingStep < 4) { // Assuming 4 steps in the original OnboardingModal
@@ -390,6 +407,10 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
           <OSTaskbar openApp={openApp} activeApps={activeAppIds} />
         </>
+      )}
+
+      {fullSymbol && (
+        <FullChartModal symbol={fullSymbol} onClose={closeFullChart} />
       )}
     </div>
   );
