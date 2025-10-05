@@ -60,10 +60,10 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     hide_top_toolbar: true,
     hide_side_toolbar: true,
     hide_bottom_toolbar: true,
-    hide_legend: true, // Added to hide the stock name, price, change
-    hide_indicators: true, // Added to hide indicators like MACD, RSI
-    hide_timezone_footer: true, // Added to hide the timezone footer
-    withdateranges: true,
+    hide_legend: true,
+    hide_indicators: true,
+    hide_timezone_footer: true,
+    withdateranges: false, // Set to false to hide the date range selector
     studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"], // Still include for internal logic if needed, but hidden
     watchlist: false,
     details: false,
