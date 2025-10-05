@@ -11,7 +11,7 @@ import NewsFeedApp from './apps/NewsFeedApp';
 import OnboardingOSModal from './OnboardingOSModal';
 import OnboardingModal from '@/components/OnboardingModal';
 import { Button } from '@/components/ui/button';
-import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle } from 'lucide-react';
+import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle, TrendingDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data';
 import OSStockChartWindowContent from './components/OSStockChartWindowContent';
@@ -78,7 +78,7 @@ const getInitialPortfolio = () => {
 const getInitialTradingLog = () => {
   if (typeof window !== 'undefined') {
     const savedLog = localStorage.getItem('os_tradingLog');
-    try { return savedLog ? JSON.parse(savedLog) : []; } catch (e) { console.error("Error parsing trading log from localStorage", e); return []; }
+    try { return savedLog ? JSON.parse(savedLog) : []; } catch (e) { console.error("Error parsing trading log from localStorage", e); return {}; }
   }
   return [];
 };
