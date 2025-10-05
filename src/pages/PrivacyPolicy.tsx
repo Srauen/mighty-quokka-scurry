@@ -10,95 +10,91 @@ const PrivacyPolicy: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center bg-gray-950 text-white p-6">
       <Card className="w-full max-w-4xl mx-auto bg-gray-900 border border-gray-700 shadow-lg mt-10">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-green-400">Privacy Policy for StockOS</CardTitle>
+          <CardTitle className="text-3xl font-bold text-green-400">Privacy Policy for Stock OS</CardTitle>
           <p className="text-gray-400 text-sm">Effective Date: October 5, 2025</p>
         </CardHeader>
         <CardContent className="prose prose-invert max-w-none text-gray-300">
           <p>
-            StockOS (“we”, “our”, or “us”) is committed to protecting your privacy and ensuring transparency about how your personal information is collected, used, and shared. This Privacy Policy explains our practices regarding the data you provide when using our website, applications, and services (collectively, the “Services”).
+            Stock OS ("we", "our", or "us") is committed to protecting your privacy and ensuring transparency about how your personal information is collected, used, and shared. This Privacy Policy explains our practices regarding the data you provide when using our website, applications, and services (collectively, the "Services").
           </p>
           <p>
-            By using StockOS, you agree to the practices described in this Privacy Policy. If you do not agree, please do not use our Services.
+            By accessing or using Stock OS, you agree to the practices described in this Privacy Policy. If you do not agree, please do not use our Services.
           </p>
 
           <h2>1. Information We Collect</h2>
           <p>We may collect the following types of information from you:</p>
           <h3>a. Personal Information</h3>
           <ul>
-            <li>Name, email address, username, and password (when you register an account).</li>
-            <li>Payment information (if applicable) for subscriptions or purchases.</li>
-            <li>Profile information you provide voluntarily.</li>
+            <li><strong>Account Information:</strong> When you register for an account, we collect your name, email address, username, and password.</li>
+            <li><strong>Profile Data:</strong> Any additional information you choose to provide for your user profile, such as an avatar URL.</li>
+            <li><strong>Payment Information:</strong> If you subscribe to paid services, we collect necessary payment details (processed securely by third-party payment processors).</li>
           </ul>
           <h3>b. Usage Data</h3>
           <ul>
-            <li>Log information such as IP address, browser type, operating system, device information, and pages visited.</li>
-            <li>Analytics data on how you use the Services, including clicks, interactions, and feature usage.</li>
+            <li><strong>Log Data:</strong> Information automatically collected when you access and use the Services, including your IP address, browser type, operating system, device information, and pages visited.</li>
+            <li><strong>Analytics Data:</strong> Data on how you interact with the Services, such as clicks, feature usage, and time spent on pages, to help us understand and improve user experience.</li>
           </ul>
-          <h3>c. Financial / Stock Data</h3>
+          <h3>c. Trading and Financial Data</h3>
           <ul>
-            <li>Watchlists, portfolio information, and stock-related preferences that you enter.</li>
-            <li>Data collected via integrated APIs for real-time market information (e.g., Alpha Vantage, Finnhub).</li>
+            <li><strong>Portfolio Information:</strong> Details of your simulated stock portfolio, including holdings, quantities, and cash balance.</li>
+            <li><strong>Watchlists and Preferences:</strong> Any stocks you add to watchlists or other trading preferences you set.</li>
+            <li><strong>Market Data:</strong> While we display real-time market information, we do not store your personal real-time market data from external APIs beyond what is necessary for your session or simulated portfolio.</li>
           </ul>
-          <h3>d. Cookies and Tracking</h3>
+          <h3>d. Cookies and Tracking Technologies</h3>
           <ul>
-            <li>Cookies and similar technologies to remember preferences, improve functionality, and measure usage.</li>
-            <li>Google Analytics or equivalent services for anonymous analytics.</li>
+            <li>We use cookies and similar tracking technologies (like local storage) to remember your preferences, maintain your session, improve functionality, and analyze Service usage.</li>
+            <li>These technologies help us provide a more personalized and efficient experience.</li>
           </ul>
 
           <h2>2. How We Use Your Information</h2>
-          <p>We use your data to:</p>
+          <p>We use the collected information for various purposes, including:</p>
           <ul>
-            <li>Provide, maintain, and improve the Services.</li>
-            <li>Personalize your experience and tailor recommendations.</li>
-            <li>Process payments and manage subscriptions.</li>
-            <li>Send notifications, updates, and promotional content (if you opted in).</li>
-            <li>Monitor and analyze usage to improve performance and security.</li>
-            <li>Comply with legal obligations and prevent fraudulent activity.</li>
+            <li><strong>To Provide and Maintain Services:</strong> Operating, maintaining, and improving the functionality of Stock OS, including your simulated trading environment.</li>
+            <li><strong>Personalization:</strong> Customizing your experience, such as displaying relevant stock data or news, and tailoring recommendations.</li>
+            <li><strong>Account Management:</strong> Processing payments, managing subscriptions, and facilitating authentication.</li>
+            <li><strong>Communication:</strong> Sending you important notifications, updates, and, if you opt-in, promotional content.</li>
+            <li><strong>Analytics and Improvement:</strong> Monitoring and analyzing usage patterns to diagnose technical issues, improve performance, and develop new features.</li>
+            <li><strong>Security and Compliance:</strong> Protecting against fraudulent or unauthorized activity, and complying with legal obligations.</li>
           </ul>
 
           <h2>3. How We Share Your Information</h2>
-          <p>We respect your privacy and only share information under limited circumstances:</p>
+          <p>We respect your privacy and only share your information under specific, limited circumstances:</p>
           <ul>
-            <li>Service Providers: Third-party vendors who provide analytics, payment processing, or cloud hosting.</li>
-            <li>Legal Requirements: When required by law, court order, or governmental authority.</li>
-            <li>Business Transfers: If StockOS undergoes a merger, acquisition, or sale of assets.</li>
-            <li>Aggregated / Anonymized Data: We may share anonymized data for research or reporting.</li>
+            <li><strong>Service Providers:</strong> We may share data with trusted third-party vendors who perform services on our behalf, such as cloud hosting, analytics, and payment processing. These providers are obligated to protect your information.</li>
+            <li><strong>Legal Requirements:</strong> We may disclose your information if required by law, court order, or governmental authority, or if we believe such action is necessary to comply with legal processes, protect our rights or property, or ensure the safety of our users or the public.</li>
+            <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction. We will notify you of any such change in ownership or control of your personal information.</li>
+            <li><strong>Aggregated / Anonymized Data:</strong> We may share aggregated or anonymized data that cannot be used to identify you personally for research, marketing, or reporting purposes.</li>
           </ul>
-          <p>We do not sell your personal information to third parties.</p>
+          <p><strong>We do not sell your personal information to third parties.</strong></p>
 
-          <h2>4. User Rights</h2>
-          <p>Depending on your jurisdiction, you may have the right to:</p>
+          <h2>4. Your Data Rights</h2>
+          <p>Depending on your jurisdiction, you may have the following rights regarding your personal data:</p>
           <ul>
-            <li>Access the personal data we hold about you.</li>
-            <li>Correct or update your information.</li>
-            <li>Request deletion of your account and personal data.</li>
-            <li>Withdraw consent for certain data processing activities.</li>
-            <li>Opt out of marketing communications.</li>
+            <li><strong>Access:</strong> Request a copy of the personal data we hold about you.</li>
+            <li><strong>Correction:</strong> Request that we correct or update any inaccurate or incomplete personal information.</li>
+            <li><strong>Deletion:</strong> Request the deletion of your account and personal data, subject to certain legal obligations.</li>
+            <li><strong>Withdraw Consent:</strong> Withdraw your consent for certain data processing activities, where consent was the legal basis for processing.</li>
+            <li><strong>Opt-Out:</strong> Opt out of marketing communications at any time.</li>
           </ul>
-          <p>To exercise these rights, contact us at sriramvatsans@gmail.com.</p>
+          <p>To exercise these rights, please contact us using the details provided in Section 11.</p>
 
-          <h2>5. Cookies and Tracking</h2>
-          <p>We use cookies to enhance your experience, remember preferences, and improve site performance.</p>
-          <p>You can manage cookies through your browser settings.</p>
-          <p>Third-party services (e.g., analytics) may also place cookies; please refer to their privacy policies.</p>
+          <h2>5. Data Security</h2>
+          <p>We implement appropriate technical and organizational security measures to protect your personal data from unauthorized access, disclosure, alteration, or destruction. This includes encryption, access controls, and secure software development practices. However, please be aware that no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
 
-          <h2>6. Data Security</h2>
-          <p>We implement appropriate technical and organizational measures to protect your personal data from unauthorized access, disclosure, alteration, or destruction. However, no system is completely secure, and we cannot guarantee absolute security.</p>
+          <h2>6. Data Retention</h2>
+          <p>We retain your personal information only for as long as necessary to fulfill the purposes outlined in this Privacy Policy, to provide our Services, comply with legal obligations, resolve disputes, and enforce our agreements. Data related to inactive accounts may be anonymized or deleted after a defined period, in accordance with our data retention policies.</p>
 
-          <h2>7. Data Retention</h2>
-          <p>We retain your personal information only as long as necessary to provide the Services, comply with legal obligations, resolve disputes, and enforce agreements. Data related to inactive accounts may be anonymized or deleted after a defined period.</p>
+          <h2>7. Children’s Privacy</h2>
+          <p>Stock OS is not intended for individuals under the age of 13. We do not knowingly collect personal information from children. If we become aware that we have inadvertently collected data from a child under 13, we will take immediate steps to delete that information from our records.</p>
 
-          <h2>8. Children’s Privacy</h2>
-          <p>StockOS is not intended for individuals under the age of 13. We do not knowingly collect personal information from children. If we become aware that we have inadvertently collected data from a child, we will take steps to delete it promptly.</p>
+          <h2>8. Third-Party Links</h2>
+          <p>Our Services may contain links to third-party websites or applications. We are not responsible for the privacy practices or content of these external sites. We encourage you to review the privacy policies of any third-party sites you visit.</p>
 
-          <h2>9. Third-Party Links</h2>
-          <p>Our Services may contain links to third-party websites. We are not responsible for the privacy practices of these external sites. Please review their privacy policies before providing any personal information.</p>
+          <h2>9. Changes to This Privacy Policy</h2>
+          <p>We may update this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or new features. The updated version will include the "Effective Date" at the top of the policy. We will notify you of any significant changes by posting the new Privacy Policy on this page or through other appropriate communication channels. Your continued use of the Services after any such changes constitutes your acceptance of the revised Privacy Policy.</p>
 
-          <h2>10. Changes to This Privacy Policy</h2>
-          <p>We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. The updated version will include the “Effective Date” at the top. We encourage you to review this page periodically for updates.</p>
-
-          <h2>11. Contact Us</h2>
-          <p>If you have questions, concerns, or requests regarding your personal data or this Privacy Policy, please contact us at:</p>
+          <h2>10. Contact Us</h2>
+          <p>If you have any questions, concerns, or requests regarding your personal data or this Privacy Policy, please contact us at:</p>
           <p>Email: sriramvatsans@gmail.com</p>
 
           <p className="mt-8">
