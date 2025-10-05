@@ -57,7 +57,7 @@ const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, use
       />
       <div className="flex flex-grow overflow-hidden">
         <div className={cn(
-          "flex flex-grow overflow-hidden p-2 gap-2",
+          "flex flex-grow overflow-hidden", // Removed p-2 gap-2
           isInsightsPanelCollapsed ? "grid grid-cols-1" : "grid grid-cols-3" // Adjust grid columns
         )}>
           <div className={cn(

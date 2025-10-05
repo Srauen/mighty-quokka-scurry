@@ -58,7 +58,7 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     enable_publishing: false,
     allow_symbol_change: false, // Managed by our app
     hide_top_toolbar: true,
-    hide_side_toolbar: false,
+    hide_side_toolbar: true, // Set to true to hide the side toolbar
     withdateranges: true,
     studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
     watchlist: false,
