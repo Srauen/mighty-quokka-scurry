@@ -89,7 +89,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
       onClick={onClose}
     >
       <Command
-        className="w-full max-w-xl bg-gray-900/80 border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
+        className="w-full max-w-3xl bg-gray-900/80 border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             onClose();
