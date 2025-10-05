@@ -9,14 +9,14 @@ interface BootScreenProps {
 }
 
 const bootMessages = [
-  "Initializing market data feeds...",
-  "Establishing secure trading protocols...",
-  "Calibrating AI prediction models...",
-  "Synchronizing portfolio data...",
-  "Loading real-time analytics engine...",
+  "Initializing market data...",
+  "Establishing secure connection...",
+  "Calibrating AI models...",
+  "Synchronizing portfolio...",
+  "Loading analytics engine...",
   "Verifying system integrity...",
   "Optimizing trading environment...",
-  "Welcome to Stock OS."
+  "Stock OS ready."
 ];
 
 const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
