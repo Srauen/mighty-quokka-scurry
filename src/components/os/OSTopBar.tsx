@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Apple, Wifi, BatteryCharging, Search, Settings, Bell, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react';
+import { Apple, Wifi, BatteryCharging, Search, Settings, Bell, LayoutGrid, ChevronDown, ChevronUp, Power, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,11 @@ interface OSTopBarProps {
   onOpenSettings: () => void;
   onOpenNotifications: () => void;
   onOpenHeatmap: () => void;
+  onShutDown: () => void; // New prop for Shut Down
+  onResetOSData: () => void; // New prop for Reset OS Data
 }
 
-const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, onOpenNotifications, onOpenHeatmap }) => {
+const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, onOpenNotifications, onOpenHeatmap, onShutDown, onResetOSData }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [batteryLevel, setBatteryLevel] = useState(90); // Mock battery level
   const [isCharging, setIsCharging] = useState(true); // Mock charging status
@@ -61,7 +63,7 @@ const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, on
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-8 bg-mac-menubar-bg backdrop-blur-lg flex items-center justify-between px-4 z-[1000] text-soft-white text-sm font-sans border-b border-gray-800">
+    <div className="fixed top-0 left-0 right-0 h-8 bg-charts-toolbar-bg backdrop-blur-lg flex items-center justify-between px-4 z-[1000] text-soft-white text-sm font-sans border-b border-gray-800">
       {/* Left Section: Apple Logo and Menu Items */}
       <div className="flex items-center space-x-4">
         <DropdownMenu>
@@ -75,7 +77,9 @@ const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, on
             <DropdownMenuSeparator className="bg-charts-border" />
             <DropdownMenuItem onClick={() => handleMenuClick("System Settings")}>System Settings...</DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleMenuClick("Restart")}>Restart...</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleMenuClick("Shut Down")}>Shut Down...</DropdownMenuItem>
+            <DropdownMenuItem onClick={onShutDown}>Shut Down...</DropdownMenuItem> {/* Use onShutDown prop */}
+            <DropdownMenuSeparator className="bg-charts-border" />
+            <DropdownMenuItem onClick={onResetOSData} className="text-red-400 hover:text-red-300">Reset OS Data</DropdownMenuItem> {/* Use onResetOSData prop */}
           </DropdownMenuContent>
         </DropdownMenu>
 

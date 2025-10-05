@@ -10,7 +10,7 @@ interface OSSpotlightProps {
   isOpen: boolean;
   onClose: () => void;
   stocksList: string[];
-  openApp: (appId: string, stockSymbol?: string) => void;
+  openApp: (appId: string, stockSymbol?: string, initialSearchText?: string) => void; // Updated openApp signature
 }
 
 const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, openApp }) => {
@@ -26,9 +26,14 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
     { id: 'calculator', name: 'Calculator', icon: Calculator },
   ];
 
+  const specialCommands = [
+    { id: 'tradingiseasy', name: 'tradingiseasy', icon: TrendingUp, type: 'command', action: () => openApp('trading-terminal', undefined, 'tradingiseasy') },
+  ];
+
   const allSearchableItems = [
     ...apps.map(app => ({ type: 'app', id: app.id, name: app.name, icon: app.icon, keywords: app.name.toLowerCase() })),
     ...stocksList.map(stock => ({ type: 'stock', id: stock, name: stock, icon: CandlestickChart, keywords: stock.toLowerCase() })),
+    ...specialCommands.map(cmd => ({ type: cmd.type, id: cmd.id, name: cmd.name, icon: cmd.icon, keywords: cmd.name.toLowerCase(), action: cmd.action })),
   ];
 
   const filteredItems = allSearchableItems.filter(item =>
@@ -47,6 +52,8 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
       openApp(item.id);
     } else if (item.type === 'stock') {
       openApp('charts-app', item.id); // Open Charts app with selected stock
+    } else if (item.type === 'command' && item.action) {
+      item.action(); // Execute the special command action
     }
     onClose();
   }, [openApp, onClose]);
@@ -86,7 +93,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
               >
                 <item.icon className="h-5 w-5 text-electric-blue" />
                 <span>{item.name}</span>
-                <span className="ml-auto text-xs text-gray-500">{item.type === 'app' ? 'Application' : 'Stock'}</span>
+                <span className="ml-auto text-xs text-gray-500">{item.type === 'app' ? 'Application' : item.type === 'stock' ? 'Stock' : 'Command'}</span>
               </CommandItem>
             ))}
           </CommandGroup>

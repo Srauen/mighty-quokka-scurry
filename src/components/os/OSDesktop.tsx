@@ -32,6 +32,7 @@ interface WindowState {
   initialPosition?: { x: number; y: number };
   initialSize?: { width: string; height: string };
   initialStockSymbol?: string;
+  initialSearchText?: string; // New field for initial search text
 }
 
 interface OSDesktopProps {
@@ -216,7 +217,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     setFullSymbol(null);
   }, []);
 
-  const openApp = useCallback((appId: string, initialStockSymbol?: string) => {
+  const openApp = useCallback((appId: string, initialStockSymbol?: string, initialSearchText?: string) => {
     setOpenWindows((prevWindows) => {
       const existingWindow = prevWindows.find((win) => win.id === appId);
 
@@ -242,6 +243,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         zIndex: nextZIndex,
         minimized: false,
         initialStockSymbol: initialStockSymbol, // Pass initial stock symbol
+        initialSearchText: initialSearchText, // Pass initial search text
       };
 
       switch (appId) {
@@ -286,6 +288,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
               setPortfolio={setPortfolio}
               tradingLog={tradingLog}
               setTradingLog={setTradingLog}
+              initialSearchSymbol={initialSearchText} // Pass initialSearchText here
             />
           );
           newWindow.initialSize = { width: '50vw', height: '60vh' };
@@ -436,6 +439,8 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           onOpenSettings={() => toast.info("OS Settings", { description: "OS-level settings coming soon!" })}
           onOpenNotifications={() => toast.info("Notifications Center", { description: "Notifications center coming soon!" })}
           onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
+          onShutDown={onExit} // Pass onExit for Shut Down
+          onResetOSData={resetOSData} // Pass resetOSData for Reset
         />
       )}
 
@@ -458,12 +463,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         <>
           <div className="absolute top-10 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium z-[999]"> {/* Adjusted top for menubar */}
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
-            <Button variant="ghost" size="icon" onClick={resetOSData} className="text-gray-400 hover:text-white" aria-label="Reset OS Data">
-              <RotateCcw className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={onExit} className="text-gray-400 hover:text-white" aria-label="Exit OS">
-              <X className="h-4 w-4" />
-            </Button>
+            {/* Removed old exit/reset buttons here */}
           </div>
 
           {openWindows.map((win) => (

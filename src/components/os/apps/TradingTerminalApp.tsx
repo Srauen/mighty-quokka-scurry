@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { StockData } from '@/hooks/use-stock-data'; // Assuming StockData type is available
+import { Search } from 'lucide-react'; // Import Search icon
 
 interface TradingTerminalAppProps {
   stocksList: string[];
@@ -16,6 +17,7 @@ interface TradingTerminalAppProps {
   setPortfolio: React.Dispatch<React.SetStateAction<{ [key: string]: number }>>;
   tradingLog: string[];
   setTradingLog: React.Dispatch<React.SetStateAction<string[]>>;
+  initialSearchSymbol?: string; // New prop for pre-filling search
 }
 
 const TradingTerminalApp: React.FC<TradingTerminalAppProps> = ({
@@ -27,15 +29,25 @@ const TradingTerminalApp: React.FC<TradingTerminalAppProps> = ({
   setPortfolio,
   tradingLog,
   setTradingLog,
+  initialSearchSymbol,
 }) => {
-  const [selectedStock, setSelectedStock] = useState<string>(stocksList[0] || '');
+  const [selectedStock, setSelectedStock] = useState<string>(initialSearchSymbol || stocksList[0] || '');
   const [quantity, setQuantity] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchSymbol || ''); // State for the search input
 
   useEffect(() => {
     if (stocksList.length > 0 && !selectedStock) {
       setSelectedStock(stocksList[0]);
     }
   }, [stocksList, selectedStock]);
+
+  // Update selected stock when initialSearchSymbol changes
+  useEffect(() => {
+    if (initialSearchSymbol && stocksList.includes(initialSearchSymbol.toUpperCase())) {
+      setSelectedStock(initialSearchSymbol.toUpperCase());
+      setSearchTerm(initialSearchSymbol.toUpperCase());
+    }
+  }, [initialSearchSymbol, stocksList]);
 
   const currentPrice = stockData[selectedStock]?.lastPrice || 0;
 
@@ -101,11 +113,39 @@ const TradingTerminalApp: React.FC<TradingTerminalAppProps> = ({
     }
   }, [selectedStock, quantity, currentPrice, cashBalance, portfolio, setCashBalance, setPortfolio, addTradeLog]);
 
+  const handleSearchStock = () => {
+    const symbol = searchTerm.toUpperCase().trim();
+    if (symbol && stocksList.includes(symbol)) {
+      setSelectedStock(symbol);
+      toast.info("Stock Selected", { description: `Trading for ${symbol}.` });
+    } else if (symbol) {
+      toast.error("Invalid Symbol", { description: `"${symbol}" is not a recognized stock symbol.` });
+    }
+  };
+
   return (
     <div className="flex flex-col h-full p-4 bg-[#1a2033] text-soft-white">
+      <div className="mb-4">
+        <label htmlFor="stock-search-input" className="block text-sm font-medium mb-1 text-body-label">Search Stock</label>
+        <div className="flex space-x-2">
+          <Input
+            id="stock-search-input"
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearchStock()}
+            placeholder="Enter stock symbol (e.g., AAPL)"
+            className="flex-grow bg-gray-800 border-gray-700 text-soft-white placeholder-gray-500"
+          />
+          <Button onClick={handleSearchStock} className="bg-electric-blue hover:bg-electric-blue/90 text-white">
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <div className="flex-grow">
-          <label htmlFor="terminal-stock-select" className="block text-sm font-medium mb-1 text-body-label">Stock</label>
+          <label htmlFor="terminal-stock-select" className="block text-sm font-medium mb-1 text-body-label">Selected Stock</label>
           <Select value={selectedStock} onValueChange={setSelectedStock}>
             <SelectTrigger id="terminal-stock-select" className="w-full bg-gray-800 border-gray-700 text-soft-white">
               <SelectValue placeholder="Select a stock" />
