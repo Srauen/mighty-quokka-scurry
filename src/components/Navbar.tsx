@@ -21,10 +21,11 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, o
 
   const navItems = [
     { name: "Home", href: "#hero" },
-    { name: "Features", href: "#features" },
+    { name: "Dashboard", href: "/dashboard" }, // Link to dashboard page
+    { name: "Features", href: "#features" }, // Can serve as "About"
     { name: "Pricing", href: "#pricing" },
-    // { name: "Team", href: "#team" }, // Removed Team section
     { name: "FAQ", href: "#faq" },
+    { name: "Contact", href: "#footer" }, // Link to the footer for contact info
   ];
 
   const isDarkMode = theme === 'dark' || theme === 'os-style';
@@ -40,14 +41,25 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, o
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
           {navItems.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              className={`text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-green-400 transition-colors duration-200
-                ${activeSection === item.href.substring(1) ? 'font-semibold text-blue-600 dark:text-green-400' : ''}`}
-            >
-              {item.name}
-            </a>
+            item.href.startsWith('/') ? (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-green-400 transition-colors duration-200
+                  ${activeSection === item.href.substring(1) ? 'font-semibold text-blue-600 dark:text-green-400' : ''}`}
+              >
+                {item.name}
+              </Link>
+            ) : (
+              <a
+                key={item.name}
+                href={item.href}
+                className={`text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-green-400 transition-colors duration-200
+                  ${activeSection === item.href.substring(1) ? 'font-semibold text-blue-600 dark:text-green-400' : ''}`}
+              >
+                {item.name}
+              </a>
+            )
           ))}
           <div className="flex items-center space-x-2">
             <Switch
@@ -85,14 +97,25 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, o
             <SheetContent side="right" className="w-[250px] sm:w-[300px] bg-white dark:bg-gray-900">
               <nav className="flex flex-col gap-4 pt-6">
                 {navItems.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className={`text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-green-400 transition-colors duration-200
-                      ${activeSection === item.href.substring(1) ? 'font-semibold text-blue-600 dark:text-green-400' : ''}`}
-                  >
-                    {item.name}
-                  </a>
+                  item.href.startsWith('/') ? (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-green-400 transition-colors duration-200
+                        ${activeSection === item.href.substring(1) ? 'font-semibold text-blue-600 dark:text-green-400' : ''}`}
+                    >
+                      {item.name}
+                    </Link>
+                  ) : (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className={`text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-green-400 transition-colors duration-200
+                        ${activeSection === item.href.substring(1) ? 'font-semibold text-blue-600 dark:text-green-400' : ''}`}
+                    >
+                      {item.name}
+                    </a>
+                  )
                 ))}
                 <Button onClick={onSignIn} className="bg-blue-600 hover:bg-blue-700 dark:bg-green-500 dark:hover:bg-green-600 text-white">
                   Sign In
