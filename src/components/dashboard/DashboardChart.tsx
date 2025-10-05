@@ -226,7 +226,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
                   type="monotone"
                   dataKey={`${stock}Price`} // Use specific dataKey for price
                   stroke={chartColors[index % chartColors.length]}
-                  fillOpacity={0.3}
+                  fillOpacity={0.4} // Increased opacity for more vibrant fill
                   fill={`url(#color${stock})`}
                   strokeWidth={2}
                   name={`${stock} Price`}
@@ -292,7 +292,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
                 }}
                 itemStyle={{ color: 'hsl(var(--foreground))' }}
               />
-              <Bar dataKey="totalVolume" fill="hsl(var(--chart-1))" opacity={0.6} name="Volume" />
+              <Bar dataKey="totalVolume" fill="hsl(var(--chart-3))" opacity={0.6} name="Volume" /> {/* Changed to chart-3 for distinct color */}
             </BarChart>
           </ResponsiveContainer>
         </div>
