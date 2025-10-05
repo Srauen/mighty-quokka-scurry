@@ -27,44 +27,28 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
     }));
 
     useEffect(() => {
-      let intervalId: ReturnType<typeof setInterval> | null = null;
-      let retryCount = 0;
-      const maxRetries = 20; // Increased retries
-      const retryDelay = 100; // ms
+      let animationFrameId: number | null = null;
 
-      const initializeWidget = () => {
+      const initWidget = () => {
         const container = containerDivRef.current;
 
         // 1. Check if TradingView script is loaded
         if (!(window as any).TradingView) {
-          if (retryCount < maxRetries) {
-            retryCount++;
-            console.warn(`TradingView script not ready for ${containerId}. Retrying (${retryCount}/${maxRetries})...`);
-            return; // Keep retrying
-          } else {
-            console.error(`Failed to load TradingView widget for ${containerId} after ${maxRetries} retries: Script not available.`);
-            if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart. Please refresh.</div>';
-            clearInterval(intervalId!);
-            return;
-          }
+          animationFrameId = requestAnimationFrame(initWidget); // Retry on next frame
+          return;
         }
 
         // 2. Check if container element exists and has computed dimensions
         if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) {
-          if (retryCount < maxRetries) {
-            retryCount++;
-            console.warn(`Container for ${containerId} not ready or has zero dimensions. Retrying (${retryCount}/${maxRetries})...`);
-            return; // Keep retrying
-          } else {
-            console.error(`Failed to load TradingView widget for ${containerId} after ${maxRetries} retries: Container not ready.`);
-            if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart. Please refresh.</div>';
-            clearInterval(intervalId!);
-            return;
-          }
+          animationFrameId = requestAnimationFrame(initWidget); // Retry on next frame
+          return;
         }
 
-        // If we reach here, script is loaded and container is ready
-        clearInterval(intervalId!); // Stop retrying
+        // If we reach here, script is loaded and container is ready with dimensions
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
 
         // Remove existing widget instance if it exists before creating a new one
         if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
@@ -79,20 +63,20 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
         // Clear previous content to prevent multiple widgets in the same container
         container.innerHTML = '';
 
+        // Initialize the widget with actual pixel dimensions
         widgetInstanceRef.current = new (window as any).TradingView.widget({
           ...widgetOptions,
           container_id: containerId, // This should match the ID of the div below
-          width: "100%", // Ensure these are set to 100%
-          height: "100%",
+          width: container.offsetWidth, // Use actual width
+          height: container.offsetHeight, // Use actual height
         });
       };
 
-      // Start polling for widget initialization conditions
-      intervalId = setInterval(initializeWidget, retryDelay);
+      animationFrameId = requestAnimationFrame(initWidget);
 
       return () => {
-        if (intervalId) {
-          clearInterval(intervalId);
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
         }
         if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
           try {
