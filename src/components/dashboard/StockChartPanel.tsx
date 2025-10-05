@@ -17,6 +17,7 @@ import {
 import { useStockData } from '@/hooks/use-stock-data';
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { Button } from '@/components/ui/button'; // Import Button for timeframe selection
 
 interface StockChartPanelProps {
   stockSymbol: string;
@@ -25,6 +26,7 @@ interface StockChartPanelProps {
 const StockChartPanel: React.FC<StockChartPanelProps> = ({ stockSymbol }) => {
   const { stockData } = useStockData();
   const [aiScore, setAiScore] = useState<number>(() => parseFloat((Math.random() * (95 - 60) + 60).toFixed(0))); // Initial random score 60-95
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>('1D');
 
   useEffect(() => {
     // Simulate AI score updates
@@ -42,11 +44,35 @@ const StockChartPanel: React.FC<StockChartPanelProps> = ({ stockSymbol }) => {
 
   const data = stockData[stockSymbol];
 
-  const chartData = data?.prices.map((price, index) => ({
-    date: data.labels[index],
-    price: price,
-    volume: data.volumes[index],
-  })) || [];
+  // Filter data based on selected timeframe
+  const getFilteredChartData = () => {
+    if (!data) return [];
+    const { prices, labels, volumes } = data;
+    let startIndex = 0;
+
+    switch (selectedTimeframe) {
+      case '1D':
+        startIndex = Math.max(0, prices.length - 20); // Last 20 points for "1 Day"
+        break;
+      case '1W':
+        startIndex = Math.max(0, prices.length - 50); // Last 50 points for "1 Week"
+        break;
+      case '1M':
+        startIndex = Math.max(0, prices.length - 100); // Last 100 points for "1 Month"
+        break;
+      case '1Y':
+        startIndex = Math.max(0, prices.length - 365); // Last 365 points for "1 Year"
+        break;
+    }
+
+    return prices.slice(startIndex).map((price, index) => ({
+      date: labels[startIndex + index],
+      price: price,
+      volume: volumes[startIndex + index],
+    }));
+  };
+
+  const chartData = getFilteredChartData();
 
   const formatYAxisPrice = (value: number) => `$${value.toFixed(2)}`;
   const formatYAxisVolume = (value: number) => {
@@ -72,27 +98,53 @@ const StockChartPanel: React.FC<StockChartPanelProps> = ({ stockSymbol }) => {
 
   const chartColor = 'hsl(var(--primary))'; // Using primary for neon blue accent
 
+  const timeframeOptions = ['1D', '1W', '1M', '1Y'];
+
   return (
-    <Card className="bg-gray-800 border border-gray-700 shadow-lg flex flex-col animate-glow-subtle">
+    <Card className="glassmorphic-card flex flex-col animate-glow-subtle hover:ring-2 hover:ring-electric-blue transition-all duration-200">
       <CardHeader className="p-4 border-b border-gray-700 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-white flex items-center space-x-2">
-          <span>{stockSymbol}</span>
-          <span className={cn(
-            "text-sm font-medium flex items-center",
-            isPositiveChange ? "text-green-500" : "text-red-500"
-          )}>
-            ${lastPrice.toFixed(2)}
-            {isPositiveChange ? <TrendingUp className="h-4 w-4 ml-1" /> : <TrendingDown className="h-4 w-4 ml-1" />}
-            {dailyChange.toFixed(2)}%
-          </span>
-        </CardTitle>
+        <div className="flex items-center space-x-3">
+          {/* Placeholder for Company Logo */}
+          <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-xs font-bold text-soft-white">
+            {stockSymbol.substring(0, 2)}
+          </div>
+          <CardTitle className="text-lg font-semibold text-soft-white flex items-center space-x-2">
+            <span>{stockSymbol}</span>
+            <span className={cn(
+              "text-sm font-medium flex items-center",
+              isPositiveChange ? "text-teal" : "text-red-500"
+            )}>
+              ${lastPrice.toFixed(2)}
+              {isPositiveChange ? <TrendingUp className="h-4 w-4 ml-1" /> : <TrendingDown className="h-4 w-4 ml-1" />}
+              {dailyChange.toFixed(2)}%
+            </span>
+          </CardTitle>
+        </div>
         <div className="text-sm text-gray-400">
-          AI Score: <span className={cn("font-bold", aiScore > 75 ? "text-green-400" : aiScore > 60 ? "text-yellow-400" : "text-red-400")}>
+          AI Score: <span className={cn("font-bold", aiScore > 75 ? "text-teal" : aiScore > 60 ? "text-yellow-400" : "text-red-400")}>
             {aiScore}%
           </span>
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4">
+        {/* Mini Toolbar for Timeframes */}
+        <div className="flex justify-end space-x-1 mb-3">
+          {timeframeOptions.map(tf => (
+            <Button
+              key={tf}
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedTimeframe(tf as '1D' | '1W' | '1M' | '1Y')}
+              className={cn(
+                "h-7 px-3 text-xs text-gray-400 hover:text-electric-blue",
+                selectedTimeframe === tf && "bg-gray-700 text-electric-blue"
+              )}
+            >
+              {tf}
+            </Button>
+          ))}
+        </div>
+
         <div className="h-[180px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart

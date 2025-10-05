@@ -1,20 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import DashboardNavbar from '@/components/dashboard/DashboardNavbar'; // New Navbar
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar'; // New Sidebar
-import StockChartPanel from '@/components/dashboard/StockChartPanel'; // New Chart Panel
-import LiveMarketTicker from '@/components/dashboard/LiveMarketTicker';
+import DashboardNavbar from '@/components/dashboard/DashboardNavbar';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import StockChartPanel from '@/components/dashboard/StockChartPanel';
+import AIInsightsPanel from '@/components/dashboard/AIInsightsPanel'; // New AI Insights Panel
+import AlertsBar from '@/components/dashboard/AlertsBar'; // New Alerts Bar
+import FloatingActionButtons from '@/components/dashboard/FloatingActionButtons'; // New Floating Action Buttons
 import { useStockData } from '@/hooks/use-stock-data';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 const Dashboard: React.FC = () => {
-  const { stockData, stocksList } = useStockData(); // Keep useStockData for global stock data
-  const [cashBalance, setCashBalance] = useState<number>(10000); // Keep for potential future use or display
-  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({}); // Keep for potential future use or display
+  const { stockData, stocksList } = useStockData();
   const [userName, setUserName] = useState('Trader');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>(undefined);
+  const { session, isLoading: isSessionLoading } = useSession(); // Use useSession hook
 
   // Stocks for the multi-panel chart layout
   const mainChartStocks = ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'NVDA'];
@@ -22,86 +24,80 @@ const Dashboard: React.FC = () => {
   // Fetch user profile and initial data
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Fetch profile
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, avatar_url')
-          .eq('id', user.id)
-          .single();
+      if (!session) return; // Only fetch if session exists
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          toast.error("Error", { description: "Failed to load user profile." });
-        } else if (profileData) {
-          setUserName(`${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.email || 'Trader');
-          setUserAvatarUrl(profileData.avatar_url || undefined);
-        } else {
-          setUserName(user.email || 'Trader');
-        }
+      // Fetch profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, avatar_url')
+        .eq('id', session.user.id)
+        .single();
 
-        // Fetch user trading data (cash, portfolio)
-        const { data: userData, error: userDataError } = await supabase
-          .from('user_trading_data')
-          .select('cash_balance, portfolio')
-          .eq('user_id', user.id)
-          .single();
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        toast.error("Error", { description: "Failed to load user profile." });
+      } else if (profileData) {
+        setUserName(`${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || session.user.email || 'Trader');
+        setUserAvatarUrl(profileData.avatar_url || undefined);
+      } else {
+        setUserName(session.user.email || 'Trader');
+      }
 
-        if (userDataError && userDataError.code !== 'PGRST116') { // PGRST116 means no rows found
-          console.error('Error fetching user trading data:', userDataError);
-          toast.error("Error", { description: "Failed to load trading data." });
-        } else if (userData) {
-          setCashBalance(userData.cash_balance || 10000);
-          setPortfolio(userData.portfolio || {});
-        } else {
-          // Initialize if no data found
-          await supabase.from('user_trading_data').insert({ user_id: user.id, cash_balance: 10000, portfolio: {} });
-        }
+      // Fetch user trading data (cash, portfolio) - for future use if needed on dashboard
+      const { data: userData, error: userDataError } = await supabase
+        .from('user_trading_data')
+        .select('cash_balance, portfolio')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (userDataError && userDataError.code !== 'PGRST116') { // PGRST116 means no rows found
+        console.error('Error fetching user trading data:', userDataError);
+        toast.error("Error", { description: "Failed to load trading data." });
+      } else if (!userData) {
+        // Initialize if no data found
+        await supabase.from('user_trading_data').insert({ user_id: session.user.id, cash_balance: 10000, portfolio: {} });
       }
     };
 
-    fetchUserData();
-  }, []);
+    if (!isSessionLoading && session) {
+      fetchUserData();
+    }
+  }, [session, isSessionLoading]);
 
-  // Save user trading data to Supabase whenever cashBalance or portfolio changes
-  useEffect(() => {
-    const saveUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { error } = await supabase
-          .from('user_trading_data')
-          .update({ cash_balance: cashBalance, portfolio: portfolio, updated_at: new Date().toISOString() })
-          .eq('user_id', user.id);
 
-        if (error) {
-          console.error('Error saving user trading data:', error);
-          toast.error("Error", { description: "Failed to save trading data." });
-        }
-      }
-    };
-    // Only save if cashBalance or portfolio are actually managed/changed on this dashboard
-    // For this redesign, they are mostly read-only, but keeping the hook for completeness.
-    // saveUserData();
-  }, [cashBalance, portfolio]);
-
+  if (isSessionLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-soft-white font-mono">
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 text-white font-mono">
+    <div className="flex flex-col min-h-screen bg-[#0B0B0B] text-soft-white font-mono">
       <DashboardNavbar userName={userName} userAvatarUrl={userAvatarUrl} />
-      <LiveMarketTicker /> {/* Live Market Ticker Strip */}
+      {/* LiveMarketTicker is replaced by AlertsBar at the bottom */}
 
-      <div className="flex flex-grow">
+      <div className="flex flex-grow overflow-hidden">
         <DashboardSidebar /> {/* Left Sidebar */}
 
-        <main className="flex-grow p-6 overflow-auto custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <main className="flex-grow p-6 overflow-y-auto custom-scrollbar grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Main Panel (Charts Area) - 2x3 responsive grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:col-span-2">
             {mainChartStocks.map(stock => (
               <StockChartPanel key={stock} stockSymbol={stock} />
             ))}
           </div>
+
+          {/* AI Insights Panel (Right side) */}
+          <div className="xl:col-span-1">
+            <AIInsightsPanel />
+          </div>
         </main>
       </div>
+
+      <AlertsBar /> {/* Fixed slim bar at the bottom */}
+      <FloatingActionButtons /> {/* Floating action buttons */}
     </div>
   );
 };

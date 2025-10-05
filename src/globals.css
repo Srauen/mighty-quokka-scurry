@@ -281,3 +281,39 @@ html {
   animation: marquee 60s linear infinite; /* Increased duration for smoother scroll */
   will-change: transform; /* Performance hint */
 }
+
+/* Glassmorphism effect */
+.glassmorphic-card {
+  background-color: rgba(11, 11, 11, 0.6); /* #0B0B0B with transparency */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(229, 229, 229, 0.1); /* Soft White border */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Pulsing orb animation for AI Insights */
+@keyframes pulse-orb {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 174, 239, 0.7); /* Electric Blue */
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 174, 239, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 174, 239, 0);
+  }
+}
+
+.animate-pulse-orb {
+  animation: pulse-orb 2s infinite;
+}
+
+/* Marquee for alerts bar */
+@keyframes marquee-horizontal {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee-horizontal {
+  animation: marquee-horizontal 30s linear infinite; /* Adjust duration as needed */
+  will-change: transform;
+}

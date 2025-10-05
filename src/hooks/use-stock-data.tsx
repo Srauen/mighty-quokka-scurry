@@ -31,8 +31,8 @@ export const useStockData = () => {
       const volumes: number[] = [];
       const sentiments: number[] = [];
 
-      // Generate initial 50 data points for a more realistic starting chart
-      for (let i = 49; i >= 0; i--) { // Go back 50 days
+      // Generate initial 365 data points for a more realistic starting chart (1 year)
+      for (let i = 364; i >= 0; i--) { // Go back 365 days
         const date = subDays(new Date(), i);
         // Simulate price fluctuation around the initialPriceBase
         const price = parseFloat((initialPriceBase + (Math.random() - 0.5) * 50).toFixed(2)); 
@@ -93,8 +93,8 @@ export const useStockData = () => {
           newStockData[stock].sentiments.push(parseFloat(newSentiment.toFixed(2)));
 
 
-          // Keep only the last 50 data points for the chart
-          if (newStockData[stock].prices.length > 50) {
+          // Keep only the last 365 data points for the chart (1 year)
+          if (newStockData[stock].prices.length > 365) {
             newStockData[stock].prices.shift();
             newStockData[stock].labels.shift();
             newStockData[stock].volumes.shift();

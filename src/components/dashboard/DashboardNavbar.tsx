@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { LineChart, Settings, User } from 'lucide-react';
+import { LineChart, Settings, User, Search } from 'lucide-react'; // Added Search icon
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input'; // Added Input component
 
 interface DashboardNavbarProps {
   userName: string;
@@ -31,9 +32,9 @@ const AnimatedTitle: React.FC = () => {
   }, [index, fullText]);
 
   return (
-    <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
+    <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-teal">
       {displayedText}
-      <span className="animate-pulse inline-block w-2 h-6 bg-blue-400 ml-1"></span> {/* Cursor effect */}
+      <span className="animate-pulse inline-block w-2 h-6 bg-electric-blue ml-1"></span> {/* Cursor effect */}
     </h1>
   );
 };
@@ -60,10 +61,21 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ userName, userAvatarU
   };
 
   return (
-    <header className="flex items-center justify-between p-4 bg-gray-900 border-b border-gray-700 text-white shadow-lg z-30">
+    <header className="sticky top-0 w-full glassmorphic-card p-4 flex items-center justify-between z-50 border-b border-gray-700">
       <div className="flex items-center space-x-4">
-        <LineChart className="w-8 h-8 text-blue-400" />
+        {/* StockOS logo (blue glowing “S”) */}
+        <LineChart className="w-8 h-8 text-electric-blue animate-glow" />
         <AnimatedTitle />
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative flex-grow mx-8 max-w-xl hidden md:block">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          type="text"
+          placeholder="Search stocks, tickers, or trends..."
+          className="pl-9 pr-4 py-2 rounded-md bg-gray-800 border border-gray-700 text-soft-white placeholder-gray-500 focus:ring-electric-blue focus:border-electric-blue"
+        />
       </div>
 
       <div className="flex items-center space-x-4">
@@ -81,7 +93,7 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ userName, userAvatarU
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-gray-800 border border-gray-700 text-white" align="end" forceMount>
+          <DropdownMenuContent className="w-56 bg-gray-800 border border-gray-700 text-soft-white" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{userName}</p>
@@ -93,7 +105,7 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ userName, userAvatarU
             <DropdownMenuSeparator className="bg-gray-700" />
             <DropdownMenuItem asChild>
               <Link to="/dashboard/settings" className="flex items-center cursor-pointer hover:bg-gray-700">
-                <Settings className="mr-2 h-4 w-4" />
+                <Settings className="mr-2 h-4 w-4 text-electric-blue" />
                 <span>Settings</span>
               </Link>
             </DropdownMenuItem>
