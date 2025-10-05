@@ -50,12 +50,16 @@ const LiveMarketTicker: React.FC = () => {
               item.change >= 0 ? "text-green-500" : "text-red-500"
             )}>
               ${item.price.toFixed(2)}
-              {item.change >= 0 ? (
-                <TrendingUp className="h-4 w-4 ml-1" />
-              ) : (
-                <TrendingDown className="h-4 w-4 ml-1" />
-              )}
-              ({item.change.toFixed(2)}%)
+              <span className="inline-flex items-center w-[80px] justify-end font-mono text-xs"> {/* Fixed width for icon + change */}
+                {item.change >= 0 ? (
+                  <TrendingUp className="h-4 w-4 flex-shrink-0" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 flex-shrink-0" />
+                )}
+                <span className="ml-1">
+                  {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)}%
+                </span>
+              </span>
             </span>
           </div>
         ))}
