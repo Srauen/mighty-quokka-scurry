@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button';
 import { X, RotateCcw } from 'lucide-react'; // Import RotateCcw icon
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data'; // Import the new hook
-import ChartTile from '@/components/dashboard/ChartTile'; // Import the new TradingView-style chart tile
-import FullChartModal from '@/components/dashboard/FullChartModal'; // Import the full chart modal
+import OSStockChartWindowContent from './components/OSStockChartWindowContent'; // Import the new chart content component
+import FullChartModal from './components/FullChartModal'; // Import the full chart modal from OS components
 
 interface WindowState {
   id: string;
@@ -218,16 +218,16 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           break;
         case 'stock-chart':
           newWindow.title = 'Stock Chart';
-          // Use the new ChartTile component
           newWindow.component = (
-            <ChartTile
-              symbol={`NASDAQ:${stocksList[0] || 'AAPL'}`} // Default to AAPL if stocksList is empty
-              index={0} // Only one chart tile in this window
-              openFull={openFullChart}
+            <OSStockChartWindowContent
+              stocksList={stocksList}
+              openFullChart={openFullChart}
+              fullSymbol={fullSymbol}
+              closeFullChart={closeFullChart}
             />
           );
-          newWindow.initialSize = { width: '70vw', height: '70vh' };
-          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.35) };
+          newWindow.initialSize = { width: '70vw', height: '80vh' }; // Adjusted height
+          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.4) }; // Adjusted y position
           break;
         case 'trading-terminal':
           newWindow.title = 'Trading Terminal';
@@ -272,7 +272,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart]);
 
   const nextOSOnboardingStep = useCallback(() => {
     if (osOnboardingStep < 4) { // Assuming 4 steps in the original OnboardingModal
@@ -409,9 +409,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         </>
       )}
 
-      {fullSymbol && (
-        <FullChartModal symbol={fullSymbol} onClose={closeFullChart} />
-      )}
+      {/* FullChartModal is now rendered within OSStockChartWindowContent, so it's removed from here */}
     </div>
   );
 };
