@@ -34,7 +34,10 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   const widgetId = `tv-small-${index}`;
   const { stockData } = useStockData(); // Get stock data for additional info
 
-  const stockInfo = stockData[symbol.split(':')[1]] || { // Adjust symbol to match useStockData keys
+  // Extract the base stock symbol from the TradingView formatted symbol (e.g., "NASDAQ:AAPL" -> "AAPL")
+  const baseStockSymbol = symbol.includes(':') ? symbol.split(':')[1] : symbol;
+
+  const stockInfo = stockData[baseStockSymbol] || {
     companyName: 'Loading...',
     lastPrice: 0,
     dailyChange: 0,
@@ -92,7 +95,7 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   }, [mounted, symbol, widgetId, stockData]); // Added stockData to dependencies to trigger re-render if needed
 
   const handleSetAlert = () => {
-    toast.info("Set Alert", { description: `Setting alert for ${symbol.split(':')[1]}... (Feature coming soon)` });
+    toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
   };
 
   return (
@@ -101,10 +104,10 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
         <div className="flex items-center space-x-2">
           {/* Company Logo Placeholder */}
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-electric-blue to-teal flex items-center justify-center text-xs font-bold text-white" aria-hidden>
-            {symbol.split(':')[1].substring(0, 2)}
+            {baseStockSymbol.substring(0, 2)}
           </div>
           <div>
-            <div className="text-lg font-bold text-soft-white">{symbol.split(":").pop()}</div>
+            <div className="text-lg font-bold text-soft-white">{baseStockSymbol}</div>
             <div className="text-xs text-body-label">{stockInfo.companyName}</div>
           </div>
         </div>

@@ -7,15 +7,17 @@ import OSTaskbar from './OSTaskbar';
 import CalculatorApp from './apps/CalculatorApp';
 import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
-import NewsFeedApp from './apps/NewsFeedApp'; // Keep for OS news feed
+import NewsFeedApp from './apps/NewsFeedApp';
 import OnboardingOSModal from './OnboardingOSModal';
-import OnboardingModal from '@/components/OnboardingModal'; // Import the multi-step onboarding modal
+import OnboardingModal from '@/components/OnboardingModal';
 import { Button } from '@/components/ui/button';
-import { X, RotateCcw } from 'lucide-react'; // Import RotateCcw icon
+import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useStockData } from '@/hooks/use-stock-data'; // Import the new hook
-import OSStockChartWindowContent from './components/OSStockChartWindowContent'; // Import the new chart content component
-import FullChartModal from './components/FullChartModal'; // Import the full chart modal from OS components
+import { useStockData } from '@/hooks/use-stock-data';
+import OSStockChartWindowContent from './components/OSStockChartWindowContent';
+import FullChartModal from './components/FullChartModal';
+import OSNotification from './OSNotification'; // Import new OSNotification
+import OSSpotlight from './OSSpotlight'; // Import new OSSpotlight
 
 interface WindowState {
   id: string;
@@ -44,34 +46,31 @@ const initialNewsHeadlines = [
   "Pharmaceutical stock rallies on new drug approval."
 ];
 
+const aiNotificationMessages = [
+  { title: "AI Alert: High Momentum", message: "NVDA shows strong upward momentum. Consider a buy.", icon: <TrendingUp className="h-5 w-5 text-teal" /> },
+  { title: "AI Insight: Oversold", message: "MSFT is entering oversold territory. Potential rebound ahead.", icon: <TrendingDown className="h-5 w-5 text-red-500" /> },
+  { title: "Market News: AAPL", message: "Apple announces new product line. Stock expected to react.", icon: <Bell className="h-5 w-5 text-electric-blue" /> },
+  { title: "AI Prediction: Volatility", message: "Increased volatility expected for AMZN. Trade with caution.", icon: <AlertTriangle className="h-5 w-5 text-yellow-500" /> },
+  { title: "AI Recommendation", message: "GOOGL: Strong buy signal based on recent earnings.", icon: <Brain className="h-5 w-5 text-purple-400" /> },
+];
+
 // Helper functions to load/save from localStorage
 const getInitialCashBalance = (experienceLevel: string | null) => {
   if (typeof window !== 'undefined') {
     const savedCash = localStorage.getItem('os_cashBalance');
     if (savedCash) return parseFloat(savedCash);
   }
-
-  // If no saved cash, determine based on experience level
   switch (experienceLevel) {
-    case 'advanced':
-      return 50000;
-    case 'pro':
-      return 100000;
-    case 'beginner':
-    default:
-      return 10000;
+    case 'advanced': return 50000;
+    case 'pro': return 100000;
+    case 'beginner': default: return 10000;
   }
 };
 
 const getInitialPortfolio = () => {
   if (typeof window !== 'undefined') {
     const savedPortfolio = localStorage.getItem('os_portfolio');
-    try {
-      return savedPortfolio ? JSON.parse(savedPortfolio) : {};
-    } catch (e) {
-      console.error("Error parsing portfolio from localStorage", e);
-      return {};
-    }
+    try { return savedPortfolio ? JSON.parse(savedPortfolio) : {}; } catch (e) { console.error("Error parsing portfolio from localStorage", e); return {}; }
   }
   return {};
 };
@@ -79,12 +78,7 @@ const getInitialPortfolio = () => {
 const getInitialTradingLog = () => {
   if (typeof window !== 'undefined') {
     const savedLog = localStorage.getItem('os_tradingLog');
-    try {
-      return savedLog ? JSON.parse(savedLog) : [];
-    } catch (e) {
-      console.error("Error parsing trading log from localStorage", e);
-      return [];
-    }
+    try { return savedLog ? JSON.parse(savedLog) : []; } catch (e) { console.error("Error parsing trading log from localStorage", e); return []; }
   }
   return [];
 };
@@ -98,20 +92,22 @@ const getInitialExperienceLevel = () => {
 
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
-  const [showOnboardingOS, setShowOnboardingOS] = useState(false); // Controls experience selection modal
-  const [osOnboardingStep, setOsOnboardingStep] = useState(0); // Controls multi-step onboarding modal
+  const [showOnboardingOS, setShowOnboardingOS] = useState(false);
+  const [osOnboardingStep, setOsOnboardingStep] = useState(0);
   const [experienceLevel, setExperienceLevel] = useState<string | null>(getInitialExperienceLevel());
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(100);
-  const [fullSymbol, setFullSymbol] = useState<string | null>(null); // State for full-screen chart modal
+  const [fullSymbol, setFullSymbol] = useState<string | null>(null);
 
   // OS Global State with localStorage persistence
-  const { stockData, stocksList, initializeStockData } = useStockData(); // Use the new hook
+  const { stockData, stocksList, initializeStockData } = useStockData();
   const [cashBalance, setCashBalance] = useState<number>(getInitialCashBalance(experienceLevel));
   const [portfolio, setPortfolio] = useState<{ [key: string]: number }>(getInitialPortfolio());
-  const [newsFeed, setNewsFeed] = useState<string[]>([]); // Array for OS news feed
+  const [newsFeed, setNewsFeed] = useState<string[]>([]);
   const [tradingLog, setTradingLog] = useState<string[]>(getInitialTradingLog());
+  const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string; icon?: React.ReactNode }>>([]);
+  const [showSpotlight, setShowSpotlight] = useState(false);
 
   // Show toast if data was loaded from local storage
   useEffect(() => {
@@ -121,7 +117,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         duration: 3000,
       });
     }
-  }, []); // Run once on mount
+  }, []);
 
   // Save cashBalance to localStorage whenever it changes
   useEffect(() => {
@@ -153,14 +149,12 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
   // Initialize news feed
   useEffect(() => {
-    // Initialize news feed with a few items, then let interval update
     setNewsFeed(initialNewsHeadlines.slice(0, 5).map(headline => `[${new Date().toLocaleTimeString()}] ${headline}`));
   }, []);
 
-  // Simulate news feed
+  // Simulate news feed updates
   useEffect(() => {
     if (!booted) return;
-
     const newsUpdateInterval = setInterval(() => {
       setNewsFeed(prevNews => {
         const headline = initialNewsHeadlines[Math.floor(Math.random() * initialNewsHeadlines.length)];
@@ -170,11 +164,22 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         return updatedNews.slice(0, 20);
       });
     }, 5000);
-
-    return () => {
-      clearInterval(newsUpdateInterval);
-    };
+    return () => clearInterval(newsUpdateInterval);
   }, [booted]);
+
+  // Simulate AI notifications
+  useEffect(() => {
+    if (!booted) return;
+    const notificationInterval = setInterval(() => {
+      const randomNotification = aiNotificationMessages[Math.floor(Math.random() * aiNotificationMessages.length)];
+      setNotifications(prev => [...prev, { ...randomNotification, id: Date.now().toString() }]);
+    }, 15000); // New notification every 15 seconds
+    return () => clearInterval(notificationInterval);
+  }, [booted]);
+
+  const dismissNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
 
   const openFullChart = useCallback((sym: string) => {
     setFullSymbol(sym);
@@ -184,7 +189,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     setFullSymbol(null);
   }, []);
 
-  const openApp = useCallback((appId: string) => {
+  const openApp = useCallback((appId: string, stockSymbol?: string) => {
     setOpenWindows((prevWindows) => {
       const existingWindow = prevWindows.find((win) => win.id === appId);
 
@@ -226,8 +231,8 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
               closeFullChart={closeFullChart}
             />
           );
-          newWindow.initialSize = { width: '70vw', height: '80vh' }; // Adjusted height
-          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.4) }; // Adjusted y position
+          newWindow.initialSize = { width: '70vw', height: '80vh' };
+          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.4) };
           break;
         case 'trading-terminal':
           newWindow.title = 'Trading Terminal';
@@ -261,7 +266,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           break;
         case 'news-feed':
           newWindow.title = 'Live News Feed';
-          newWindow.component = <NewsFeedApp newsFeed={newsFeed} />; // Pass the newsFeed array
+          newWindow.component = <NewsFeedApp newsFeed={newsFeed} />;
           newWindow.initialSize = { width: '400px', height: '60vh' };
           newWindow.initialPosition = { x: window.innerWidth - 420, y: window.innerHeight / 2 - (window.innerHeight * 0.3) };
           break;
@@ -275,20 +280,20 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart]);
 
   const nextOSOnboardingStep = useCallback(() => {
-    if (osOnboardingStep < 4) { // Assuming 4 steps in the original OnboardingModal
+    if (osOnboardingStep < 4) {
       setOsOnboardingStep(prev => prev + 1);
     } else {
-      setOsOnboardingStep(0); // Close multi-step onboarding
-      setShowOnboardingOS(true); // Open experience selection modal
+      setOsOnboardingStep(0);
+      setShowOnboardingOS(true);
     }
   }, [osOnboardingStep]);
 
   const handleBootComplete = useCallback(() => {
     setBooted(true);
     if (!experienceLevel) {
-      setOsOnboardingStep(1); // Start multi-step onboarding
+      setOsOnboardingStep(1);
     } else {
-      openApp('stock-chart'); // Open chart directly if experience is set
+      openApp('stock-chart');
     }
   }, [experienceLevel, openApp]);
 
@@ -296,20 +301,14 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     setExperienceLevel(level);
     let newCash = 10000;
     switch (level) {
-      case 'advanced':
-        newCash = 50000;
-        break;
-      case 'pro':
-        newCash = 100000;
-        break;
-      default:
-        newCash = 10000;
-        break;
+      case 'advanced': newCash = 50000; break;
+      case 'pro': newCash = 100000; break;
+      default: newCash = 10000; break;
     }
     setCashBalance(newCash);
     localStorage.setItem('os_cashBalance', newCash.toString());
     localStorage.setItem('os_experienceLevel', level);
-    setShowOnboardingOS(false); // Close experience selection modal
+    setShowOnboardingOS(false);
     openApp('stock-chart');
     toast.success("Experience Set!", { description: `Starting with $${newCash.toFixed(2)} as a ${level} trader.` });
   }, [openApp]);
@@ -351,12 +350,23 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       localStorage.removeItem('os_tradingLog');
       localStorage.removeItem('os_experienceLevel');
       toast.info("OS Data Reset", { description: "Your trading data has been cleared. The OS will restart." });
-      // Force a reload to re-initialize the OS with a fresh state
       window.location.reload();
     }
   }, []);
 
   const activeAppIds = openWindows.filter(win => !win.minimized).map(win => win.id);
+
+  // Keyboard shortcut for Spotlight (Cmd+Space or Ctrl+Space)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.code === 'Space') {
+        event.preventDefault();
+        setShowSpotlight(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#0d0f17] bg-[radial-gradient(circle_at_center,_#1a2033_0%,_#0d0f17_100%)] text-white">
@@ -375,7 +385,6 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
       {booted && !showOnboardingOS && osOnboardingStep === 0 && (
         <>
-          {/* Removed the static 'Stock OS' title after boot */}
           <div className="absolute top-4 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
             <Button variant="ghost" size="icon" onClick={resetOSData} className="text-gray-400 hover:text-white" aria-label="Reset OS Data">
@@ -406,10 +415,26 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           ))}
 
           <OSTaskbar openApp={openApp} activeApps={activeAppIds} />
+
+          {notifications.map((notification) => (
+            <OSNotification
+              key={notification.id}
+              id={notification.id}
+              title={notification.title}
+              message={notification.message}
+              icon={notification.icon}
+              onDismiss={dismissNotification}
+            />
+          ))}
+
+          <OSSpotlight
+            isOpen={showSpotlight}
+            onClose={() => setShowSpotlight(false)}
+            stocksList={stocksList}
+            openApp={openApp}
+          />
         </>
       )}
-
-      {/* FullChartModal is now rendered within OSStockChartWindowContent, so it's removed from here */}
     </div>
   );
 };
