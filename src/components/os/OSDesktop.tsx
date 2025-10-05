@@ -23,6 +23,7 @@ import FullChartModal from './components/FullChartModal';
 import OSNotification from './OSNotification';
 import OSSpotlight from './OSSpotlight';
 import OSTopBar from './OSTopBar'; // Import new OSTopBar
+import { motion, AnimatePresence } from 'framer-motion'; // Import motion and AnimatePresence
 
 interface WindowState {
   id: string;
@@ -433,77 +434,105 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
   return (
     <div id="desktop-container" className="relative w-full h-screen overflow-hidden text-white">
-      {!booted && <BootScreen onBootComplete={handleBootComplete} />}
+      <AnimatePresence mode="wait">
+        {!booted && (
+          <motion.div
+            key="boot-screen-wrapper"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0" // Ensure it covers the full screen during transition
+          >
+            <BootScreen onBootComplete={handleBootComplete} />
+          </motion.div>
+        )}
 
-      {booted && !onboardingComplete && (
-        <OnboardingScreen onOnboardingComplete={handleOnboardingScreenComplete} />
-      )}
+        {booted && !onboardingComplete && (
+          <motion.div
+            key="onboarding-screen-wrapper"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0" // Ensure it covers the full screen during transition
+          >
+            <OnboardingScreen onOnboardingComplete={handleOnboardingScreenComplete} />
+          </motion.div>
+        )}
 
-      {booted && onboardingComplete && (
-        <>
-          <OSTopBar
-            onOpenSpotlight={() => setShowSpotlight(true)}
-            onOpenSettings={() => toast.info("OS Settings", { description: "OS-level settings coming soon!" })}
-            onOpenNotifications={() => toast.info("Notifications Center", { description: "Notifications center coming soon!" })}
-            onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
-            onShutDown={onExit} // Pass onExit for Shut Down
-            onResetOSData={resetOSData} // Pass resetOSData for Reset
-            cashBalance={cashBalance} // Pass cash balance to top bar
-          />
+        {booted && onboardingComplete && (
+          <motion.div
+            key="desktop-content-wrapper"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="relative w-full h-screen overflow-hidden text-white" // This div is the actual desktop content
+          >
+            <OSTopBar
+              onOpenSpotlight={() => setShowSpotlight(true)}
+              onOpenSettings={() => toast.info("OS Settings", { description: "OS-level settings coming soon!" })}
+              onOpenNotifications={() => toast.info("Notifications Center", { description: "Notifications center coming soon!" })}
+              onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
+              onShutDown={onExit} // Pass onExit for Shut Down
+              onResetOSData={resetOSData} // Pass resetOSData for Reset
+              cashBalance={cashBalance} // Pass cash balance to top bar
+            />
 
-          {showOnboardingOS && (
-            <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
-          )}
+            {showOnboardingOS && (
+              <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
+            )}
 
-          {showStockPreferenceOnboarding && (
-            <StockPreferenceOnboarding isOpen={showStockPreferenceOnboarding} onComplete={handleStockPreferenceComplete} />
-          )}
+            {showStockPreferenceOnboarding && (
+              <StockPreferenceOnboarding isOpen={showStockPreferenceOnboarding} onComplete={handleStockPreferenceComplete} />
+            )}
 
-          {!showOnboardingOS && !showStockPreferenceOnboarding && (
-            <>
-              {openWindows.map((win) => (
-                !win.minimized && (
-                  <OSWindow
-                    key={win.id}
-                    id={win.id}
-                    title={win.title}
-                    onClose={closeWindow}
-                    onMinimize={minimizeWindow}
-                    onFocus={focusWindow}
-                    initialPosition={win.initialPosition}
-                    initialSize={win.initialSize}
-                    zIndex={win.zIndex}
-                    isActive={activeWindowId === win.id}
-                  >
-                    {win.component}
-                  </OSWindow>
-                )
-              ))}
+            {!showOnboardingOS && !showStockPreferenceOnboarding && (
+              <>
+                {openWindows.map((win) => (
+                  !win.minimized && (
+                    <OSWindow
+                      key={win.id}
+                      id={win.id}
+                      title={win.title}
+                      onClose={closeWindow}
+                      onMinimize={minimizeWindow}
+                      onFocus={focusWindow}
+                      initialPosition={win.initialPosition}
+                      initialSize={win.initialSize}
+                      zIndex={win.zIndex}
+                      isActive={activeWindowId === win.id}
+                    >
+                      {win.component}
+                    </OSWindow>
+                  )
+                ))}
 
-              <OSTaskbar openApp={openApp} activeApps={activeAppIds} />
+                <OSTaskbar openApp={openApp} activeApps={activeAppIds} />
 
-              {notifications.map((notification) => (
-                <OSNotification
-                  key={notification.id}
-                  id={notification.id}
-                  title={notification.title}
-                  message={notification.message}
-                  icon={notification.icon}
-                  onDismiss={dismissNotification}
+                {notifications.map((notification) => (
+                  <OSNotification
+                    key={notification.id}
+                    id={notification.id}
+                    title={notification.title}
+                    message={notification.message}
+                    icon={notification.icon}
+                    onDismiss={dismissNotification}
+                  />
+                ))}
+
+                <OSSpotlight
+                  isOpen={showSpotlight}
+                  onClose={() => setShowSpotlight(false)}
+                  stocksList={stocksList}
+                  openApp={openApp}
+                  setIsTradingViewMode={setIsTradingViewMode} // Pass setter to Spotlight
                 />
-              ))}
-
-              <OSSpotlight
-                isOpen={showSpotlight}
-                onClose={() => setShowSpotlight(false)}
-                stocksList={stocksList}
-                openApp={openApp}
-                setIsTradingViewMode={setIsTradingViewMode} // Pass setter to Spotlight
-              />
-            </>
-          )}
-        </>
-      )}
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
