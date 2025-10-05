@@ -149,18 +149,18 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
       </div>
 
       {/* TradingView Chart */}
-      <div className="flex-grow w-full relative">
+      <div className="flex-grow w-full"> {/* Removed 'relative' here as parent is relative */}
         {scriptLoaded ? (
           <TradingViewWidget containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
         ) : (
           <div className="flex items-center justify-center h-full text-charts-text-secondary">Loading chart script...</div>
         )}
+      </div>
 
-        {/* AI Insights Overlay (Placeholder) */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-charts-toolbar-bg backdrop-blur-md p-2 rounded-lg shadow-md border border-charts-border text-charts-text-primary text-sm flex items-center space-x-2">
-          <Brain className="h-4 w-4 text-charts-accent animate-pulse-orb" />
-          <span>AI BUY SIGNAL +84% for {selectedStock}</span>
-        </div>
+      {/* AI Insights Overlay (Placeholder) - Now positioned relative to the *panel* */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-charts-toolbar-bg backdrop-blur-md p-2 rounded-lg shadow-md border border-charts-border text-charts-text-primary text-sm flex items-center space-x-2">
+        <Brain className="h-4 w-4 text-charts-accent animate-pulse-orb" />
+        <span>AI BUY SIGNAL +84% for {selectedStock}</span>
       </div>
     </div>
   );
