@@ -1,46 +1,51 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import { LineChart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef } from "react";
+import { LineChart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface BootScreenProps {
   onBootComplete: () => void;
 }
 
-const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
+const BootScreen = ({ onBootComplete }: BootScreenProps) => {
   const [progress, setProgress] = useState(0);
-  const [isBootComplete, setIsBootComplete] = useState(false); // New state to control final message
+  const [isBootComplete, setIsBootComplete] = useState(false);
   const bootAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  const [ticker, setTicker] = useState(["AAPL 174.5 ▲", "GOOGL 128.3 ▼", "TSLA 910.2 ▲"]);
+
   useEffect(() => {
-    // Preload audio
-    bootAudioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-up-1854.mp3");
-    bootAudioRef.current.load();
+    bootAudioRef.current = new Audio(
+      "https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-up-1854.mp3"
+    );
 
     const playAudioTimeout = setTimeout(() => {
-      bootAudioRef.current?.play().catch(e => console.error("Audio playback failed:", e));
+      bootAudioRef.current?.play().catch((e) => console.error("Audio playback failed:", e));
     }, 500);
 
     const bootInterval = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = prev + 10;
-        if (newProgress >= 100) {
+        const next = prev + 10;
+        if (next >= 100) {
           clearInterval(bootInterval);
           clearTimeout(playAudioTimeout);
-          setIsBootComplete(true); // Set boot complete to show final message
-          setTimeout(() => {
-            onBootComplete();
-          }, 1500); // Allow "ready" message to display before transitioning
+          setIsBootComplete(true);
+          setTimeout(() => onBootComplete(), 2000);
           return 100;
         }
-        return newProgress;
+        return next;
       });
-    }, 200); // Fill progress every 0.2 seconds
+    }, 200);
+
+    const tickerInterval = setInterval(() => {
+      setTicker((prev) => [...prev.slice(1), prev[0]]);
+    }, 1000);
 
     return () => {
       clearInterval(bootInterval);
       clearTimeout(playAudioTimeout);
+      clearInterval(tickerInterval);
       if (bootAudioRef.current) {
         bootAudioRef.current.pause();
         bootAudioRef.current.currentTime = 0;
@@ -49,45 +54,48 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
   }, [onBootComplete]);
 
   return (
-    <div className="fixed inset-0 flex flex-col justify-center items-center z-50 boot-screen-bg font-jetbrains-mono text-soft-white">
-      <motion.div // This motion.div now wraps all content for unified centering
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center justify-center" // Centers its children (logo block and messages block)
-      >
-        {/* Logo and Title Block */}
-        <div className="flex flex-col items-center justify-center mb-8"> {/* Added mb-8 for spacing */}
-          <motion.div
-            className="w-16 h-16 text-electric-blue animate-boot-logo-pulse"
-            initial={{ rotate: 0 }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-          >
-            <LineChart className="w-full h-full" />
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="text-electric-blue text-4xl font-bold mt-4"
-          >
-            Stock OS
-          </motion.p>
-        </div>
+    <div className="fixed inset-0 flex flex-col justify-center items-center z-50 font-mono text-white bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden">
+      {/* Optional faint background overlay */}
+      <div className="absolute inset-0 bg-gray-700/10 pointer-events-none"></div>
 
-        {/* Messages and Progress Bar Block */}
-        <div className="text-center"> {/* Removed mt-8, kept text-center */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1 }}
+        className="flex flex-col items-center justify-center space-y-6 z-10"
+      >
+        {/* Logo */}
+        <motion.div
+          className="w-24 h-24 text-blue-400"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <LineChart className="w-full h-full" />
+        </motion.div>
+
+        {/* App Name */}
+        <motion.h1
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="text-4xl text-blue-400 font-bold"
+        >
+          Stock OS
+        </motion.h1>
+
+        {/* Boot messages */}
+        <div className="text-center mt-4 space-y-2">
           <AnimatePresence mode="wait">
             {isBootComplete ? (
               <motion.p
-                key="ready-message"
+                key="onboarding-message"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-electric-blue text-lg font-bold mb-2 text-center"
+                transition={{ duration: 0.8 }}
+                className="text-lg text-white font-semibold"
               >
-                Stock OS ready.
+                Welcome to Stock-OS — where trading meets simplicity.
               </motion.p>
             ) : (
               <motion.p
@@ -96,37 +104,60 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="text-gray-400 text-sm mb-2 text-center"
+                className="text-gray-400 text-sm"
               >
-                Loading...
+                Booting Stock-OS Terminal...
               </motion.p>
             )}
           </AnimatePresence>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto"
-          >
+          {/* Progress Bar */}
+          {!isBootComplete && (
             <motion.div
-              className="h-full bg-electric-blue"
-              initial={{ width: "0%" }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.2, ease: "linear" }}
-            ></motion.div>
-          </motion.div>
+              className="w-72 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto mt-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <motion.div
+                className="h-full bg-blue-400"
+                initial={{ width: "0%" }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.2, ease: "linear" }}
+              />
+            </motion.div>
+          )}
 
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-            className="text-gray-500 text-xs mt-2 text-center"
-          >
-            Booting Stock-OS Terminal...
-          </motion.p>
+          {/* Spotlight prompt */}
+          {isBootComplete && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-gray-400 text-sm mt-2"
+            >
+              Press <kbd className="px-1 py-0.5 bg-gray-700 rounded">Alt</kbd> +{" "}
+              <kbd className="px-1 py-0.5 bg-gray-700 rounded">Space</kbd> to open
+              Spotlight Search.
+            </motion.p>
+          )}
         </div>
       </motion.div>
+
+      {/* Scrolling Stock Ticker */}
+      <div className="absolute bottom-2 w-full overflow-hidden">
+        <motion.div
+          className="flex gap-8 whitespace-nowrap text-gray-400 text-sm px-4"
+          animate={{ x: ["100%", "-100%"] }}
+          transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+        >
+          {ticker.map((item, idx) => (
+            <span key={idx} className="mx-4">
+              {item}
+            </span>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 };
