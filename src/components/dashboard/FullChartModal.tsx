@@ -14,88 +14,66 @@ const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose }) => {
   const widgetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!(window && (window as any).TradingView)) {
-      console.warn("TradingView script not loaded for full chart.");
-      const retryTimer = setTimeout(() => {
-        if (window && (window as any).TradingView) {
-          new (window as any).TradingView.widget({
-            container_id: id,
-            width: "100%",
-            height: "100%",
-            symbol: symbol,
-            interval: "D",
-            timezone: "Etc/UTC",
-            theme: "dark",
-            style: "1", // Candlestick chart
-            locale: "en",
-            toolbar_bg: "#0B0B0B",
-            enable_publishing: false,
-            allow_symbol_change: true,
-            hide_side_toolbar: false,
-            hide_top_toolbar: false,
-            withdateranges: true,
-            studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
-            watchlist: true,
-            details: true,
-            hotlist: true,
-            calendar: true,
-            news: true,
-            overrides: {
-              "paneProperties.background": "#0B0B0B",
-              "scalesProperties.textColor": "#BFC7D6",
-              "mainSeriesProperties.candleStyle.upColor": "#00E676",
-              "mainSeriesProperties.candleStyle.downColor": "#FF3B30",
-              "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
-              "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
-              "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
-              "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
-            }
-          });
-        }
-      }, 500);
-      return () => clearTimeout(retryTimer);
-    }
-    
-    // Clear container before creating new widget
-    if (widgetRef.current) {
-      widgetRef.current.innerHTML = "";
-    }
+    let widget: any = null;
+    let retryTimer: NodeJS.Timeout | null = null;
 
-    new (window as any).TradingView.widget({
-      container_id: id,
-      width: "100%",
-      height: "100%",
-      symbol: symbol,
-      interval: "D",
-      timezone: "Etc/UTC",
-      theme: "dark", // Keep dark theme for OS consistency
-      style: "1", // Candlestick chart
-      locale: "en",
-      toolbar_bg: "#0B0B0B", // Dark toolbar background
-      enable_publishing: false,
-      allow_symbol_change: true, // Allow changing symbol in full chart
-      hide_side_toolbar: false, // Show side toolbar
-      hide_top_toolbar: false, // Show top toolbar
-      withdateranges: true, // Show date ranges
-      studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"], // Keep studies
-      watchlist: true, // Show watchlist
-      details: true, // Show company details
-      hotlist: true, // Show hotlist
-      calendar: true, // Show calendar
-      news: true, // Show news
-      overrides: {
-        "paneProperties.background": "#0B0B0B", // Dark background
-        "scalesProperties.textColor": "#BFC7D6", // Soft white text
-        // Candlestick colors
-        "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
-        "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
-        "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
-        "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
-        "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
-        "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+    const createWidget = () => {
+      if (!widgetRef.current) return;
+
+      // Clear container before creating new widget
+      widgetRef.current.innerHTML = "";
+
+      if (!(window && (window as any).TradingView)) {
+        console.warn("TradingView script not loaded for full chart. Retrying...");
+        retryTimer = setTimeout(createWidget, 500);
+        return;
       }
-    });
-  }, [symbol, id]); // Removed stockData from dependencies
+      
+      widget = new (window as any).TradingView.widget({
+        container_id: id,
+        width: "100%",
+        height: "100%",
+        symbol: symbol,
+        interval: "D",
+        timezone: "Etc/UTC",
+        theme: "dark", // Keep dark theme for OS consistency
+        style: "1", // Candlestick chart
+        locale: "en",
+        toolbar_bg: "#0B0B0B", // Dark toolbar background
+        enable_publishing: false,
+        allow_symbol_change: true, // Allow changing symbol in full chart
+        hide_side_toolbar: false, // Show side toolbar
+        hide_top_toolbar: false, // Show top toolbar
+        withdateranges: true, // Show date ranges
+        studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"], // Keep studies
+        watchlist: true, // Show watchlist
+        details: true, // Show company details
+        hotlist: true, // Show hotlist
+        calendar: true, // Show calendar
+        news: true, // Show news
+        overrides: {
+          "paneProperties.background": "#0B0B0B", // Dark background
+          "scalesProperties.textColor": "#BFC7D6", // Soft white text
+          // Candlestick colors
+          "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
+          "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
+          "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+          "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+          "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+          "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+        }
+      });
+    };
+
+    createWidget();
+
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+      if (widget && typeof widget.remove === 'function') {
+        widget.remove();
+      }
+    };
+  }, [symbol, id]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col z-[100] p-4" role="dialog" aria-modal="true">

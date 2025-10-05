@@ -13,24 +13,8 @@ interface ChartTileProps {
   openFull: (symbol: string) => void;
 }
 
-// Custom hook for Intersection Observer
-function useIntersectionObserver(ref: React.RefObject<HTMLElement>, options: IntersectionObserverInit) {
-  const [isIntersecting, setIntersecting] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const el = ref.current;
-    const observer = new IntersectionObserver(([entry]) => {
-      setIntersecting(entry.isIntersecting);
-    }, options);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref, options]);
-  return isIntersecting;
-}
-
 const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mounted = useIntersectionObserver(containerRef, { threshold: 0.2 });
   const widgetId = `tv-small-${index}`;
   const { stockData } = useStockData(); // Get stock data for additional info
 
@@ -47,84 +31,64 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   const profitProbability = stockInfo.sentiments[stockInfo.sentiments.length - 1] || 0; // Using sentiment as AI score
 
   useEffect(() => {
-    if (!mounted) return;
-    // Prevent double-insert
-    const el = document.getElementById(widgetId);
-    if (el && el.childElementCount > 0) return;
+    let widget: any = null;
+    let retryTimer: NodeJS.Timeout | null = null;
 
-    // Ensure TradingView library is loaded
-    if (!(window && (window as any).TradingView)) {
-      console.warn("TradingView script not loaded yet.");
-      const retryTimer = setTimeout(() => {
-        if (window && (window as any).TradingView) {
-          new (window as any).TradingView.widget({
-            container_id: widgetId,
-            width: "100%",
-            height: 260,
-            symbol: symbol,
-            interval: "60", // 60 minute default for tile
-            timezone: "Etc/UTC",
-            theme: "dark",
-            style: "1", // Candlestick chart
-            locale: "en",
-            toolbar_bg: "#0B0B0B",
-            enable_publishing: false,
-            allow_symbol_change: false,
-            hide_top_toolbar: true,
-            hide_side_toolbar: true,
-            withdateranges: false,
-            studies_overrides: {},
-            overrides: {
-              "paneProperties.background": "#0B0B0B",
-              "paneProperties.vertGridProperties.color": "#121212",
-              "paneProperties.horzGridProperties.color": "#121212",
-              "scalesProperties.textColor": "#BFC7D6",
-              // Candlestick colors
-              "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
-              "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
-              "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
-              "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
-              "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
-              "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
-            }
-          });
-        }
-      }, 500);
-      return () => clearTimeout(retryTimer);
-    }
+    const createWidget = () => {
+      const el = document.getElementById(widgetId);
+      if (!el) return;
 
-    new (window as any).TradingView.widget({
-      container_id: widgetId,
-      width: "100%",
-      height: 260,
-      symbol: symbol,
-      interval: "60", // 60 minute default for tile
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: "1", // Candlestick chart
-      locale: "en",
-      toolbar_bg: "#0B0B0B",
-      enable_publishing: false,
-      allow_symbol_change: false,
-      hide_top_toolbar: true,
-      hide_side_toolbar: true,
-      withdateranges: false,
-      studies_overrides: {},
-      overrides: {
-        "paneProperties.background": "#0B0B0B",
-        "paneProperties.vertGridProperties.color": "#121212",
-        "paneProperties.horzGridProperties.color": "#121212",
-        "scalesProperties.textColor": "#BFC7D6",
-        // Candlestick colors
-        "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
-        "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
-        "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
-        "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
-        "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
-        "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+      // Clear existing widget content
+      el.innerHTML = "";
+
+      if (!(window && (window as any).TradingView)) {
+        console.warn("TradingView script not loaded yet. Retrying...");
+        retryTimer = setTimeout(createWidget, 500); // Retry after 0.5 seconds
+        return;
       }
-    });
-  }, [mounted, symbol, widgetId]); // Removed stockData from dependencies
+
+      widget = new (window as any).TradingView.widget({
+        container_id: widgetId,
+        width: "100%",
+        height: 260,
+        symbol: symbol,
+        interval: "60", // 60 minute default for tile
+        timezone: "Etc/UTC",
+        theme: "dark",
+        style: "1", // Candlestick chart
+        locale: "en",
+        toolbar_bg: "#0B0B0B",
+        enable_publishing: false,
+        allow_symbol_change: false,
+        hide_top_toolbar: true,
+        hide_side_toolbar: true,
+        withdateranges: false,
+        studies_overrides: {},
+        overrides: {
+          "paneProperties.background": "#0B0B0B",
+          "paneProperties.vertGridProperties.color": "#121212",
+          "paneProperties.horzGridProperties.color": "#121212",
+          "scalesProperties.textColor": "#BFC7D6",
+          // Candlestick colors
+          "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
+          "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
+          "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+          "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+          "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+          "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+        }
+      });
+    };
+
+    createWidget();
+
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+      if (widget && typeof widget.remove === 'function') {
+        widget.remove();
+      }
+    };
+  }, [symbol, widgetId]); // Only re-run if symbol or widgetId changes
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${symbol.split(':')[1]}... (Feature coming soon)` });
@@ -153,11 +117,6 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
       </div>
 
       <div className="relative flex-grow min-h-[260px] bg-[#0B0B0B] rounded-md overflow-hidden">
-        {!mounted && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400 text-sm">
-            Loading Chart...
-          </div>
-        )}
         <div id={widgetId} className="w-full h-full" />
       </div>
 
