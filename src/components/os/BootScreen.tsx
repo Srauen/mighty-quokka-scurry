@@ -2,26 +2,15 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { LineChart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface BootScreenProps {
   onBootComplete: () => void;
 }
 
-const dynamicTickerMessages = [
-  "MARKET DATA FEEDS ONLINE...",
-  "AI MODELS CALIBRATING...",
-  "SECURE CONNECTION ESTABLISHED...",
-  "PORTFOLIO SYNCHRONIZING...",
-  "ANALYTICS ENGINE LOADING...",
-  "SYSTEM INTEGRITY VERIFIED...",
-  "TRADING ENVIRONMENT OPTIMIZED...",
-];
-
 const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
   const [progress, setProgress] = useState(0);
-  const [currentTickerMessageIndex, setCurrentTickerMessageIndex] = useState(0);
-  const [showReadyMessage, setShowReadyMessage] = useState(false);
+  const [isBootComplete, setIsBootComplete] = useState(false); // New state to control final message
   const bootAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -33,23 +22,16 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
       bootAudioRef.current?.play().catch(e => console.error("Audio playback failed:", e));
     }, 500);
 
-    // Cycle through dynamic ticker messages
-    const tickerInterval = setInterval(() => {
-      setCurrentTickerMessageIndex((prevIndex) => (prevIndex + 1) % dynamicTickerMessages.length);
-    }, 1000); // Change message every 1 second
-
-    // Progress bar fill interval
     const bootInterval = setInterval(() => {
       setProgress((prev) => {
         const newProgress = prev + 10;
         if (newProgress >= 100) {
           clearInterval(bootInterval);
-          clearInterval(tickerInterval); // Stop ticker messages when progress is full
           clearTimeout(playAudioTimeout);
-          setShowReadyMessage(true); // Show "Stock OS ready."
+          setIsBootComplete(true); // Set boot complete to show final message
           setTimeout(() => {
-            onBootComplete(); // Call onBootComplete after a short delay for final message
-          }, 1500); // Allow "ready" message to display
+            onBootComplete();
+          }, 1500); // Allow "ready" message to display before transitioning
           return 100;
         }
         return newProgress;
@@ -58,7 +40,6 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
 
     return () => {
       clearInterval(bootInterval);
-      clearInterval(tickerInterval);
       clearTimeout(playAudioTimeout);
       if (bootAudioRef.current) {
         bootAudioRef.current.pause();
@@ -95,27 +76,26 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
 
       <div className="mt-8 text-center">
         <AnimatePresence mode="wait">
-          {!showReadyMessage && (
-            <motion.p
-              key={currentTickerMessageIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="text-gray-400 text-sm h-5 mb-2" // Added mb-2 for spacing
-            >
-              {dynamicTickerMessages[currentTickerMessageIndex]}
-            </motion.p>
-          )}
-          {showReadyMessage && (
+          {isBootComplete ? (
             <motion.p
               key="ready-message"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-electric-blue text-lg font-bold h-5 mb-2" // Larger, bolder for final message
+              className="text-electric-blue text-lg font-bold h-5 mb-2" // Styling for "Stock OS ready."
             >
               Stock OS ready.
+            </motion.p>
+          ) : (
+            <motion.p
+              key="loading-message"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="text-gray-400 text-sm h-5 mb-2" // Styling for "Loading..."
+            >
+              Loading...
             </motion.p>
           )}
         </AnimatePresence>
