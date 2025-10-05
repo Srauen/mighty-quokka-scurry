@@ -2,26 +2,26 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { LineChart } from 'lucide-react';
-import { motion } from 'framer-motion'; // Keep motion for internal animations
+import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
 
 interface BootScreenProps {
   onBootComplete: () => void;
 }
 
-const bootMessages = [
-  "Initializing market data...",
-  "Establishing secure connection...",
-  "Calibrating AI models...",
-  "Synchronizing portfolio...",
-  "Loading analytics engine...",
-  "Verifying system integrity...",
-  "Optimizing trading environment...",
-  "Stock OS ready."
+const dynamicTickerMessages = [
+  "MARKET DATA FEEDS ONLINE...",
+  "AI MODELS CALIBRATING...",
+  "SECURE CONNECTION ESTABLISHED...",
+  "PORTFOLIO SYNCHRONIZING...",
+  "ANALYTICS ENGINE LOADING...",
+  "SYSTEM INTEGRITY VERIFIED...",
+  "TRADING ENVIRONMENT OPTIMIZED...",
 ];
 
 const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
   const [progress, setProgress] = useState(0);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [currentTickerMessageIndex, setCurrentTickerMessageIndex] = useState(0);
+  const [showReadyMessage, setShowReadyMessage] = useState(false);
   const bootAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -33,27 +33,32 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
       bootAudioRef.current?.play().catch(e => console.error("Audio playback failed:", e));
     }, 500);
 
+    // Cycle through dynamic ticker messages
+    const tickerInterval = setInterval(() => {
+      setCurrentTickerMessageIndex((prevIndex) => (prevIndex + 1) % dynamicTickerMessages.length);
+    }, 1000); // Change message every 1 second
+
+    // Progress bar fill interval
     const bootInterval = setInterval(() => {
       setProgress((prev) => {
         const newProgress = prev + 10;
-        if (newProgress <= 100) {
-          setCurrentMessageIndex(Math.min(Math.floor(newProgress / 12.5), bootMessages.length - 1));
-        }
-
         if (newProgress >= 100) {
           clearInterval(bootInterval);
+          clearInterval(tickerInterval); // Stop ticker messages when progress is full
           clearTimeout(playAudioTimeout);
+          setShowReadyMessage(true); // Show "Stock OS ready."
           setTimeout(() => {
-            onBootComplete(); // Call onBootComplete when progress is 100%
-          }, 1000); // Allow a moment before calling complete to ensure exit animation starts
+            onBootComplete(); // Call onBootComplete after a short delay for final message
+          }, 1500); // Allow "ready" message to display
           return 100;
         }
         return newProgress;
       });
-    }, 200);
+    }, 200); // Fill progress every 0.2 seconds
 
     return () => {
       clearInterval(bootInterval);
+      clearInterval(tickerInterval);
       clearTimeout(playAudioTimeout);
       if (bootAudioRef.current) {
         bootAudioRef.current.pause();
@@ -88,38 +93,56 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
         </motion.p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        className="w-64 h-2 bg-gray-700 mt-8 rounded-full overflow-hidden"
-      >
-        <motion.div
-          className="h-full bg-electric-blue"
-          initial={{ width: "0%" }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.2, ease: "linear" }}
-        ></motion.div>
-      </motion.div>
+      <div className="mt-8 text-center">
+        <AnimatePresence mode="wait">
+          {!showReadyMessage && (
+            <motion.p
+              key={currentTickerMessageIndex}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="text-gray-400 text-sm h-5 mb-2" // Added mb-2 for spacing
+            >
+              {dynamicTickerMessages[currentTickerMessageIndex]}
+            </motion.p>
+          )}
+          {showReadyMessage && (
+            <motion.p
+              key="ready-message"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-electric-blue text-lg font-bold h-5 mb-2" // Larger, bolder for final message
+            >
+              Stock OS ready.
+            </motion.p>
+          )}
+        </AnimatePresence>
 
-      <motion.p
-        key={currentMessageIndex}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }} // Exit animation for message
-        transition={{ duration: 0.3 }}
-        className="text-gray-400 text-sm mt-4 h-5"
-      >
-        {bootMessages[currentMessageIndex]}
-      </motion.p>
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5, duration: 0.5 }}
-        className="text-gray-500 text-xs mt-2"
-      >
-        Booting Stock-OS Terminal...
-      </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }} // Adjusted delay to appear after initial logo animation
+          className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto" // Centered progress bar
+        >
+          <motion.div
+            className="h-full bg-electric-blue"
+            initial={{ width: "0%" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.2, ease: "linear" }}
+          ></motion.div>
+        </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 0.5 }}
+          className="text-gray-500 text-xs mt-2"
+        >
+          Booting Stock-OS Terminal...
+        </motion.p>
+      </div>
     </div>
   );
 };
