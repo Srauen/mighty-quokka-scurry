@@ -58,7 +58,8 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     enable_publishing: false,
     allow_symbol_change: false, // Managed by our app
     hide_top_toolbar: true,
-    hide_side_toolbar: true, // Set to true to hide the side toolbar
+    hide_side_toolbar: true,
+    hide_bottom_toolbar: true, // Added to hide the native bottom toolbar
     withdateranges: true,
     studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
     watchlist: false,
@@ -139,14 +140,14 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
       </div>
 
       {/* TradingView Chart */}
-      <div className="flex-grow w-full relative"> {/* Added relative for bottom overlay */}
+      <div className="flex-grow w-full relative">
         {scriptLoaded ? (
           <TradingViewWidget containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
         ) : (
           <div className="flex items-center justify-center h-full text-charts-text-secondary">Loading chart script...</div>
         )}
 
-        {/* AI Insights Overlay (Placeholder) - now positioned relative to this div */}
+        {/* AI Insights Overlay (Placeholder) */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-charts-toolbar-bg backdrop-blur-md p-2 rounded-lg shadow-md border border-charts-border text-charts-text-primary text-sm flex items-center space-x-2">
           <Brain className="h-4 w-4 text-charts-accent animate-pulse-orb" />
           <span>AI BUY SIGNAL +84% for {selectedStock}</span>
