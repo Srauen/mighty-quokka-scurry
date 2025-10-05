@@ -271,3 +271,8 @@ html {
   scrollbar-width: thin;
   scrollbar-color: #4a5568 #2d3748;
 }
+
+.animate-marquee {
+  animation: marquee 60s linear infinite; /* Increased duration for smoother scroll */
+  will-change: transform; /* Performance hint */
+}

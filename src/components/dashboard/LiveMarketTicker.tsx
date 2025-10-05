@@ -43,7 +43,7 @@ const LiveMarketTicker: React.FC = () => {
       <div className="flex animate-marquee whitespace-nowrap">
         {/* Duplicate items to create a seamless loop */}
         {[...tickerItems, ...tickerItems].map((item, index) => (
-          <div key={index} className="inline-flex items-center mx-4 text-sm font-medium">
+          <div key={index} className="inline-flex items-center mx-4 text-sm font-medium flex-shrink-0">
             <span className="text-gray-300 mr-2">{item.symbol}:</span>
             <span className={cn(
               "flex items-center",
@@ -66,7 +66,8 @@ const LiveMarketTicker: React.FC = () => {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 60s linear infinite;
+          will-change: transform;
         }
       `}</style>
     </div>
