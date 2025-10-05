@@ -20,7 +20,7 @@ const Index = () => {
   const { theme, setTheme } = useTheme();
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeSection, setActiveSection] = useState('hero');
-  const [showOSSimulation, setShowOSSimulation] = useState(false); // Still for demo
+  const [showOSSimulation, setShowOSSimulation] = useState(true); // Changed to true for immediate demo
 
   const heroRef = useRef<HTMLElement | null>(null);
   const featuresRef = useRef<HTMLElement | null>(null);
