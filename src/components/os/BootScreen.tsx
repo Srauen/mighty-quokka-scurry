@@ -50,79 +50,83 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
 
   return (
     <div className="fixed inset-0 flex flex-col justify-center items-center z-50 boot-screen-bg font-jetbrains-mono text-soft-white">
-      <motion.div
+      <motion.div // This motion.div now wraps all content for unified centering
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center justify-center"
+        className="flex flex-col items-center justify-center" // Centers its children (logo block and messages block)
       >
-        <motion.div
-          className="w-16 h-16 text-electric-blue animate-boot-logo-pulse"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-        >
-          <LineChart className="w-full h-full" />
-        </motion.div>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="text-electric-blue text-4xl font-bold mt-4"
-        >
-          Stock OS
-        </motion.p>
-      </motion.div>
-
-      <div className="mt-8 text-center">
-        <AnimatePresence mode="wait">
-          {isBootComplete ? (
-            <motion.p
-              key="ready-message"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-electric-blue text-lg font-bold mb-2 text-center" // Removed h-5, added text-center
-            >
-              Stock OS ready.
-            </motion.p>
-          ) : (
-            <motion.p
-              key="loading-message"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="text-gray-400 text-sm mb-2 text-center" // Removed h-5, added text-center
-            >
-              Loading...
-            </motion.p>
-          )}
-        </AnimatePresence>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto" // Added mx-auto for explicit centering of the block element
-        >
+        {/* Logo and Title Block */}
+        <div className="flex flex-col items-center justify-center mb-8"> {/* Added mb-8 for spacing */}
           <motion.div
-            className="h-full bg-electric-blue"
-            initial={{ width: "0%" }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.2, ease: "linear" }}
-          ></motion.div>
-        </motion.div>
+            className="w-16 h-16 text-electric-blue animate-boot-logo-pulse"
+            initial={{ rotate: 0 }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, ease: "linear", repeat: Infinity }}
+          >
+            <LineChart className="w-full h-full" />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="text-electric-blue text-4xl font-bold mt-4"
+          >
+            Stock OS
+          </motion.p>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.5 }}
-          className="text-gray-500 text-xs mt-2 text-center" // Added text-center
-        >
-          Booting Stock-OS Terminal...
-        </motion.p>
-      </div>
+        {/* Messages and Progress Bar Block */}
+        <div className="text-center"> {/* Removed mt-8, kept text-center */}
+          <AnimatePresence mode="wait">
+            {isBootComplete ? (
+              <motion.p
+                key="ready-message"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-electric-blue text-lg font-bold mb-2 text-center"
+              >
+                Stock OS ready.
+              </motion.p>
+            ) : (
+              <motion.p
+                key="loading-message"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="text-gray-400 text-sm mb-2 text-center"
+              >
+                Loading...
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto"
+          >
+            <motion.div
+              className="h-full bg-electric-blue"
+              initial={{ width: "0%" }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.2, ease: "linear" }}
+            ></motion.div>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            className="text-gray-500 text-xs mt-2 text-center"
+          >
+            Booting Stock-OS Terminal...
+          </motion.p>
+        </div>
+      </motion.div>
     </div>
   );
 };
