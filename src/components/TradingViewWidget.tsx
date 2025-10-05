@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
 
 interface TradingViewWidgetProps {
   containerId: string;
@@ -16,6 +16,7 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
   ({ containerId, widgetOptions }, ref) => {
     const widgetInstanceRef = useRef<any>(null); // To hold the actual TradingView.widget instance
     const containerDivRef = useRef<HTMLDivElement>(null); // Ref for the div that TradingView attaches to
+    const [widgetInitialized, setWidgetInitialized] = useState(false); // State to track if widget has been initialized
 
     // Expose a resize method via the ref
     useImperativeHandle(ref, () => ({
@@ -28,74 +29,60 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
     }));
 
     useEffect(() => {
-      let animationFrameId: number | null = null;
-      let attemptCount = 0;
-      const maxAttempts = 120; // Increased max attempts (e.g., 2 seconds at 60fps)
+      let intervalId: NodeJS.Timeout | null = null;
 
-      const initWidget = () => {
+      const tryInitWidget = () => {
         const container = containerDivRef.current;
-        attemptCount++;
 
-        // 1. Check if TradingView script is loaded
-        if (!(window as any).TradingView) {
-          if (attemptCount < maxAttempts) {
-            console.log(`TradingViewWidget (${containerId}): Script not ready. Retrying... (Attempt ${attemptCount})`);
-            animationFrameId = requestAnimationFrame(initWidget);
-          } else {
-            console.error(`TradingViewWidget (${containerId}): Failed to load after ${maxAttempts} attempts: Script not available.`);
-            if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart: Script not available.</div>';
-          }
+        // If container is gone or widget is already initialized, stop trying
+        if (!container || widgetInitialized) {
+          if (intervalId) clearInterval(intervalId);
           return;
         }
 
-        // 2. Check if container element exists and has computed dimensions
-        if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) {
-          if (attemptCount < maxAttempts) {
-            console.log(`TradingViewWidget (${containerId}): Container not ready or zero dimensions (W:${container?.offsetWidth}, H:${container?.offsetHeight}). Retrying... (Attempt ${attemptCount})`);
-            animationFrameId = requestAnimationFrame(initWidget);
-          } else {
-            console.error(`TradingViewWidget (${containerId}): Failed to load after ${maxAttempts} attempts: Container not ready or zero dimensions.`);
-            if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart: Container not ready.</div>';
+        const { offsetWidth, offsetHeight } = container;
+
+        // Check if TradingView script is loaded and container has non-zero dimensions
+        if (offsetWidth > 0 && offsetHeight > 0 && (window as any).TradingView) {
+          // Script loaded and container has dimensions
+          if (intervalId) clearInterval(intervalId); // Stop polling
+
+          // Remove existing widget instance if it exists before creating a new one
+          if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
+            try {
+              console.log(`TradingViewWidget (${containerId}): Removing old widget instance.`);
+              widgetInstanceRef.current.remove();
+            } catch (e) {
+              console.error(`TradingViewWidget (${containerId}): Error removing old widget instance:`, e);
+            }
+            widgetInstanceRef.current = null;
           }
-          return;
-        }
 
-        // If we reach here, script is loaded and container is ready with dimensions
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-          animationFrameId = null;
-        }
+          container.innerHTML = ''; // Clear previous content to prevent multiple widgets in the same container
+          console.log(`TradingViewWidget (${containerId}): Initializing new widget with W:${offsetWidth}, H:${offsetHeight}.`);
 
-        // Remove existing widget instance if it exists before creating a new one
-        if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
           try {
-            console.log(`TradingViewWidget (${containerId}): Removing old widget instance.`);
-            widgetInstanceRef.current.remove();
+            const newWidgetInstance = new (window as any).TradingView.widget({
+              ...widgetOptions,
+              container_id: containerId, // This should match the ID of the div below
+              width: offsetWidth, // Use actual width
+              height: offsetHeight, // Use actual height
+            });
+            widgetInstanceRef.current = newWidgetInstance; // Update ref for imperative handle
+            setWidgetInitialized(true); // Mark as initialized
+            console.log(`TradingViewWidget (${containerId}): Widget initialized successfully.`);
           } catch (e) {
-            console.error(`TradingViewWidget (${containerId}): Error removing old widget instance:`, e);
+            console.error(`TradingViewWidget (${containerId}): Error during widget instantiation:`, e);
+            container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400">Error loading chart: ${e instanceof Error ? e.message : String(e)}.</div>`;
           }
-          widgetInstanceRef.current = null;
-        }
-
-        // Clear previous content to prevent multiple widgets in the same container
-        container.innerHTML = '';
-        console.log(`TradingViewWidget (${containerId}): Initializing new widget with W:${container.offsetWidth}, H:${container.offsetHeight}.`);
-
-        try {
-          widgetInstanceRef.current = new (window as any).TradingView.widget({
-            ...widgetOptions,
-            container_id: containerId, // This should match the ID of the div below
-            width: container.offsetWidth, // Use actual width
-            height: container.offsetHeight, // Use actual height
-          });
-          console.log(`TradingViewWidget (${containerId}): Widget initialized successfully.`);
-        } catch (e) {
-          console.error(`TradingViewWidget (${containerId}): Error during widget instantiation:`, e);
-          if (container) container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400">Error loading chart: ${e instanceof Error ? e.message : String(e)}.</div>`;
+        } else {
+          // Script not loaded or container not ready, keep trying
+          console.log(`TradingViewWidget (${containerId}): Not ready. Script loaded: ${!!(window as any).TradingView}, Container dimensions: ${offsetWidth}x${offsetHeight}. Retrying...`);
         }
       };
 
-      animationFrameId = requestAnimationFrame(initWidget);
+      // Start polling every 50ms
+      intervalId = setInterval(tryInitWidget, 50);
 
       // Setup ResizeObserver
       const resizeObserver = new ResizeObserver(() => {
@@ -109,10 +96,9 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
         resizeObserver.observe(containerDivRef.current);
       }
 
+      // Cleanup function
       return () => {
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-        }
+        if (intervalId) clearInterval(intervalId); // Stop polling
         if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
           try {
             console.log(`TradingViewWidget (${containerId}): Cleaning up widget on unmount.`);
@@ -122,9 +108,9 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
           }
           widgetInstanceRef.current = null;
         }
-        resizeObserver.disconnect(); // Disconnect observer on cleanup
+        resizeObserver.disconnect(); // Disconnect observer
       };
-    }, [containerId, widgetOptions]); // Re-run effect if containerId or widgetOptions change
+    }, [containerId, widgetOptions, widgetInitialized]); // Dependencies: re-run if these change
 
     // The container div itself should still fill its parent
     return <div id={containerId} ref={containerDivRef} className="w-full h-full" />;
