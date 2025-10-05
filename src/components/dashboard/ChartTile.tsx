@@ -105,7 +105,7 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   };
 
   return (
-    <div ref={containerRef} className="glassmorphic-card chart-tile p-4 rounded-xl shadow-lg border border-gray-700 hover:border-electric-blue transition-all duration-200 flex flex-col" role="article" aria-label={`Chart tile ${symbol}`}>
+    <div className="glassmorphic-card chart-tile p-4 rounded-xl shadow-lg border border-gray-700 hover:border-electric-blue transition-all duration-200 flex flex-col" role="article" aria-label={`Chart tile ${symbol}`}>
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center space-x-2">
           {/* Company Logo Placeholder */}
