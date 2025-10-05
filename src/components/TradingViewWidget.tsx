@@ -28,9 +28,10 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
     }));
 
     useEffect(() => {
-      let animationFrameId: number | null = null;
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
       let attemptCount = 0;
-      const maxAttempts = 60; // Increased max attempts for robustness (approx 1 second at 60fps)
+      const maxAttempts = 100; // Increased max attempts (e.g., 5 seconds at 50ms delay)
+      const retryDelay = 50; // ms
 
       const initWidget = () => {
         const container = containerDivRef.current;
@@ -40,7 +41,7 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
         if (!(window as any).TradingView) {
           if (attemptCount < maxAttempts) {
             console.log(`TradingViewWidget (${containerId}): Script not ready. Retrying... (Attempt ${attemptCount})`);
-            animationFrameId = requestAnimationFrame(initWidget);
+            timeoutId = setTimeout(initWidget, retryDelay);
           } else {
             console.error(`TradingViewWidget (${containerId}): Failed to load after ${maxAttempts} attempts: Script not available.`);
             if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart: Script not available.</div>';
@@ -52,7 +53,7 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
         if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) {
           if (attemptCount < maxAttempts) {
             console.log(`TradingViewWidget (${containerId}): Container not ready or zero dimensions (W:${container?.offsetWidth}, H:${container?.offsetHeight}). Retrying... (Attempt ${attemptCount})`);
-            animationFrameId = requestAnimationFrame(initWidget);
+            timeoutId = setTimeout(initWidget, retryDelay);
           } else {
             console.error(`TradingViewWidget (${containerId}): Failed to load after ${maxAttempts} attempts: Container not ready or zero dimensions.`);
             if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart: Container not ready.</div>';
@@ -61,9 +62,9 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
         }
 
         // If we reach here, script is loaded and container is ready with dimensions
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-          animationFrameId = null;
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
         }
 
         // Remove existing widget instance if it exists before creating a new one
@@ -95,11 +96,11 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
         }
       };
 
-      animationFrameId = requestAnimationFrame(initWidget);
+      timeoutId = setTimeout(initWidget, retryDelay); // Start the polling
 
       return () => {
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
         }
         if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
           try {
