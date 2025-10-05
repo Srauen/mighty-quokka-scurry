@@ -18,7 +18,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const apps = [
-    { id: 'stock-chart', name: 'Stock Chart', icon: CandlestickChart },
+    { id: 'charts-app', name: 'Charts', icon: CandlestickChart }, // New Charts app
     { id: 'trading-terminal', name: 'Trading Terminal', icon: TrendingUp },
     { id: 'portfolio-manager', name: 'Portfolio Manager', icon: Briefcase },
     { id: 'news-feed', name: 'News Feed', icon: Newspaper },
@@ -45,7 +45,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
     if (item.type === 'app') {
       openApp(item.id);
     } else if (item.type === 'stock') {
-      openApp('stock-chart', item.id); // Open stock chart with selected stock
+      openApp('charts-app', item.id); // Open Charts app with selected stock
     }
     onClose();
   }, [openApp, onClose]);
@@ -55,24 +55,24 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
   return (
     <div
       className="fixed inset-0 flex items-start justify-center p-8 z-[1000]
-                 bg-black/50 backdrop-blur-lg" // Added semi-transparent background and backdrop blur
+                 bg-black/50 backdrop-blur-lg"
       onClick={onClose}
     >
       <Command
-        className="w-full max-w-xl bg-gray-900/80 border border-gray-700 rounded-lg shadow-2xl overflow-hidden" // Slightly transparent background for Command
+        className="w-full max-w-xl bg-gray-900/80 border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             onClose();
           }
         }}
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+        onClick={(e) => e.stopPropagation()}
       >
         <CommandInput
           ref={inputRef}
           placeholder="Search apps, stocks, documents..."
           value={search}
           onValueChange={setSearch}
-          className="h-12 text-lg bg-gray-800/70 border-b border-gray-700 text-soft-white placeholder-gray-500 focus:ring-0 focus:border-0" // Slightly transparent input
+          className="h-12 text-lg bg-gray-800/70 border-b border-gray-700 text-soft-white placeholder-gray-500 focus:ring-0 focus:border-0"
         />
         <CommandList className="max-h-[400px] overflow-y-auto custom-scrollbar">
           <CommandEmpty className="py-6 text-center text-gray-400">No results found.</CommandEmpty>
@@ -81,7 +81,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
               <CommandItem
                 key={item.type === 'app' ? `app-${item.id}` : `stock-${item.id}`}
                 onSelect={() => handleSelect(item)}
-                className="flex items-center space-x-3 px-4 py-3 cursor-pointer hover:bg-gray-800/70 text-soft-white" // Slightly transparent hover
+                className="flex items-center space-x-3 px-4 py-3 cursor-pointer hover:bg-gray-800/70 text-soft-white"
               >
                 <item.icon className="h-5 w-5 text-electric-blue" />
                 <span>{item.name}</span>

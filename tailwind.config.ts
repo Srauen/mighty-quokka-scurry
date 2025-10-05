@@ -66,7 +66,16 @@ export default {
         'electric-blue': '#00AEFF', // A vibrant blue for accents
         'teal': '#00E676', // A vibrant green for positive indicators
         'soft-white': '#E5E7EB', // Light text for headings
-        'body-label': '#BFC7D6', // Slightly darker light text for body labels
+        'body-label': '#9CA3AF', // Slightly darker light text for body labels (updated from #BFC7D6)
+
+        // Charts App specific colors
+        'charts-bg': '#0B0B0B',
+        'charts-panel-bg': 'rgba(11, 11, 11, 0.6)', // Glassmorphic background
+        'charts-border': 'rgba(229, 229, 229, 0.1)', // Light border for glassmorphism
+        'charts-accent': '#00AEEF', // Stock-OS blue accent
+        'charts-text-primary': '#E5E7EB',
+        'charts-text-secondary': '#9CA3AF',
+        'charts-toolbar-bg': 'rgba(11, 11, 11, 0.8)', // Slightly more opaque for toolbar
 
         // Heatmap Colors
         'heatmap-strong-up': '#00E676',
@@ -85,6 +94,7 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        'mac-window': '0.75rem', // macOS-style rounded corners
       },
       keyframes: {
         "accordion-down": {
@@ -119,6 +129,18 @@ export default {
           "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0px rgba(0,0,0,0)" },
           "50%": { transform: "scale(1.02)", boxShadow: "0 0 10px rgba(0, 174, 239, 0.5)" },
         },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "slide-in-left": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(0)" },
+        },
+        "slide-out-left": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -128,6 +150,9 @@ export default {
         "glow-subtle": "glow 4s ease-in-out infinite",
         "marquee-horizontal": "marquee-horizontal 30s linear infinite",
         "tile-pulse": "tile-pulse 2s ease-in-out infinite",
+        "fade-in": "fade-in 0.5s ease-out",
+        "slide-in-left": "slide-in-left 0.3s ease-out",
+        "slide-out-left": "slide-out-left 0.3s ease-out forwards",
       },
     },
   },

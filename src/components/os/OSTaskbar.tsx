@@ -10,7 +10,7 @@ interface OSTaskbarProps {
 
 const OSTaskbar: React.FC<OSTaskbarProps> = ({ openApp, activeApps }) => {
   const apps = [
-    { id: 'stock-chart', icon: <CandlestickChart className="w-7 h-7 text-green-400" /> }, // Changed icon
+    { id: 'charts-app', icon: <CandlestickChart className="w-7 h-7 text-green-400" /> }, // New Charts app
     { id: 'trading-terminal', icon: <TrendingUp className="w-7 h-7 text-yellow-400" /> },
     { id: 'portfolio-manager', icon: <Briefcase className="w-7 h-7 text-blue-400" /> },
     { id: 'news-feed', icon: <Newspaper className="w-7 h-7 text-purple-400" /> },

@@ -8,16 +8,17 @@ import CalculatorApp from './apps/CalculatorApp';
 import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
 import NewsFeedApp from './apps/NewsFeedApp';
+import ChartsApp from './apps/ChartsApp/ChartsApp'; // Import the new ChartsApp
 import OnboardingOSModal from './OnboardingOSModal';
 import OnboardingModal from '@/components/OnboardingModal';
 import { Button } from '@/components/ui/button';
-import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle, TrendingDown } from 'lucide-react';
+import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle, TrendingDown, CandlestickChart } from 'lucide-react'; // Added CandlestickChart
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data';
 import OSStockChartWindowContent from './components/OSStockChartWindowContent';
 import FullChartModal from './components/FullChartModal';
-import OSNotification from './OSNotification'; // Import new OSNotification
-import OSSpotlight from './OSSpotlight'; // Import new OSSpotlight
+import OSNotification from './OSNotification';
+import OSSpotlight from './OSSpotlight';
 
 interface WindowState {
   id: string;
@@ -27,7 +28,6 @@ interface WindowState {
   minimized: boolean;
   initialPosition?: { x: number; y: number };
   initialSize?: { width: string; height: string };
-  // Add a prop to store the initial stock symbol for the chart app
   initialStockSymbol?: string;
 }
 
@@ -110,6 +110,10 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [tradingLog, setTradingLog] = useState<string[]>(getInitialTradingLog());
   const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string; icon?: React.ReactNode }>>([]);
   const [showSpotlight, setShowSpotlight] = useState(false);
+
+  // Mock user profile for ChartsApp
+  const [userName, setUserName] = useState('OS User');
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>(undefined);
 
   // Show toast if data was loaded from local storage
   useEffect(() => {
@@ -226,7 +230,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           newWindow.initialSize = { width: '300px', height: '400px' };
           newWindow.initialPosition = { x: window.innerWidth / 2 - 150, y: window.innerHeight / 2 - 200 };
           break;
-        case 'stock-chart':
+        case 'stock-chart': // Old stock chart window, will be replaced by ChartsApp
           newWindow.title = 'Stock Chart';
           newWindow.component = (
             <OSStockChartWindowContent
@@ -234,11 +238,23 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
               openFullChart={openFullChart}
               fullSymbol={fullSymbol}
               closeFullChart={closeFullChart}
-              initialSelectedStock={initialStockSymbol || stocksList[0]} // Use initialStockSymbol if provided
+              initialSelectedStock={initialStockSymbol || stocksList[0]}
             />
           );
           newWindow.initialSize = { width: '70vw', height: '80vh' };
           newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.4) };
+          break;
+        case 'charts-app': // New Charts App
+          newWindow.title = 'Charts';
+          newWindow.component = (
+            <ChartsApp
+              initialStockSymbol={initialStockSymbol}
+              userName={userName}
+              userAvatarUrl={userAvatarUrl}
+            />
+          );
+          newWindow.initialSize = { width: '90vw', height: '90vh' };
+          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.45), y: window.innerHeight / 2 - (window.innerHeight * 0.45) };
           break;
         case 'trading-terminal':
           newWindow.title = 'Trading Terminal';
@@ -283,7 +299,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart, userName, userAvatarUrl]);
 
   const nextOSOnboardingStep = useCallback(() => {
     if (osOnboardingStep < 4) {
@@ -299,7 +315,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     if (!experienceLevel) {
       setOsOnboardingStep(1);
     } else {
-      openApp('stock-chart');
+      openApp('charts-app'); // Open the new Charts app by default after boot
     }
   }, [experienceLevel, openApp]);
 
@@ -315,7 +331,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     localStorage.setItem('os_cashBalance', newCash.toString());
     localStorage.setItem('os_experienceLevel', level);
     setShowOnboardingOS(false);
-    openApp('stock-chart');
+    openApp('charts-app'); // Open the new Charts app after onboarding
     toast.success("Experience Set!", { description: `Starting with $${newCash.toFixed(2)} as a ${level} trader.` });
   }, [openApp]);
 
@@ -365,7 +381,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   // Keyboard shortcut for Spotlight (Alt + Space)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey && event.code === 'Space') { // Changed to Alt + Space
+      if (event.altKey && event.code === 'Space') {
         event.preventDefault();
         setShowSpotlight(prev => !prev);
       }
