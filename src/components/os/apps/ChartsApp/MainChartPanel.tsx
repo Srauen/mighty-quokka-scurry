@@ -64,8 +64,8 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     hide_indicators: true,
     hide_timezone_footer: true,
     withdateranges: false,
-    hide_time_scale: true, // Added to hide the time scale at the bottom
-    studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"], // Still include for internal logic if needed, but hidden
+    hide_time_scale: true, // Hide the time scale at the bottom
+    studies: [], // Explicitly set to empty array to remove all default studies/indicators
     watchlist: false,
     details: false,
     hotlist: false,
