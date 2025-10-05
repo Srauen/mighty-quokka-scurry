@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import DashboardSettings from "./pages/DashboardSettings";
 import TermsOfService from "./pages/TermsOfService";
 import { ThemeProvider } from "./components/ThemeContext";
-import ScrollIndicator from "./components/ui/scroll-indicator";
+// import ScrollIndicator from "./components/ui/scroll-indicator"; // Removed from here
 import { SessionContextProvider } from "./components/SessionContextProvider";
 
 const queryClient = new QueryClient();
@@ -21,7 +21,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <ScrollIndicator />
+        {/* ScrollIndicator is now rendered conditionally within Index.tsx */}
         <BrowserRouter>
           <SessionContextProvider>
             <Routes>

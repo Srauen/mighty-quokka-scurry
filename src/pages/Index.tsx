@@ -13,6 +13,7 @@ import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-rea
 import { useTheme } from '@/components/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/components/SessionContextProvider';
+import ScrollIndicator from "@/components/ui/scroll-indicator"; // Imported here
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
@@ -164,6 +165,7 @@ const Index = () => {
         <OSDesktop onExit={handleExitOSSimulation} />
       ) : (
         <>
+          <ScrollIndicator /> {/* Moved here, only renders when OS simulation is off */}
           <Navbar
             darkMode={theme === 'dark' || theme === 'os-style'}
             setDarkMode={(isDark) => setTheme(isDark ? 'dark' : 'light')}
