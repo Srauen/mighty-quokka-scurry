@@ -27,7 +27,7 @@ const DashboardSidebar: React.FC = () => {
 
   return (
     <aside className={cn(
-      "bg-gray-900 border-r border-gray-700 p-4 flex flex-col shadow-lg z-20 transition-all duration-300 ease-in-out",
+      "hidden md:flex bg-gray-900 border-r border-gray-700 p-4 flex-col shadow-lg z-20 transition-all duration-300 ease-in-out",
       isCollapsed ? "w-20 items-center" : "w-64"
     )}>
       <div className={cn("flex items-center mb-6", isCollapsed ? "justify-center" : "justify-end")}>
