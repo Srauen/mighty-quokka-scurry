@@ -144,7 +144,7 @@ const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose, isTrad
 
   const tradingViewWidgetOptions = useMemo(() => ({
     width: "100%",
-    height: "100%",
+    height: 700, // Changed from "100%"
     symbol: symbol,
     interval: "D",
     timezone: "Etc/UTC",

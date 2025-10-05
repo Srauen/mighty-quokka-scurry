@@ -166,7 +166,7 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
 
   const tradingViewWidgetOptions = useMemo(() => ({
     width: "100%",
-    height: "100%",
+    height: 500, // Changed from "100%"
     symbol: selectedStock,
     interval: "D",
     timezone: "Etc/UTC",
