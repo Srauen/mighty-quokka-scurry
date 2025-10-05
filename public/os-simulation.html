@@ -687,17 +687,18 @@
         // Trading Terminal Logic
         window.executeTrade = function(type) {
             const stock = terminalStockSelect.value;
-            const quantity = parseInt(document.getElementById('terminal-quantity').value);
+            const quantityInput = document.getElementById('terminal-quantity');
+            const quantity = parseInt(quantityInput.value);
             const price = stockData[stock]?.prices[stockData[stock].prices.length - 1];
 
-            if (!stock || !quantity || quantity <= 0 || !price) {
-                showMessageBox("Invalid Trade", "Please select a stock and enter a valid quantity.");
+            if (!stock || isNaN(quantity) || quantity <= 0 || !price) {
+                showMessageBox("Invalid Trade", "Please select a stock and enter a valid quantity (a positive number).");
                 return;
             }
 
-            const tradeLog = (message) => {
+            const tradeLog = (message, isError = false) => {
                 const p = document.createElement('p');
-                p.className = "text-sm text-gray-400 mt-1";
+                p.className = `text-sm mt-1 ${isError ? 'text-red-400' : 'text-gray-400'}`;
                 p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
                 tradingLog.prepend(p);
                 if (tradingLog.children.length > 10) {
@@ -710,26 +711,33 @@
                 if (cashBalance >= totalCost) {
                     portfolio[stock] = (portfolio[stock] || 0) + quantity;
                     cashBalance -= totalCost;
-                    tradeLog(`BUY ${quantity} shares of ${stock} at $${price.toFixed(2)}.`);
+                    tradeLog(`BUY ${quantity} shares of ${stock} at $${price.toFixed(2)}. Total cost: $${totalCost.toFixed(2)}.`);
+                    showMessageBox("Trade Successful", `You bought ${quantity} shares of ${stock} for $${totalCost.toFixed(2)}.`);
                     saveUserDataToFirestore();
                 } else {
-                    showMessageBox("Trade Failed", `You do not have enough cash to buy ${quantity} shares of ${stock}.`);
-                    tradeLog(`FAILED BUY: Insufficient cash.`);
+                    const needed = (totalCost - cashBalance).toFixed(2);
+                    showMessageBox("Trade Failed", `Insufficient cash to buy ${quantity} shares of ${stock}. You need an additional $${needed}.`);
+                    tradeLog(`FAILED BUY: Insufficient cash. Needed $${totalCost.toFixed(2)}, have $${cashBalance.toFixed(2)}.`, true);
                 }
             } else if (type === 'sell') {
                 if (!portfolio[stock] || portfolio[stock] < quantity) {
-                    showMessageBox("Trade Failed", `You do not have enough shares of ${stock} to sell.`);
-                    tradeLog(`FAILED SELL: Not enough shares of ${stock}.`);
+                    const available = portfolio[stock] || 0;
+                    showMessageBox("Trade Failed", `You do not have enough shares of ${stock} to sell. You have ${available}, trying to sell ${quantity}.`);
+                    tradeLog(`FAILED SELL: Not enough shares of ${stock}. Have ${available}, trying to sell ${quantity}.`, true);
                 } else {
                     portfolio[stock] -= quantity;
-                    cashBalance += quantity * price;
+                    const totalRevenue = quantity * price;
+                    cashBalance += totalRevenue;
                     if (portfolio[stock] === 0) {
                         delete portfolio[stock];
                     }
-                    tradeLog(`SELL ${quantity} shares of ${stock} at $${price.toFixed(2)}.`);
+                    tradeLog(`SELL ${quantity} shares of ${stock} at $${price.toFixed(2)}. Total revenue: $${totalRevenue.toFixed(2)}.`);
+                    showMessageBox("Trade Successful", `You sold ${quantity} shares of ${stock} for $${totalRevenue.toFixed(2)}.`);
                     saveUserDataToFirestore();
                 }
             }
+            cashBalanceEl.textContent = `$${cashBalance.toFixed(2)}`; // Update display immediately
+            renderPortfolio(); // Re-render portfolio to reflect changes
         }
 
         // Tor Browser logic
@@ -773,6 +781,7 @@
             delete portfolio[stock];
             renderPortfolio();
             saveUserDataToFirestore();
+            showMessageBox("Stock Removed", `${stock} removed from your portfolio.`);
         }
 
         function saveUserDataToFirestore() {
@@ -815,7 +824,7 @@
         window.appendNumber = function(num) {
             if (currentCalcInput === '0' && num !== '.') {
                 currentCalcInput = num;
-            } else if (currentCalcInput.includes('.') && num === '.') {
+            } else if (currentInput.includes('.') && num === '.') {
                 return;
             } else {
                 currentCalcInput += num;
