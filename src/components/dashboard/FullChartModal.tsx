@@ -11,25 +11,31 @@ interface FullChartModalProps {
 
 const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose }) => {
   const id = `tv-full-${symbol.replace(/[^\w]/g, "_")}`;
-  const widgetRef = useRef<HTMLDivElement>(null);
+  const widgetRef = useRef<any>(null); // Ref to store the TradingView widget instance
+  const containerRef = useRef<HTMLDivElement>(null); // Ref for the container div
 
   useEffect(() => {
-    let widget: any = null;
     let retryTimer: NodeJS.Timeout | null = null;
 
-    const createWidget = () => {
-      if (!widgetRef.current) return;
+    const loadAndCreateWidget = () => {
+      if (!containerRef.current) return;
 
       // Clear container before creating new widget
-      widgetRef.current.innerHTML = "";
+      containerRef.current.innerHTML = "";
 
       if (!(window && (window as any).TradingView)) {
         console.warn("TradingView script not loaded for full chart. Retrying...");
-        retryTimer = setTimeout(createWidget, 500);
+        retryTimer = setTimeout(loadAndCreateWidget, 500);
         return;
       }
       
-      widget = new (window as any).TradingView.widget({
+      // Destroy any previously created widget for this container
+      if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
+        widgetRef.current.remove();
+        widgetRef.current = null;
+      }
+
+      widgetRef.current = new (window as any).TradingView.widget({
         container_id: id,
         width: "100%",
         height: "100%",
@@ -65,12 +71,14 @@ const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose }) => {
       });
     };
 
-    createWidget();
+    loadAndCreateWidget();
 
     return () => {
       if (retryTimer) clearTimeout(retryTimer);
-      if (widget && typeof widget.remove === 'function') {
-        widget.remove();
+      // Cleanup: remove the widget when component unmounts or symbol changes
+      if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
+        widgetRef.current.remove();
+        widgetRef.current = null;
       }
     };
   }, [symbol, id]);
@@ -83,7 +91,7 @@ const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose }) => {
           <X className="h-5 w-5" />
         </Button>
       </div>
-      <div ref={widgetRef} id={id} className="flex-1 bg-[#0B0B0B] rounded-b-lg" />
+      <div ref={containerRef} id={id} className="flex-1 bg-[#0B0B0B] rounded-b-lg" />
     </div>
   );
 };

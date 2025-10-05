@@ -14,8 +14,8 @@ interface ChartTileProps {
 }
 
 const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const widgetId = `tv-small-${index}`;
+  const widgetRef = useRef<any>(null); // Ref to store the TradingView widget instance
+  const containerId = `tv-small-${index}`; // Unique ID for the container
   const { stockData } = useStockData(); // Get stock data for additional info
 
   // Extract the base stock symbol from the TradingView formatted symbol (e.g., "NASDAQ:AAPL" -> "AAPL")
@@ -34,24 +34,32 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   const profitProbability = stockInfo.sentiments[stockInfo.sentiments.length - 1] || 0; // Using sentiment as AI score
 
   useEffect(() => {
-    let widget: any = null;
     let retryTimer: NodeJS.Timeout | null = null;
 
-    const createWidget = () => {
-      const el = document.getElementById(widgetId);
-      if (!el) return;
-
-      // Clear existing widget content
-      el.innerHTML = "";
-
-      if (!(window && (window as any).TradingView)) {
-        console.warn("TradingView script not loaded yet. Retrying...");
-        retryTimer = setTimeout(createWidget, 500); // Retry after 0.5 seconds
+    const loadAndCreateWidget = () => {
+      const el = document.getElementById(containerId);
+      if (!el) {
+        console.warn(`Container element ${containerId} not found.`);
         return;
       }
 
-      widget = new (window as any).TradingView.widget({
-        container_id: widgetId,
+      // Clear existing content to ensure a fresh start
+      el.innerHTML = '';
+
+      if (!(window && (window as any).TradingView)) {
+        console.warn("TradingView script not loaded yet. Retrying...");
+        retryTimer = setTimeout(loadAndCreateWidget, 500);
+        return;
+      }
+
+      // Destroy any previously created widget for this container
+      if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
+        widgetRef.current.remove();
+        widgetRef.current = null;
+      }
+
+      widgetRef.current = new (window as any).TradingView.widget({
+        container_id: containerId,
         width: "100%",
         height: 260,
         symbol: symbol,
@@ -83,15 +91,18 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
       });
     };
 
-    createWidget();
+    // Initial call to create/load widget
+    loadAndCreateWidget();
 
     return () => {
       if (retryTimer) clearTimeout(retryTimer);
-      if (widget && typeof widget.remove === 'function') {
-        widget.remove();
+      // Cleanup: remove the widget when component unmounts or symbol changes
+      if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
+        widgetRef.current.remove();
+        widgetRef.current = null;
       }
     };
-  }, [symbol, widgetId]); // Only re-run if symbol or widgetId changes
+  }, [symbol, containerId]); // Dependencies: symbol and containerId
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
@@ -120,7 +131,7 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
       </div>
 
       <div className="relative flex-grow min-h-[260px] bg-[#0B0B0B] rounded-md overflow-hidden">
-        <div id={widgetId} className="w-full h-full" />
+        <div id={containerId} className="w-full h-full" />
       </div>
 
       <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-800">
