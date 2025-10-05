@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Bell, Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { useStockData } from '@/hooks/use-stock-data'; // To get company name and AI score
+import { useStockData } from '@/hooks/use-stock-data';
+import { useTradingViewScript } from '@/hooks/use-tradingview-script'; // New import
+import TradingViewWidget from '@/components/TradingViewWidget'; // New import
 
 interface ChartTileProps {
   symbol: string;
@@ -14,12 +16,12 @@ interface ChartTileProps {
 }
 
 const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
-  const widgetRef = useRef<any>(null); // Ref to store the TradingView widget instance
-  const containerId = `tv-small-${index}`; // Unique ID for the container
-  const { stockData } = useStockData(); // Get stock data for additional info
+  const scriptLoaded = useTradingViewScript(); // Check if script is loaded
+  const containerId = `tv-small-${index}`;
 
-  // Extract the base stock symbol from the TradingView formatted symbol (e.g., "NASDAQ:AAPL" -> "AAPL")
   const baseStockSymbol = symbol.includes(':') ? symbol.split(':')[1] : symbol;
+
+  const { stockData } = useStockData(); // Get stock data for additional info
 
   const stockInfo = stockData[baseStockSymbol] || {
     companyName: 'Loading...',
@@ -33,76 +35,35 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
   const isPositiveChange = dailyChange >= 0;
   const profitProbability = stockInfo.sentiments[stockInfo.sentiments.length - 1] || 0; // Using sentiment as AI score
 
-  useEffect(() => {
-    let retryTimer: NodeJS.Timeout | null = null;
-
-    const loadAndCreateWidget = () => {
-      const el = document.getElementById(containerId);
-      if (!el) {
-        console.warn(`Container element ${containerId} not found.`);
-        return;
-      }
-
-      // Clear existing content to ensure a fresh start
-      el.innerHTML = '';
-
-      if (!(window && (window as any).TradingView)) {
-        console.warn("TradingView script not loaded yet. Retrying...");
-        retryTimer = setTimeout(loadAndCreateWidget, 500);
-        return;
-      }
-
-      // Destroy any previously created widget for this container
-      if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
-        widgetRef.current.remove();
-        widgetRef.current = null;
-      }
-
-      widgetRef.current = new (window as any).TradingView.widget({
-        container_id: containerId,
-        width: "100%",
-        height: 260,
-        symbol: symbol,
-        interval: "60", // 60 minute default for tile
-        timezone: "Etc/UTC",
-        theme: "dark",
-        style: "1", // Candlestick chart
-        locale: "en",
-        toolbar_bg: "#0B0B0B",
-        enable_publishing: false,
-        allow_symbol_change: false, // Keep false for tile, symbol is controlled by parent
-        hide_top_toolbar: true, // Keep hidden for tile
-        hide_side_toolbar: true, // Keep hidden for tile
-        withdateranges: false,
-        studies_overrides: {},
-        overrides: {
-          "paneProperties.background": "#0B0B0B",
-          "paneProperties.vertGridProperties.color": "#121212",
-          "paneProperties.horzGridProperties.color": "#121212",
-          "scalesProperties.textColor": "#BFC7D6",
-          // Candlestick colors
-          "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
-          "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
-          "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
-          "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
-          "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
-          "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
-        }
-      });
-    };
-
-    // Initial call to create/load widget
-    loadAndCreateWidget();
-
-    return () => {
-      if (retryTimer) clearTimeout(retryTimer);
-      // Cleanup: remove the widget when component unmounts or symbol changes
-      if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
-        widgetRef.current.remove();
-        widgetRef.current = null;
-      }
-    };
-  }, [symbol, containerId]); // Dependencies: symbol and containerId
+  const widgetOptions = useMemo(() => ({
+    width: "100%",
+    height: 260,
+    symbol: symbol,
+    interval: "60", // 60 minute default for tile
+    timezone: "Etc/UTC",
+    theme: "dark",
+    style: "1", // Candlestick chart
+    locale: "en",
+    toolbar_bg: "#0B0B0B",
+    enable_publishing: false,
+    allow_symbol_change: false,
+    hide_top_toolbar: true,
+    hide_side_toolbar: true,
+    withdateranges: false,
+    studies_overrides: {},
+    overrides: {
+      "paneProperties.background": "#0B0B0B",
+      "paneProperties.vertGridProperties.color": "#121212",
+      "paneProperties.horzGridProperties.color": "#121212",
+      "scalesProperties.textColor": "#BFC7D6",
+      "mainSeriesProperties.candleStyle.upColor": "#00E676",
+      "mainSeriesProperties.candleStyle.downColor": "#FF3B30",
+      "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+      "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+      "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+      "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+    }
+  }), [symbol]);
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
@@ -112,7 +73,6 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
     <div className="glassmorphic-card chart-tile p-4 rounded-xl shadow-lg border border-gray-700 hover:border-electric-blue transition-all duration-200 flex flex-col" role="article" aria-label={`Chart tile ${symbol}`}>
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center space-x-2">
-          {/* Company Logo Placeholder */}
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-electric-blue to-teal flex items-center justify-center text-xs font-bold text-white" aria-hidden>
             {baseStockSymbol.substring(0, 2)}
           </div>
@@ -131,7 +91,11 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
       </div>
 
       <div className="relative flex-grow min-h-[260px] bg-[#0B0B0B] rounded-md overflow-hidden">
-        <div id={containerId} className="w-full h-full" />
+        {scriptLoaded ? (
+          <TradingViewWidget containerId={containerId} widgetOptions={widgetOptions} />
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-400">Loading chart script...</div>
+        )}
       </div>
 
       <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-800">
