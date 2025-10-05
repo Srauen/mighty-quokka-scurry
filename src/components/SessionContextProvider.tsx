@@ -28,7 +28,7 @@ export const SessionContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         if (window.location.pathname.startsWith('/dashboard')) {
-          navigate('/login');
+          navigate('/'); // Redirect to landing page after logout
           toast.info("Signed Out", { description: "You have been logged out." });
         }
       }
@@ -42,7 +42,7 @@ export const SessionContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       if (initialSession && window.location.pathname === '/login') {
         navigate('/dashboard');
       } else if (!initialSession && window.location.pathname.startsWith('/dashboard')) {
-        navigate('/login');
+        navigate('/'); // Redirect to landing page if not authenticated and trying to access dashboard
       }
     });
 

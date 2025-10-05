@@ -24,7 +24,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, userAvatarU
       toast.error("Sign Out Failed", { description: error.message });
     } else {
       toast.success("Signed Out", { description: "You have been successfully signed out." });
-      navigate('/login');
+      navigate('/'); // Redirect to landing page after logout
     }
   };
 
