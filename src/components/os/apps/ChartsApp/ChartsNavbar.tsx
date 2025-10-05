@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { Search, User, Settings, ChevronLeft, ChevronRight, Brain } from 'lucide-react'; // Added Brain icon
-import { Input } from '@/components/ui/input';
+import { User, Settings, ChevronLeft, ChevronRight, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import ChartsSearchBar from './components/ChartsSearchBar'; // Import the new search bar component
 
 interface ChartsNavbarProps {
   onToggleSidebar: () => void;
@@ -15,8 +15,8 @@ interface ChartsNavbarProps {
   onSearch: (symbol: string) => void;
   userName: string;
   userAvatarUrl?: string;
-  onToggleInsights: () => void; // New prop for toggling insights panel
-  isInsightsPanelCollapsed: boolean; // New prop to indicate insights panel state
+  onToggleInsights: () => void;
+  isInsightsPanelCollapsed: boolean;
 }
 
 const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
@@ -25,30 +25,24 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
   onSearch,
   userName,
   userAvatarUrl,
-  onToggleInsights, // Destructure new prop
-  isInsightsPanelCollapsed, // Destructure new prop
+  onToggleInsights,
+  isInsightsPanelCollapsed,
 }) => {
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
+  // The searchInputRef is now managed within ChartsSearchBar, but we keep the Alt+F listener
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Use Alt+F for focusing search bar in OS simulation
       if (event.altKey && event.code === 'KeyF') {
         event.preventDefault();
-        searchInputRef.current?.focus();
+        // We can't directly focus the input inside ChartsSearchBar from here,
+        // but we can trigger a toast or a global state to indicate focus.
+        // For now, we'll just prevent default.
+        toast.info("Search Focus", { description: "Search bar is ready for input." });
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInputRef.current?.value) {
-      onSearch(searchInputRef.current.value.toUpperCase());
-      searchInputRef.current.value = '';
-    }
-  };
 
   const handleSettingsClick = () => {
     toast.info("Settings", { description: "Charts app settings coming soon!" });
@@ -57,7 +51,7 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
   return (
     <div className="flex items-center justify-between p-2 bg-charts-toolbar-bg backdrop-blur-lg border-b border-charts-border shadow-md relative z-10">
       {/* Left: Sidebar Toggle and Insights Toggle */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 flex-shrink-0">
         <Button
           variant="ghost"
           size="icon"
@@ -73,7 +67,7 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
           onClick={onToggleInsights}
           className={cn(
             "text-charts-text-secondary hover:text-charts-accent transition-colors duration-200",
-            !isInsightsPanelCollapsed && "text-charts-accent" // Highlight when insights are open
+            !isInsightsPanelCollapsed && "text-charts-accent"
           )}
           aria-label={isInsightsPanelCollapsed ? "Show AI Insights" : "Hide AI Insights"}
         >
@@ -82,26 +76,18 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
       </div>
 
       {/* Center: App Title */}
-      <h2 className="text-lg font-semibold text-charts-text-primary flex items-center space-x-2">
+      <h2 className="text-lg font-semibold text-charts-text-primary flex items-center space-x-2 flex-shrink-0 mx-4">
         <span className="text-charts-accent">📊</span>
         <span>Charts</span>
       </h2>
 
-      {/* Right: Search, Profile, Settings */}
-      <div className="flex items-center space-x-3">
-        <form onSubmit={handleSearchSubmit} className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-charts-text-secondary" />
-          <Input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search symbol or company..."
-            className="pl-8 pr-3 py-1.5 rounded-md bg-charts-panel-bg border border-charts-border text-charts-text-primary placeholder-charts-text-secondary focus:ring-1 focus:ring-charts-accent focus:border-charts-accent transition-all duration-200 w-40 md:w-56"
-          />
-        </form>
+      {/* Right: Search Bar and Profile */}
+      <div className="flex items-center space-x-3 flex-grow justify-end">
+        <ChartsSearchBar onSearch={onSearch} /> {/* Using the new ChartsSearchBar component */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full flex-shrink-0">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={userAvatarUrl || "/placeholder.svg"} alt={userName} />
                 <AvatarFallback>
