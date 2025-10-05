@@ -89,9 +89,6 @@ export default {
         'heatmap-cb-up': '#3B82F6',
         'heatmap-cb-neutral': '#9CA3AF',
         'heatmap-cb-down': '#FB923C',
-
-        // macOS-style menubar background
-        'mac-menubar-bg': 'rgba(0, 0, 0, 0.6)', // Dark, semi-transparent for menubar
       },
       borderRadius: {
         lg: "var(--radius)",

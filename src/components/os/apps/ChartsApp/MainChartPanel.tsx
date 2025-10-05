@@ -6,19 +6,20 @@ import { TrendingUp, TrendingDown, Bell, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data';
-import { useTradingViewScript } from '@/hooks/use-tradingview-script';
-import TradingViewWidget, { TradingViewWidgetRef } from '@/components/TradingViewWidget'; // Import ref type
+import Chart from 'chart.js/auto'; // Import Chart.js
 
 interface MainChartPanelProps {
   selectedStock: string;
 }
 
 const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
-  const scriptLoaded = useTradingViewScript();
   const { stockData } = useStockData();
-  const [timeframe, setTimeframe] = useState<string>("D"); // Default to Daily
+  const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>("1D"); // Default to Daily
 
-  const baseStockSymbol = selectedStock; // Already the base symbol
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
+
+  const baseStockSymbol = selectedStock;
 
   const stockInfo = stockData[baseStockSymbol] || {
     companyName: 'Loading...',
@@ -26,6 +27,8 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     dailyChange: 0,
     sentiments: [0],
     volumes: [0],
+    prices: [],
+    labels: [],
   };
 
   const currentPrice = stockInfo.lastPrice;
@@ -34,84 +37,117 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
   const profitProbability = stockInfo.sentiments[stockInfo.sentiments.length - 1] || 0;
   const currentVolume = stockInfo.volumes[stockInfo.volumes.length - 1] || 0;
 
-  // Refs for the chart container and the TradingView widget instance
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const tradingViewWidgetRef = useRef<TradingViewWidgetRef>(null);
-
-  // Helper to prefix symbol for TradingView
-  const getTradingViewSymbol = useCallback((stock: string) => {
-    // Simple heuristic: assume NASDAQ for most tech, NYSE for others
-    if (['AAPL', 'TSLA', 'MSFT', 'AMZN', 'NVDA', 'GOOGL', 'INTC', 'SQ', 'NFLX', 'FB'].includes(stock)) {
-      return `NASDAQ:${stock}`;
-    }
-    return `NYSE:${stock}`;
-  }, []);
-
-  const tradingViewSymbol = getTradingViewSymbol(selectedStock);
-
-  const widgetOptions = useMemo(() => ({
-    width: "100%",
-    height: "100%",
-    symbol: tradingViewSymbol,
-    interval: timeframe,
-    timezone: "Etc/UTC",
-    theme: "dark",
-    style: "1", // Candlestick chart
-    locale: "en",
-    toolbar_bg: "#0B0B0B",
-    enable_publishing: false,
-    allow_symbol_change: false, // Managed by our app
-    hide_top_toolbar: true,
-    hide_side_toolbar: true,
-    hide_bottom_toolbar: true,
-    hide_legend: true,
-    hide_indicators: true,
-    hide_timezone_footer: true,
-    withdateranges: false,
-    hide_time_scale: true, // Hide the time scale at the bottom
-    studies: [], // Explicitly set to empty array to remove all default studies/indicators
-    watchlist: false,
-    details: false,
-    hotlist: false,
-    calendar: false,
-    news: false,
-    left_axis_visible: false,
-    right_axis_visible: false,
-    hide_volume: true,
-    overrides: {
-      "paneProperties.background": "#0B0B0B",
-      "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
-      "paneProperties.horzGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
-      "scalesProperties.textColor": "#E5E7EB", // charts-text-primary
-      "scalesProperties.leftAxisProperties.visible": false, // Explicitly hide left axis
-      "scalesProperties.rightAxisProperties.visible": false, // Explicitly hide right axis
-      "mainSeriesProperties.candleStyle.upColor": "#00E676", // Teal
-      "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red
-      "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
-      "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
-      "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
-      "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
-    },
-    container_id: "tradingview_chart_container", // Fixed ID for the main chart
-  }), [tradingViewSymbol, timeframe]);
-
-  // Use ResizeObserver to trigger widget resize when container changes size
   useEffect(() => {
-    const chartContainer = chartContainerRef.current;
-    if (!chartContainer) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      if (tradingViewWidgetRef.current) {
-        tradingViewWidgetRef.current.resizeWidget();
+    if (chartRef.current && stockInfo.prices.length > 0) {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
       }
-    });
 
-    resizeObserver.observe(chartContainer);
+      const ctx = chartRef.current.getContext('2d');
+      if (!ctx) return;
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, 'rgba(0, 174, 239, 0.5)'); // Electric Blue
+      gradient.addColorStop(1, 'rgba(0, 174, 239, 0)');
+
+      const getFilteredData = () => {
+        let startIndex = 0;
+        switch (timeframe) {
+          case '1D': startIndex = Math.max(0, stockInfo.prices.length - 20); break;
+          case '1W': startIndex = Math.max(0, stockInfo.prices.length - 50); break;
+          case '1M': startIndex = Math.max(0, stockInfo.prices.length - 100); break;
+          case '1Y': startIndex = Math.max(0, stockInfo.prices.length - 365); break;
+        }
+        return {
+          prices: stockInfo.prices.slice(startIndex),
+          labels: stockInfo.labels.slice(startIndex),
+          volumes: stockInfo.volumes.slice(startIndex),
+        };
+      };
+
+      const filteredData = getFilteredData();
+
+      chartInstanceRef.current = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: filteredData.labels,
+          datasets: [{
+            label: `${baseStockSymbol} Price`,
+            data: filteredData.prices,
+            borderColor: '#00AEFF', // Electric Blue
+            backgroundColor: gradient,
+            pointBackgroundColor: '#00AEFF',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#00AEFF',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            yAxisID: 'y-price',
+          },
+          {
+            label: 'Volume',
+            data: filteredData.volumes,
+            type: 'bar',
+            backgroundColor: 'rgba(0, 230, 118, 0.3)', // Teal with transparency
+            borderColor: 'rgba(0, 230, 118, 0.6)',
+            borderWidth: 1,
+            yAxisID: 'y-volume',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          scales: {
+            'y-price': {
+              beginAtZero: false,
+              position: 'right',
+              grid: { color: 'rgba(156, 163, 175, 0.1)' },
+              ticks: { color: '#E5E7EB' },
+            },
+            'y-volume': {
+              beginAtZero: true,
+              position: 'left',
+              grid: { display: false },
+              ticks: { color: '#E5E7EB', maxTicksLimit: 4 },
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#E5E7EB' },
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: '#1f2937',
+              titleColor: '#fff',
+              bodyColor: '#d1d5db',
+              borderColor: '#00AEFF',
+              borderWidth: 1,
+              cornerRadius: 6,
+              padding: 10,
+            }
+          },
+          animation: { duration: 1000, easing: 'easeOutQuart' }
+        }
+      });
+    }
 
     return () => {
-      resizeObserver.unobserve(chartContainer);
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
     };
-  }, [scriptLoaded]); // Re-run if script loads/unloads
+  }, [stockInfo, baseStockSymbol, timeframe]);
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
@@ -153,30 +189,26 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
 
         {/* Right: Timeframe Controls */}
         <div className="flex space-x-1 bg-charts-toolbar-bg backdrop-blur-md p-1 rounded-lg shadow-md border border-charts-border">
-          {['1', '5', '15', '30', '60', 'D', 'W', 'M'].map((tf) => (
+          {['1D', '1W', '1M', '1Y'].map((tf) => (
             <Button
               key={tf}
               variant="ghost"
               size="sm"
-              onClick={() => setTimeframe(tf)}
+              onClick={() => setTimeframe(tf as '1D' | '1W' | '1M' | '1Y')}
               className={cn(
                 "h-7 px-3 text-xs text-charts-text-secondary hover:text-charts-accent",
                 timeframe === tf && "bg-charts-panel-bg text-charts-accent"
               )}
             >
-              {tf === '1' ? '1m' : tf === '5' ? '5m' : tf === '15' ? '15m' : tf === '30' ? '30m' : tf === '60' ? '1h' : tf}
+              {tf}
             </Button>
           ))}
         </div>
       </div>
 
-      {/* TradingView Chart */}
-      <div ref={chartContainerRef} className="flex-grow w-full h-full min-h-0"> {/* Added h-full and min-h-0 */}
-        {scriptLoaded ? (
-          <TradingViewWidget ref={tradingViewWidgetRef} containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
-        ) : (
-          <div className="flex items-center justify-center h-full text-charts-text-secondary">Loading chart script...</div>
-        )}
+      {/* Chart.js Chart */}
+      <div className="flex-grow w-full h-full min-h-0 p-4">
+        <canvas ref={chartRef} className="w-full h-full"></canvas>
       </div>
 
       {/* AI Insights Overlay (Placeholder) - Now positioned relative to the *panel* */}
