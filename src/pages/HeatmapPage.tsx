@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, LayoutGrid } from 'lucide-react';
+import MarketHeatmap from '@/components/dashboard/MarketHeatmap'; // Import the new component
 
 const HeatmapPage: React.FC = () => {
   return (
@@ -17,20 +18,15 @@ const HeatmapPage: React.FC = () => {
         </Link>
       </div>
 
-      <Card className="w-full max-w-6xl mx-auto glassmorphic-card flex flex-col flex-grow items-center justify-center text-center">
-        <CardHeader className="p-6 border-b border-gray-700 w-full">
-          <CardTitle className="text-3xl font-bold text-electric-blue flex items-center justify-center space-x-3">
+      <Card className="w-full max-w-6xl mx-auto glassmorphic-card flex flex-col flex-grow">
+        <CardHeader className="p-6 border-b border-gray-700">
+          <CardTitle className="text-3xl font-bold text-electric-blue flex items-center space-x-3">
             <LayoutGrid className="h-7 w-7 text-teal" />
             <span>Market Heatmap</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-grow p-6 flex flex-col items-center justify-center">
-          <p className="text-gray-400 text-2xl mb-4">
-            Market Heatmap Visualization Coming Soon!
-          </p>
-          <p className="text-gray-500 text-lg max-w-xl">
-            This feature will provide a dynamic, color-coded overview of market performance, allowing you to quickly identify trending sectors and individual stocks. Stay tuned for updates!
-          </p>
+        <CardContent className="flex-grow p-0">
+          <MarketHeatmap />
         </CardContent>
       </Card>
     </div>

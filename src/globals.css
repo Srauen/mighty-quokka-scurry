@@ -175,10 +175,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); /* Subtle blue glow */
+    box-shadow: 0 0 10px rgba(0, 174, 239, 0.3); /* Electric Blue glow */
   }
   50% {
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); /* Brighter blue glow */
+    box-shadow: 0 0 15px rgba(0, 174, 239, 0.6); /* Brighter Electric Blue glow */
   }
 }
 
@@ -316,4 +316,25 @@ html {
 .animate-marquee-horizontal {
   animation: marquee-horizontal 30s linear infinite; /* Adjust duration as needed */
   will-change: transform;
+}
+
+/* Heatmap Tile Pulse Animation */
+@keyframes tile-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(0,0,0,0);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(0, 174, 239, 0.5); /* Electric Blue glow */
+  }
+}
+
+.animate-tile-pulse {
+  animation: tile-pulse 2s ease-in-out infinite;
+}
+
+/* Smooth transitions for heatmap tiles */
+.heatmap-tile-transition {
+  transition: all 300ms ease-out;
 }
