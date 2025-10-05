@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, TrendingUp, AlertTriangle, Newspaper, Signal } from 'lucide-react';
+import { Brain, TrendingUp, AlertTriangle, Newspaper, Signal, TrendingDown } from 'lucide-react'; // Added TrendingDown
 import { cn } from '@/lib/utils';
 
 interface Insight {
