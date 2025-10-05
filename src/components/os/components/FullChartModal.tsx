@@ -31,17 +31,31 @@ const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose }) => {
       symbol: symbol,
       interval: "D",
       timezone: "Etc/UTC",
-      theme: "dark",
-      style: "1",
+      theme: "dark", // Keep dark theme for OS consistency
+      style: "1", // Candlestick chart
       locale: "en",
-      toolbar_bg: "#0B0B0B",
+      toolbar_bg: "#0B0B0B", // Dark toolbar background
       enable_publishing: false,
-      allow_symbol_change: true,
-      hide_side_toolbar: false,
-      studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
+      allow_symbol_change: true, // Allow changing symbol in full chart
+      hide_side_toolbar: false, // Show side toolbar
+      hide_top_toolbar: false, // Show top toolbar
+      withdateranges: true, // Show date ranges
+      studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"], // Keep studies
+      watchlist: true, // Show watchlist
+      details: true, // Show company details
+      hotlist: true, // Show hotlist
+      calendar: true, // Show calendar
+      news: true, // Show news
       overrides: {
-        "paneProperties.background": "#0B0B0B",
-        "scalesProperties.textColor": "#BFC7D6",
+        "paneProperties.background": "#0B0B0B", // Dark background
+        "scalesProperties.textColor": "#BFC7D6", // Soft white text
+        // Candlestick colors
+        "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
+        "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
+        "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+        "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+        "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+        "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
       }
     });
   }, [symbol, id]);

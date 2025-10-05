@@ -27,6 +27,8 @@ interface WindowState {
   minimized: boolean;
   initialPosition?: { x: number; y: number };
   initialSize?: { width: string; height: string };
+  // Add a prop to store the initial stock symbol for the chart app
+  initialStockSymbol?: string;
 }
 
 interface OSDesktopProps {
@@ -189,11 +191,12 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     setFullSymbol(null);
   }, []);
 
-  const openApp = useCallback((appId: string, stockSymbol?: string) => {
+  const openApp = useCallback((appId: string, initialStockSymbol?: string) => {
     setOpenWindows((prevWindows) => {
       const existingWindow = prevWindows.find((win) => win.id === appId);
 
       if (existingWindow) {
+        // If the app is already open and minimized, restore it
         if (existingWindow.minimized) {
           const updatedWindows = prevWindows.map((win) =>
             win.id === appId ? { ...win, minimized: false } : win
@@ -201,6 +204,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           setActiveWindowId(appId);
           return updatedWindows;
         }
+        // If the app is already open and active, just focus it
         setActiveWindowId(appId);
         return prevWindows;
       }
@@ -212,6 +216,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         component: null,
         zIndex: nextZIndex,
         minimized: false,
+        initialStockSymbol: initialStockSymbol, // Pass initial stock symbol
       };
 
       switch (appId) {
@@ -229,6 +234,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
               openFullChart={openFullChart}
               fullSymbol={fullSymbol}
               closeFullChart={closeFullChart}
+              initialSelectedStock={initialStockSymbol || stocksList[0]} // Use initialStockSymbol if provided
             />
           );
           newWindow.initialSize = { width: '70vw', height: '80vh' };

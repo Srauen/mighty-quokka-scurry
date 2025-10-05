@@ -11,6 +11,7 @@ interface OSStockChartWindowContentProps {
   openFullChart: (symbol: string) => void;
   fullSymbol: string | null;
   closeFullChart: () => void;
+  initialSelectedStock?: string; // New prop
 }
 
 const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
@@ -18,14 +19,20 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
   openFullChart,
   fullSymbol,
   closeFullChart,
+  initialSelectedStock, // Destructure new prop
 }) => {
-  const [selectedStock, setSelectedStock] = useState<string>(stocksList[0] || 'AAPL');
+  const [selectedStock, setSelectedStock] = useState<string>(initialSelectedStock || stocksList[0] || 'AAPL');
 
   useEffect(() => {
+    // Update selectedStock if initialSelectedStock changes (e.g., from Spotlight)
+    if (initialSelectedStock && initialSelectedStock !== selectedStock) {
+      setSelectedStock(initialSelectedStock);
+    }
+    // Ensure a valid stock is selected if the list changes or initial is invalid
     if (stocksList.length > 0 && !stocksList.includes(selectedStock)) {
       setSelectedStock(stocksList[0]);
     }
-  }, [stocksList, selectedStock]);
+  }, [stocksList, initialSelectedStock, selectedStock]);
 
   // Helper to prefix symbol for TradingView
   const getTradingViewSymbol = useCallback((stock: string) => {

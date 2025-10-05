@@ -51,9 +51,12 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
 
   useEffect(() => {
     if (!mounted) return;
-    // Prevent double-insert
+
     const el = document.getElementById(widgetId);
-    if (el && el.childElementCount > 0) return;
+    if (!el) return;
+
+    // Clear existing widget content to force re-initialization when symbol changes
+    el.innerHTML = "";
 
     // Ensure TradingView library is loaded
     if (!(window && (window as any).TradingView)) {
@@ -69,13 +72,13 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
       interval: "60", // 60 minute default for tile
       timezone: "Etc/UTC",
       theme: "dark",
-      style: "1",
+      style: "1", // Candlestick chart
       locale: "en",
       toolbar_bg: "#0B0B0B",
       enable_publishing: false,
-      allow_symbol_change: false,
-      hide_top_toolbar: true,
-      hide_side_toolbar: true,
+      allow_symbol_change: false, // Keep false for tile, symbol is controlled by parent
+      hide_top_toolbar: true, // Keep hidden for tile
+      hide_side_toolbar: true, // Keep hidden for tile
       withdateranges: false,
       studies_overrides: {},
       overrides: {
@@ -83,13 +86,13 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
         "paneProperties.vertGridProperties.color": "#121212",
         "paneProperties.horzGridProperties.color": "#121212",
         "scalesProperties.textColor": "#BFC7D6",
-        "mainSeriesProperties.priceLine.color": "#00AEEF", // Electric Blue
-        "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green
-        "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red
-        "mainSeriesProperties.hollowCandleStyle.upColor": "#00E676",
-        "mainSeriesProperties.hollowCandleStyle.downColor": "#FF3B30",
-        "mainSeriesProperties.barStyle.upColor": "#00E676",
-        "mainSeriesProperties.barStyle.downColor": "#FF3B30",
+        // Candlestick colors
+        "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
+        "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
+        "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+        "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+        "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+        "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
       }
     });
   }, [mounted, symbol, widgetId, stockData]); // Added stockData to dependencies to trigger re-render if needed
