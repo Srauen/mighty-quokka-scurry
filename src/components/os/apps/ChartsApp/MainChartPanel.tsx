@@ -171,7 +171,7 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
       </div>
 
       {/* TradingView Chart */}
-      <div ref={chartContainerRef} className="flex-grow w-full">
+      <div ref={chartContainerRef} className="flex-grow w-full h-full min-h-0"> {/* Added h-full and min-h-0 */}
         {scriptLoaded ? (
           <TradingViewWidget ref={tradingViewWidgetRef} containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
         ) : (

@@ -27,63 +27,73 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
     }));
 
     useEffect(() => {
+      let intervalId: ReturnType<typeof setInterval> | null = null;
       let retryCount = 0;
-      const maxRetries = 10;
-      const retryDelay = 500; // ms
+      const maxRetries = 20; // Increased retries
+      const retryDelay = 100; // ms
 
-      const createWidget = () => {
-        const container = containerDivRef.current; // Use the ref for the container
-        if (!container) {
-          console.warn(`Container element for ID ${containerId} not found in DOM.`);
-          if (retryCount < maxRetries) {
-            retryCount++;
-            setTimeout(createWidget, retryDelay);
-          } else {
-            console.error(`Failed to find container for TradingView widget ${containerId} after ${maxRetries} retries.`);
-            // Fallback UI
-            const fallbackDiv = document.createElement('div');
-            fallbackDiv.className = 'flex items-center justify-center h-full text-gray-400';
-            fallbackDiv.textContent = 'Failed to load chart. Please refresh.';
-            container?.appendChild(fallbackDiv);
-          }
-          return;
-        }
+      const initializeWidget = () => {
+        const container = containerDivRef.current;
 
-        container.innerHTML = ''; // Clear previous content
-
+        // 1. Check if TradingView script is loaded
         if (!(window as any).TradingView) {
           if (retryCount < maxRetries) {
             retryCount++;
             console.warn(`TradingView script not ready for ${containerId}. Retrying (${retryCount}/${maxRetries})...`);
-            setTimeout(createWidget, retryDelay);
+            return; // Keep retrying
           } else {
-            console.error(`Failed to load TradingView widget for ${containerId} after ${maxRetries} retries.`);
-            container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart. Please refresh.</div>';
+            console.error(`Failed to load TradingView widget for ${containerId} after ${maxRetries} retries: Script not available.`);
+            if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart. Please refresh.</div>';
+            clearInterval(intervalId!);
+            return;
           }
-          return;
         }
 
-      // Remove existing widget if any
-      if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
-        try {
-          widgetInstanceRef.current.remove();
-        } catch (e) {
-          console.error(`Error removing old TradingView widget for ${containerId}:`, e);
+        // 2. Check if container element exists and has computed dimensions
+        if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) {
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.warn(`Container for ${containerId} not ready or has zero dimensions. Retrying (${retryCount}/${maxRetries})...`);
+            return; // Keep retrying
+          } else {
+            console.error(`Failed to load TradingView widget for ${containerId} after ${maxRetries} retries: Container not ready.`);
+            if (container) container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Failed to load chart. Please refresh.</div>';
+            clearInterval(intervalId!);
+            return;
+          }
         }
-        widgetInstanceRef.current = null;
-      }
+
+        // If we reach here, script is loaded and container is ready
+        clearInterval(intervalId!); // Stop retrying
+
+        // Remove existing widget instance if it exists before creating a new one
+        if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
+          try {
+            widgetInstanceRef.current.remove();
+          } catch (e) {
+            console.error(`Error removing old TradingView widget for ${containerId}:`, e);
+          }
+          widgetInstanceRef.current = null;
+        }
+
+        // Clear previous content to prevent multiple widgets in the same container
+        container.innerHTML = '';
 
         widgetInstanceRef.current = new (window as any).TradingView.widget({
           ...widgetOptions,
-          container_id: containerId, // Use the ID for the widget
-          width: "100%",
+          container_id: containerId, // This should match the ID of the div below
+          width: "100%", // Ensure these are set to 100%
           height: "100%",
         });
       };
 
-      createWidget();
+      // Start polling for widget initialization conditions
+      intervalId = setInterval(initializeWidget, retryDelay);
 
       return () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
         if (widgetInstanceRef.current && typeof widgetInstanceRef.current.remove === 'function') {
           try {
             widgetInstanceRef.current.remove();
@@ -93,7 +103,7 @@ const TradingViewWidget = forwardRef<TradingViewWidgetRef, TradingViewWidgetProp
           widgetInstanceRef.current = null;
         }
       };
-    }, [containerId, widgetOptions]);
+    }, [containerId, widgetOptions]); // Re-run effect if containerId or widgetOptions change
 
     // The container div itself should still fill its parent
     return <div id={containerId} ref={containerDivRef} className="w-full h-full" />;
