@@ -9,13 +9,13 @@ interface BootScreenProps {
 }
 
 const bootMessages = [
-  "Initializing core systems...",
-  "Loading kernel modules...",
-  "Detecting hardware components...",
-  "Establishing secure connection...",
-  "Verifying data integrity...",
-  "Starting user interface...",
-  "Optimizing performance...",
+  "Initializing market data feeds...",
+  "Establishing secure trading protocols...",
+  "Calibrating AI prediction models...",
+  "Synchronizing portfolio data...",
+  "Loading real-time analytics engine...",
+  "Verifying system integrity...",
+  "Optimizing trading environment...",
   "Welcome to Stock OS."
 ];
 
