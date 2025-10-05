@@ -16,7 +16,7 @@ interface DashboardNavbarProps {
 }
 
 const AnimatedTitle: React.FC = () => {
-  const fullText = "Stock OS Pro";
+  const fullText = "Stock OS Dashboard"; // Changed from "Stock OS Pro"
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, List, LayoutGrid, TrendingUp, TrendingDown, Star, LayoutDashboard, Brain, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Bell, List, LayoutGrid, TrendingUp, TrendingDown, Star, LayoutDashboard, Brain, Settings, ChevronLeft, ChevronRight, Cloud } from 'lucide-react'; // Added Cloud icon
 import { mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,7 @@ const DashboardSidebar: React.FC = () => {
     { id: 'ai-insights', icon: Brain, label: 'AI Insights', link: '/dashboard/ai-insights' },
     { id: 'alerts', icon: Bell, label: 'Alerts', link: '/dashboard/alerts' },
     { id: 'heatmap', icon: LayoutGrid, label: 'Heatmap', link: '/dashboard/heatmap' },
+    { id: 'os-connect', icon: Cloud, label: 'OS Connect', link: '/dashboard/os-connect' }, // New item
     { id: 'settings', icon: Settings, label: 'Settings', link: '/dashboard/settings' },
   ];
 

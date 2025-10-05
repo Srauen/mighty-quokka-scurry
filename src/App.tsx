@@ -14,6 +14,7 @@ import WatchlistPage from "./pages/WatchlistPage"; // Import new page
 import AIInsightsPage from "./pages/AIInsightsPage"; // Import new page
 import AlertsPage from "./pages/AlertsPage"; // Import new page
 import HeatmapPage from "./pages/HeatmapPage"; // Import new page
+import OSConnectPage from "./pages/OSConnectPage"; // Import new page
 import { ThemeProvider } from "./components/ThemeContext";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/dashboard/ai-insights" element={<AIInsightsPage />} /> {/* New route */}
               <Route path="/dashboard/alerts" element={<AlertsPage />} /> {/* New route */}
               <Route path="/dashboard/heatmap" element={<HeatmapPage />} /> {/* New route */}
+              <Route path="/dashboard/os-connect" element={<OSConnectPage />} /> {/* New route */}
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
