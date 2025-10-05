@@ -56,6 +56,11 @@
     --chart-3: 227.392 0.07 0.398; /* Example: a shade of yellow/orange */
     --chart-4: 84.429 0.189 0.828;
     --chart-5: 70.08 0.188 0.769;
+
+    /* OS Onboarding Background Colors (for animation) */
+    --os-onboarding-bg-1: #0A2540;
+    --os-onboarding-bg-2: #004D40;
+    --os-onboarding-bg-3: #00334D;
   }
 
   .dark {
@@ -160,6 +165,11 @@
   /* Monospace font for dashboard */
   .font-mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  /* New font for OS experience */
+  .font-jetbrains-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
@@ -365,4 +375,51 @@ html {
   position: fixed; /* Ensure it covers the whole viewport */
   top: 0;
   left: 0;
+}
+
+/* Custom background for boot screen with subtle grid/candlestick pattern */
+.boot-screen-bg {
+  background: linear-gradient(135deg, var(--os-boot-bg-start) 0%, var(--os-boot-bg-end) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.boot-screen-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px; /* Adjust grid size */
+  opacity: 0.3;
+  animation: subtle-move 60s linear infinite; /* Subtle movement for the grid */
+}
+
+@keyframes subtle-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* Candlestick pattern overlay (optional, more complex) */
+/* .boot-screen-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/path/to/candlestick-pattern.svg'); // Replace with actual SVG
+  background-size: cover;
+  opacity: 0.05;
+  animation: fade-in 5s ease-out infinite alternate;
+  pointer-events: none;
+} */
+
+/* Onboarding screen animated background */
+.onboarding-animated-bg {
+  animation: background-cycle 15s ease-in-out infinite;
 }

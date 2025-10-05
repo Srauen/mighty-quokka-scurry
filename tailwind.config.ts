@@ -89,6 +89,13 @@ export default {
         'heatmap-cb-up': '#3B82F6',
         'heatmap-cb-neutral': '#9CA3AF',
         'heatmap-cb-down': '#FB923C',
+
+        // New OS Boot/Onboarding Colors
+        'os-boot-bg-start': '#050505',
+        'os-boot-bg-end': '#0f0f0f',
+        'os-onboarding-bg-1': '#0A2540', // Dark Navy
+        'os-onboarding-bg-2': '#004D40', // Emerald Green
+        'os-onboarding-bg-3': '#00334D', // Neon Cyan
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -149,6 +156,33 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-100%)" },
         },
+        // New OS Boot/Onboarding Keyframes
+        "boot-logo-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1", filter: "drop-shadow(0 0 8px rgba(0, 174, 239, 0.5))" },
+          "50%": { transform: "scale(1.05)", opacity: "1", filter: "drop-shadow(0 0 15px rgba(0, 174, 239, 0.8))" },
+        },
+        "boot-progress-fill": {
+          "0%": { width: "0%" },
+          "100%": { width: "100%" },
+        },
+        "onboarding-float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
+        "onboarding-alt-space-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.05)", opacity: "0.8" },
+        },
+        "ticker-scroll": {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
+        "background-cycle": {
+          "0%": { backgroundColor: "var(--os-onboarding-bg-1)" },
+          "33%": { backgroundColor: "var(--os-onboarding-bg-2)" },
+          "66%": { backgroundColor: "var(--os-onboarding-bg-3)" },
+          "100%": { backgroundColor: "var(--os-onboarding-bg-1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -163,6 +197,13 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "slide-in-left": "slide-in-left 0.3s ease-out",
         "slide-out-left": "slide-out-left 0.3s ease-out forwards",
+        // New OS Boot/Onboarding Animations
+        "boot-logo-pulse": "boot-logo-pulse 2s ease-in-out infinite",
+        "boot-progress-fill": "boot-progress-fill 2s linear forwards",
+        "onboarding-float": "onboarding-float 3s ease-in-out infinite",
+        "onboarding-alt-space-pulse": "onboarding-alt-space-pulse 1.5s ease-in-out infinite",
+        "ticker-scroll": "ticker-scroll 30s linear infinite",
+        "background-cycle": "background-cycle 15s ease-in-out infinite",
       },
     },
   },

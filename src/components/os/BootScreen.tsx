@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { LineChart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface BootScreenProps {
   onBootComplete: () => void;
@@ -11,7 +12,7 @@ const bootMessages = [
   "Initializing core systems...",
   "Loading kernel modules...",
   "Detecting hardware components...",
-  "Establishing network connection...",
+  "Establishing secure connection...",
   "Verifying data integrity...",
   "Starting user interface...",
   "Optimizing performance...",
@@ -22,14 +23,16 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [showBootScreen, setShowBootScreen] = useState(true);
-  const bootAudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const bootAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    // Preload audio
     bootAudioRef.current = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-up-1854.mp3");
-    // Play audio shortly after component mounts
+    bootAudioRef.current.load();
+
     const playAudioTimeout = setTimeout(() => {
       bootAudioRef.current?.play().catch(e => console.error("Audio playback failed:", e));
-    }, 500); // Play after 0.5 seconds
+    }, 500);
 
     const bootInterval = setInterval(() => {
       setProgress((prev) => {
@@ -40,16 +43,16 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
 
         if (newProgress >= 100) {
           clearInterval(bootInterval);
-          clearTimeout(playAudioTimeout); // Clear timeout if interval finishes early
+          clearTimeout(playAudioTimeout);
           setTimeout(() => {
             setShowBootScreen(false);
             onBootComplete();
-          }, 1000); // Give a moment for the last message to display
+          }, 1000);
           return 100;
         }
         return newProgress;
       });
-    }, 200); // Faster updates for messages
+    }, 200);
 
     return () => {
       clearInterval(bootInterval);
@@ -64,21 +67,74 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
   if (!showBootScreen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#0d0f17] bg-[radial-gradient(circle_at_center,_#1a2033_0%,_#0d0f17_100%)] flex flex-col justify-center items-center z-50 transition-opacity duration-500">
-      <div className="flex flex-col items-center justify-center animate-bounceIn">
-        <LineChart className="w-16 h-16 text-indigo-400" />
-        <p className="text-indigo-400 text-3xl font-bold mt-4">Stock OS</p>
-      </div>
-      <div className="w-52 h-1 bg-gray-700 mt-6 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-indigo-600 transition-all duration-200 ease-in-out"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
-      <p className="text-gray-400 text-sm mt-4 h-5 opacity-0 animate-fadeIn" style={{ animationDelay: '0.5s' }}>
-        {bootMessages[currentMessageIndex]}
-      </p>
-    </div>
+    <AnimatePresence>
+      {showBootScreen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 flex flex-col justify-center items-center z-50 boot-screen-bg font-jetbrains-mono text-soft-white"
+        >
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center justify-center"
+          >
+            <motion.div
+              className="w-16 h-16 text-electric-blue animate-boot-logo-pulse"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, ease: "linear", repeat: Infinity }}
+            >
+              <LineChart className="w-full h-full" />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="text-electric-blue text-4xl font-bold mt-4"
+            >
+              Stock OS
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.5 }}
+            className="w-64 h-2 bg-gray-700 mt-8 rounded-full overflow-hidden"
+          >
+            <motion.div
+              className="h-full bg-electric-blue"
+              initial={{ width: "0%" }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.2, ease: "linear" }}
+            ></motion.div>
+          </motion.div>
+
+          <motion.p
+            key={currentMessageIndex}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="text-gray-400 text-sm mt-4 h-5"
+          >
+            {bootMessages[currentMessageIndex]}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            className="text-gray-500 text-xs mt-2"
+          >
+            Booting Stock-OS Terminal...
+          </motion.p>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

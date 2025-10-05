@@ -12,6 +12,7 @@ import ChartsApp from './apps/ChartsApp/ChartsApp'; // Import the new ChartsApp
 import WatchlistApp from './apps/WatchlistApp/WatchlistApp'; // Import new WatchlistApp
 import OnboardingOSModal from './OnboardingOSModal';
 import StockPreferenceOnboarding from './StockPreferenceOnboarding'; // Import new onboarding step
+import OnboardingScreen from './OnboardingScreen'; // Import the new OnboardingScreen
 import OnboardingModal from '@/components/OnboardingModal';
 import { Button } from '@/components/ui/button';
 import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle, TrendingDown, CandlestickChart } from 'lucide-react';
@@ -107,9 +108,9 @@ const getInitialWatchlist = () => {
 
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false); // New state for OnboardingScreen
   const [showOnboardingOS, setShowOnboardingOS] = useState(false); // For initial cash selection
   const [showStockPreferenceOnboarding, setShowStockPreferenceOnboarding] = useState(false); // For stock selection
-  const [osOnboardingStep, setOsOnboardingStep] = useState(0); // For general onboarding modal
   const [experienceLevel, setExperienceLevel] = useState<string | null>(getInitialExperienceLevel());
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
@@ -325,19 +326,17 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     });
   }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart, userName, userAvatarUrl, watchlist, isTradingViewMode, setIsTradingViewMode]);
 
-  const nextOSOnboardingStep = useCallback(() => {
-    if (osOnboardingStep < 4) {
-      setOsOnboardingStep(prev => prev + 1);
-    } else {
-      setOsOnboardingStep(0);
-      setShowOnboardingOS(true); // Show cash selection modal
-    }
-  }, [osOnboardingStep]);
-
   const handleBootComplete = useCallback(() => {
     setBooted(true);
+    // After boot, transition to the new OnboardingScreen
+    // The OnboardingScreen will then call setOnboardingComplete when its animation finishes
+  }, []);
+
+  const handleOnboardingScreenComplete = useCallback(() => {
+    setOnboardingComplete(true);
+    // After the welcome screen, proceed with the existing OS onboarding flow
     if (!experienceLevel) {
-      setOsOnboardingStep(1); // Start general onboarding
+      setShowOnboardingOS(true); // Show cash selection modal
     } else {
       // If experience level is set, check if stock preferences are set
       if (Object.keys(getInitialPortfolio()).length === 0 && getInitialWatchlist().length === 0) {
@@ -436,76 +435,73 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     <div id="desktop-container" className="relative w-full h-screen overflow-hidden text-white">
       {!booted && <BootScreen onBootComplete={handleBootComplete} />}
 
-      {booted && (
-        <OSTopBar
-          onOpenSpotlight={() => setShowSpotlight(true)}
-          onOpenSettings={() => toast.info("OS Settings", { description: "OS-level settings coming soon!" })}
-          onOpenNotifications={() => toast.info("Notifications Center", { description: "Notifications center coming soon!" })}
-          onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
-          onShutDown={onExit} // Pass onExit for Shut Down
-          onResetOSData={resetOSData} // Pass resetOSData for Reset
-          cashBalance={cashBalance} // Pass cash balance to top bar
-        />
+      {booted && !onboardingComplete && (
+        <OnboardingScreen onOnboardingComplete={handleOnboardingScreenComplete} />
       )}
 
-      {booted && osOnboardingStep > 0 && (
-        <OnboardingModal
-          onboardingStep={osOnboardingStep}
-          nextOnboardingStep={nextOSOnboardingStep}
-        />
-      )}
-
-      {booted && showOnboardingOS && (
-        <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
-      )}
-
-      {booted && showStockPreferenceOnboarding && (
-        <StockPreferenceOnboarding isOpen={showStockPreferenceOnboarding} onComplete={handleStockPreferenceComplete} />
-      )}
-
-      {booted && !showOnboardingOS && !showStockPreferenceOnboarding && osOnboardingStep === 0 && (
+      {booted && onboardingComplete && (
         <>
-          {/* Removed old cash balance display from desktop */}
-
-          {openWindows.map((win) => (
-            !win.minimized && (
-              <OSWindow
-                key={win.id}
-                id={win.id}
-                title={win.title}
-                onClose={closeWindow}
-                onMinimize={minimizeWindow}
-                onFocus={focusWindow}
-                initialPosition={win.initialPosition}
-                initialSize={win.initialSize}
-                zIndex={win.zIndex}
-                isActive={activeWindowId === win.id}
-              >
-                {win.component}
-              </OSWindow>
-            )
-          ))}
-
-          <OSTaskbar openApp={openApp} activeApps={activeAppIds} />
-
-          {notifications.map((notification) => (
-            <OSNotification
-              key={notification.id}
-              id={notification.id}
-              title={notification.title}
-              message={notification.message}
-              icon={notification.icon}
-              onDismiss={dismissNotification}
-            />
-          ))}
-
-          <OSSpotlight
-            isOpen={showSpotlight}
-            onClose={() => setShowSpotlight(false)}
-            stocksList={stocksList}
-            openApp={openApp}
-            setIsTradingViewMode={setIsTradingViewMode} // Pass setter to Spotlight
+          <OSTopBar
+            onOpenSpotlight={() => setShowSpotlight(true)}
+            onOpenSettings={() => toast.info("OS Settings", { description: "OS-level settings coming soon!" })}
+            onOpenNotifications={() => toast.info("Notifications Center", { description: "Notifications center coming soon!" })}
+            onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
+            onShutDown={onExit} // Pass onExit for Shut Down
+            onResetOSData={resetOSData} // Pass resetOSData for Reset
+            cashBalance={cashBalance} // Pass cash balance to top bar
           />
+
+          {showOnboardingOS && (
+            <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
+          )}
+
+          {showStockPreferenceOnboarding && (
+            <StockPreferenceOnboarding isOpen={showStockPreferenceOnboarding} onComplete={handleStockPreferenceComplete} />
+          )}
+
+          {!showOnboardingOS && !showStockPreferenceOnboarding && (
+            <>
+              {openWindows.map((win) => (
+                !win.minimized && (
+                  <OSWindow
+                    key={win.id}
+                    id={win.id}
+                    title={win.title}
+                    onClose={closeWindow}
+                    onMinimize={minimizeWindow}
+                    onFocus={focusWindow}
+                    initialPosition={win.initialPosition}
+                    initialSize={win.initialSize}
+                    zIndex={win.zIndex}
+                    isActive={activeWindowId === win.id}
+                  >
+                    {win.component}
+                  </OSWindow>
+                )
+              ))}
+
+              <OSTaskbar openApp={openApp} activeApps={activeAppIds} />
+
+              {notifications.map((notification) => (
+                <OSNotification
+                  key={notification.id}
+                  id={notification.id}
+                  title={notification.title}
+                  message={notification.message}
+                  icon={notification.icon}
+                  onDismiss={dismissNotification}
+                />
+              ))}
+
+              <OSSpotlight
+                isOpen={showSpotlight}
+                onClose={() => setShowSpotlight(false)}
+                stocksList={stocksList}
+                openApp={openApp}
+                setIsTradingViewMode={setIsTradingViewMode} // Pass setter to Spotlight
+              />
+            </>
+          )}
         </>
       )}
     </div>
