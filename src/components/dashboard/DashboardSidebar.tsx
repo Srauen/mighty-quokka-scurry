@@ -6,6 +6,7 @@ import { Bell, List, LayoutGrid, TrendingUp, TrendingDown, Star } from 'lucide-r
 import { mockNotifications } from '@/lib/mockData'; // Reusing mock notifications
 import { useStockData } from '@/hooks/use-stock-data';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button'; // Added Button import
 
 const DashboardSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState('watchlist');
