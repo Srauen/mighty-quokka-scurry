@@ -13,11 +13,14 @@ import {
   Area,
   AreaChart,
   Legend,
+  BarChart, // Added for volume chart
+  Bar,      // Added for volume chart
 } from 'recharts';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button'; // Using Button for timeframe selection
 import { useStockData } from '@/hooks/use-stock-data';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils'; // For conditional class names
 
 interface DashboardChartProps {
   initialStocks: string[];
@@ -37,21 +40,25 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
   ];
 
   const getChartDataForTimeframe = (stock: string, timeframe: 'week' | 'month' | 'year') => {
-    const data = stockData[stock]?.prices || [];
-    const labels = stockData[stock]?.labels || [];
+    const data = stockData[stock];
+    if (!data) return [];
+
+    const { prices, labels, volumes, sentiments } = data;
 
     let startIndex = 0;
     if (timeframe === 'week') {
-      startIndex = Math.max(0, data.length - 7);
+      startIndex = Math.max(0, prices.length - 7);
     } else if (timeframe === 'month') {
-      startIndex = Math.max(0, data.length - 30);
+      startIndex = Math.max(0, prices.length - 30);
     } else if (timeframe === 'year') {
-      startIndex = Math.max(0, data.length - 365);
+      startIndex = Math.max(0, prices.length - 365);
     }
 
-    return data.slice(startIndex).map((price, index) => ({
+    return prices.slice(startIndex).map((price, index) => ({
       date: labels[startIndex + index],
-      [stock]: price,
+      price: price,
+      volume: volumes[startIndex + index],
+      sentiment: sentiments[startIndex + index],
     }));
   };
 
@@ -66,22 +73,48 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
     const sortedDates = Array.from(allDates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
     return sortedDates.map(date => {
-      const dataPoint: { date: string; [key: string]: any } = { date };
+      const dataPoint: { date: string; [key: string]: any; totalVolume?: number; avgSentiment?: number } = { date };
+      let currentTotalVolume = 0;
+      let currentSentimentSum = 0;
+      let sentimentCount = 0;
+
       selectedStocks.forEach(stock => {
         const stockItems = getChartDataForTimeframe(stock, selectedTimeframe);
         const item = stockItems.find(si => si.date === date);
-        dataPoint[stock] = item ? item[stock] : null; // Use null for missing data points
+        dataPoint[`${stock}Price`] = item ? item.price : null;
+        // For volume, we'll use the total volume for the first selected stock for simplicity in the combined chart
+        // If multiple stocks are selected, we'll sum their volumes for the totalVolume property
+        if (item && item.volume !== null) {
+          currentTotalVolume += item.volume;
+        }
+        if (item && item.sentiment !== null) {
+          currentSentimentSum += item.sentiment;
+          sentimentCount++;
+        }
       });
+      dataPoint.totalVolume = currentTotalVolume; // Aggregate volume
+      dataPoint.avgSentiment = sentimentCount > 0 ? currentSentimentSum / sentimentCount : null; // Average sentiment
       return dataPoint;
     });
   }, [selectedStocks, selectedTimeframe, stockData]);
 
-
   const formatYAxisPrice = (value: number) => `$${value.toFixed(2)}`;
+  const formatYAxisVolume = (value: number) => {
+    if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`;
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+    if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+    return value.toString();
+  };
   const formatTooltipLabel = (value: string) => `Date: ${value}`;
   const formatTooltipValue = (value: number, name: string) => {
     if (value === null) return ['N/A', name];
-    return [`$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name];
+    if (name.includes('Price')) {
+      return [`$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name.replace('Price', ' Price')];
+    }
+    if (name === 'totalVolume') {
+      return [`${value.toLocaleString()}`, 'Volume'];
+    }
+    return [`${value.toLocaleString()}`, name];
   };
 
   const handleStockSelection = (stock: string, checked: boolean) => {
@@ -94,21 +127,43 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
     });
   };
 
+  // Get data for the info panel (first selected stock)
+  const firstSelectedStock = selectedStocks[0];
+  const currentStockTimeSeries = firstSelectedStock ? getChartDataForTimeframe(firstSelectedStock, selectedTimeframe) : [];
+
+  const openPrice = currentStockTimeSeries.length > 0 ? currentStockTimeSeries[0].price : 0;
+  const highPrice = currentStockTimeSeries.length > 0 ? Math.max(...currentStockTimeSeries.map(item => item.price)) : 0;
+  const lowPrice = currentStockTimeSeries.length > 0 ? Math.min(...currentStockTimeSeries.map(item => item.price)) : 0;
+  const totalVolume = currentStockTimeSeries.length > 0 ? currentStockTimeSeries.reduce((sum, item) => sum + item.volume, 0) : 0;
+  const lastPrice = firstSelectedStock && stockData[firstSelectedStock] ? stockData[firstSelectedStock].lastPrice : 0;
+  const dailyChange = firstSelectedStock && stockData[firstSelectedStock] ? stockData[firstSelectedStock].dailyChange : 0;
+
+
+  const timeframeOptions = [
+    { value: 'week', label: '1W' },
+    { value: 'month', label: '1M' },
+    { value: 'year', label: '1Y' },
+  ];
+
   return (
     <Card className="bg-gray-800 border border-gray-700 shadow-lg col-span-full lg:col-span-2 flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-gray-700">
         <CardTitle className="text-lg font-semibold text-green-400">Stock Performance</CardTitle>
-        <div className="flex items-center space-x-4">
-          <Select value={selectedTimeframe} onValueChange={(value) => setSelectedTimeframe(value as 'week' | 'month' | 'year')}>
-            <SelectTrigger className="w-[120px] bg-gray-700 border-gray-600 text-white">
-              <SelectValue placeholder="Timeframe" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-700 text-white z-[9999]">
-              <SelectItem value="week">1 Week</SelectItem>
-              <SelectItem value="month">1 Month</SelectItem>
-              <SelectItem value="year">1 Year</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center space-x-2">
+          {timeframeOptions.map((option) => (
+            <Button
+              key={option.value}
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedTimeframe(option.value as 'week' | 'month' | 'year')}
+              className={cn(
+                "text-gray-400 hover:text-white",
+                selectedTimeframe === option.value && "bg-gray-700 text-white"
+              )}
+            >
+              {option.label}
+            </Button>
+          ))}
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4">
@@ -125,7 +180,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
             </div>
           ))}
         </div>
-        <div className="h-[350px] w-full">
+        <div className="h-[250px] w-full"> {/* Reduced height for price chart */}
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={combinedChartData}
@@ -135,20 +190,23 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
                 left: 10,
                 bottom: 0,
               }}
+              syncId="stockChartSync" // Sync ID for price and volume charts
             >
               <CartesianGrid
-                horizontal={false}
-                vertical={true}
+                horizontal={true} // Keep horizontal gridlines
+                vertical={false} // Remove vertical gridlines for cleaner look
                 strokeDasharray="3 3"
-                stroke="hsl(var(--muted-foreground) / 0.3)"
+                stroke="hsl(var(--muted-foreground) / 0.1)" // Very subtle grid
               />
-              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+              <XAxis dataKey="date" hide /> {/* Hide X-axis for price chart */}
               <YAxis
+                orientation="right" // Y-axis on the right
                 stroke="hsl(var(--muted-foreground))"
                 tickFormatter={formatYAxisPrice}
                 tickLine={false}
                 axisLine={false}
                 domain={['auto', 'auto']}
+                width={60} // Give some width for labels
               />
               <Tooltip
                 formatter={formatTooltipValue}
@@ -166,7 +224,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
                 <Area
                   key={stock}
                   type="monotone"
-                  dataKey={stock}
+                  dataKey={`${stock}Price`} // Use specific dataKey for price
                   stroke={chartColors[index % chartColors.length]}
                   fillOpacity={0.3}
                   fill={`url(#color${stock})`}
@@ -185,6 +243,92 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
+
+        {/* Volume Chart */}
+        <div className="h-[100px] w-full mt-2"> {/* Smaller height for volume chart */}
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={combinedChartData}
+              margin={{
+                top: 0,
+                right: 10,
+                left: 10,
+                bottom: 0,
+              }}
+              syncId="stockChartSync" // Sync ID for price and volume charts
+            >
+              <CartesianGrid
+                horizontal={false} // No horizontal gridlines for volume
+                vertical={false} // No vertical gridlines for volume
+                strokeDasharray="3 3"
+                stroke="hsl(var(--muted-foreground) / 0.1)"
+              />
+              <XAxis
+                dataKey="date"
+                stroke="hsl(var(--muted-foreground))"
+                tickLine={false}
+                axisLine={false}
+                minHeight={20}
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              />
+              <YAxis
+                orientation="right" // Y-axis on the right
+                stroke="hsl(var(--muted-foreground))"
+                tickFormatter={formatYAxisVolume}
+                tickLine={false}
+                axisLine={false}
+                domain={['auto', 'auto']}
+                width={60} // Give some width for labels
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              />
+              <Tooltip
+                formatter={formatTooltipValue}
+                labelFormatter={formatTooltipLabel}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--popover))',
+                  borderColor: 'hsl(var(--border))',
+                  borderRadius: '0.5rem',
+                  color: 'hsl(var(--foreground))'
+                }}
+                itemStyle={{ color: 'hsl(var(--foreground))' }}
+              />
+              <Bar dataKey="totalVolume" fill="hsl(var(--chart-1))" opacity={0.6} name="Volume" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Key Metrics Display */}
+        {firstSelectedStock && (
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-300 border-t border-gray-700 pt-4">
+            <div>
+              <p className="font-medium text-gray-400">Open</p>
+              <p className="text-white">${openPrice.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-400">High</p>
+              <p className="text-white">${highPrice.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-400">Low</p>
+              <p className="text-white">${lowPrice.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-400">Volume</p>
+              <p className="text-white">{formatYAxisVolume(totalVolume)}</p>
+            </div>
+            {/* Add more metrics here if available, e.g., P/E, Mkt Cap */}
+            <div>
+              <p className="font-medium text-gray-400">Last Price</p>
+              <p className="text-white">${lastPrice.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-400">Daily Change</p>
+              <p className={cn("text-white", dailyChange >= 0 ? "text-green-500" : "text-red-500")}>
+                {dailyChange >= 0 ? '+' : ''}{dailyChange.toFixed(2)}%
+              </p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
