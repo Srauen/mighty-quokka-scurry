@@ -20,7 +20,7 @@ const ChartsSearchBar: React.FC<ChartsSearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <form onSubmit={handleSearchSubmit} className="relative flex-grow max-w-md">
+    <form onSubmit={handleSearchSubmit} className="relative flex-grow">
       <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-charts-text-secondary" />
       <Input
         ref={searchInputRef}
