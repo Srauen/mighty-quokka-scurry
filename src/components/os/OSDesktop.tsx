@@ -115,6 +115,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(100);
   const [fullSymbol, setFullSymbol] = useState<string | null>(null);
+  const [isTradingViewMode, setIsTradingViewMode] = useState(false); // New state for TradingView mode
 
   // OS Global State with localStorage persistence
   const { stockData, stocksList, initializeStockData } = useStockData();
@@ -260,6 +261,8 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
               initialStockSymbol={initialStockSymbol}
               userName={userName}
               userAvatarUrl={userAvatarUrl}
+              isTradingViewMode={isTradingViewMode} // Pass TradingView mode
+              setIsTradingViewMode={setIsTradingViewMode} // Pass setter
             />
           );
           newWindow.initialSize = { width: '90vw', height: '90vh' };
@@ -320,7 +323,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart, userName, userAvatarUrl, watchlist]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart, userName, userAvatarUrl, watchlist, isTradingViewMode, setIsTradingViewMode]);
 
   const nextOSOnboardingStep = useCallback(() => {
     if (osOnboardingStep < 4) {
@@ -441,6 +444,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
           onShutDown={onExit} // Pass onExit for Shut Down
           onResetOSData={resetOSData} // Pass resetOSData for Reset
+          cashBalance={cashBalance} // Pass cash balance to top bar
         />
       )}
 
@@ -461,10 +465,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
       {booted && !showOnboardingOS && !showStockPreferenceOnboarding && osOnboardingStep === 0 && (
         <>
-          <div className="absolute top-10 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium z-[999]"> {/* Adjusted top for menubar */}
-            <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
-            {/* Removed old exit/reset buttons here */}
-          </div>
+          {/* Removed old cash balance display from desktop */}
 
           {openWindows.map((win) => (
             !win.minimized && (
@@ -503,6 +504,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
             onClose={() => setShowSpotlight(false)}
             stocksList={stocksList}
             openApp={openApp}
+            setIsTradingViewMode={setIsTradingViewMode} // Pass setter to Spotlight
           />
         </>
       )}

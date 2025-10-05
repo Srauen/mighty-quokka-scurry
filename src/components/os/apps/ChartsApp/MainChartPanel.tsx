@@ -7,17 +7,21 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data';
 import Chart from 'chart.js/auto'; // Import Chart.js
+import { useTradingViewScript } from '@/hooks/use-tradingview-script'; // Import TradingView script hook
+import TradingViewWidget from '@/components/TradingViewWidget'; // Import TradingView widget
 
 interface MainChartPanelProps {
   selectedStock: string;
+  isTradingViewMode: boolean; // New prop
 }
 
-const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
+const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock, isTradingViewMode }) => {
   const { stockData } = useStockData();
   const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>("1D"); // Default to Daily
 
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
+  const scriptLoaded = useTradingViewScript(); // Check if TradingView script is loaded
 
   const baseStockSymbol = selectedStock;
 
@@ -37,8 +41,9 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
   const profitProbability = stockInfo.sentiments[stockInfo.sentiments.length - 1] || 0;
   const currentVolume = stockInfo.volumes[stockInfo.volumes.length - 1] || 0;
 
+  // Chart.js specific effect
   useEffect(() => {
-    if (chartRef.current && stockInfo.prices.length > 0) {
+    if (!isTradingViewMode && chartRef.current && stockInfo.prices.length > 0) {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
@@ -147,7 +152,7 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
         chartInstanceRef.current = null;
       }
     };
-  }, [stockInfo, baseStockSymbol, timeframe]);
+  }, [stockInfo, baseStockSymbol, timeframe, isTradingViewMode]);
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
@@ -160,8 +165,46 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     return value.toLocaleString();
   };
 
+  const tradingViewWidgetOptions = useMemo(() => ({
+    width: "100%",
+    height: "100%",
+    symbol: selectedStock,
+    interval: "D",
+    timezone: "Etc/UTC",
+    theme: "dark",
+    style: "1", // Candlestick chart
+    locale: "en",
+    toolbar_bg: "#0B0B0B",
+    enable_publishing: false,
+    allow_symbol_change: true,
+    hide_side_toolbar: false,
+    hide_top_toolbar: false,
+    withdateranges: true,
+    studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
+    watchlist: true,
+    details: true,
+    hotlist: true,
+    calendar: true,
+    news: true,
+    overrides: {
+      "paneProperties.background": "#0B0B0B",
+      "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "paneProperties.horzGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "scalesProperties.textColor": "#E5E7EB", // charts-text-primary
+      "mainSeriesProperties.candleStyle.upColor": "#00E676",
+      "mainSeriesProperties.candleStyle.downColor": "#FF3B30",
+      "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+      "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+      "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+      "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+    }
+  }), [selectedStock]);
+
   return (
-    <div className="flex flex-col flex-grow bg-charts-panel-bg backdrop-blur-lg rounded-mac-window shadow-lg border border-charts-border relative overflow-hidden">
+    <div className={cn(
+      "flex flex-col flex-grow bg-charts-panel-bg backdrop-blur-lg rounded-mac-window shadow-lg border border-charts-border relative overflow-hidden",
+      isTradingViewMode ? "animate-glow-charts" : "transition-all duration-500"
+    )}>
       {/* Header for Info Cards and Timeframe Controls */}
       <div className="p-4 border-b border-charts-border flex justify-between items-start">
         {/* Left: Price, Change, Volume, AI Prob */}
@@ -188,27 +231,33 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
         </div>
 
         {/* Right: Timeframe Controls */}
-        <div className="flex space-x-1 bg-charts-toolbar-bg backdrop-blur-md p-1 rounded-lg shadow-md border border-charts-border">
-          {['1D', '1W', '1M', '1Y'].map((tf) => (
-            <Button
-              key={tf}
-              variant="ghost"
-              size="sm"
-              onClick={() => setTimeframe(tf as '1D' | '1W' | '1M' | '1Y')}
-              className={cn(
-                "h-7 px-3 text-xs text-charts-text-secondary hover:text-charts-accent",
-                timeframe === tf && "bg-charts-panel-bg text-charts-accent"
-              )}
-            >
-              {tf}
-            </Button>
-          ))}
-        </div>
+        {!isTradingViewMode && ( // Hide Chart.js timeframe controls in TradingView mode
+          <div className="flex space-x-1 bg-charts-toolbar-bg backdrop-blur-md p-1 rounded-lg shadow-md border border-charts-border">
+            {['1D', '1W', '1M', '1Y'].map((tf) => (
+              <Button
+                key={tf}
+                variant="ghost"
+                size="sm"
+                onClick={() => setTimeframe(tf as '1D' | '1W' | '1M' | '1Y')}
+                className={cn(
+                  "h-7 px-3 text-xs text-charts-text-secondary hover:text-charts-accent",
+                  timeframe === tf && "bg-charts-panel-bg text-charts-accent"
+                )}
+              >
+                {tf}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Chart.js Chart */}
-      <div className="flex-grow w-full h-full min-h-0 p-4">
-        <canvas ref={chartRef} className="w-full h-full"></canvas>
+      {/* Chart Area */}
+      <div className="flex-grow w-full h-full min-h-0 p-4 transition-opacity duration-500">
+        {isTradingViewMode && scriptLoaded ? (
+          <TradingViewWidget containerId={`tradingview-main-chart-${selectedStock}`} widgetOptions={tradingViewWidgetOptions} />
+        ) : (
+          <canvas ref={chartRef} className="w-full h-full"></canvas>
+        )}
       </div>
 
       {/* AI Insights Overlay (Placeholder) - Now positioned relative to the *panel* */}

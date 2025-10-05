@@ -14,9 +14,10 @@ interface OSTopBarProps {
   onOpenHeatmap: () => void;
   onShutDown: () => void; // New prop for Shut Down
   onResetOSData: () => void; // New prop for Reset OS Data
+  cashBalance: number; // New prop for cash balance
 }
 
-const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, onOpenNotifications, onOpenHeatmap, onShutDown, onResetOSData }) => {
+const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, onOpenNotifications, onOpenHeatmap, onShutDown, onResetOSData, cashBalance }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [batteryLevel, setBatteryLevel] = useState(90); // Mock battery level
   const [isCharging, setIsCharging] = useState(true); // Mock charging status
@@ -93,6 +94,7 @@ const OSTopBar: React.FC<OSTopBarProps> = ({ onOpenSpotlight, onOpenSettings, on
 
       {/* Right Section: System Icons and Date/Time */}
       <div className="flex items-center space-x-3">
+        <span className="text-sm text-gray-400">Cash: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span> {/* Display cash balance */}
         <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:bg-white/20" onClick={() => toast.info("Wi-Fi", { description: "Wi-Fi status: Connected" })}>
           <Wifi className="h-4 w-4" />
         </Button>

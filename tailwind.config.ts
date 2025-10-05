@@ -121,6 +121,10 @@ export default {
           "0%, 100%": { boxShadow: "0 0 10px rgba(0, 174, 239, 0.3)" },
           "50%": { boxShadow: "0 0 15px rgba(0, 174, 239, 0.6)" },
         },
+        "glow-charts": { // New animation for charts
+          "0%, 100%": { boxShadow: "0 0 10px rgba(0, 174, 239, 0.3), inset 0 0 10px rgba(0, 174, 239, 0.3)" },
+          "50%": { boxShadow: "0 0 20px rgba(0, 174, 239, 0.6), inset 0 0 20px rgba(0, 174, 239, 0.6)" },
+        },
         "marquee-horizontal": {
           "0%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(-100%)" },
@@ -152,6 +156,7 @@ export default {
         "pulse-orb": "pulse-orb 2s infinite",
         "glow": "glow 2s ease-in-out infinite",
         "glow-subtle": "glow 4s ease-in-out infinite",
+        "glow-charts": "glow-charts 2s ease-in-out infinite", // New animation
         "marquee-horizontal": "marquee-horizontal 30s linear infinite",
         "marquee-horizontal-slow": "marquee-horizontal-slow 60s linear infinite", // Slower duration
         "tile-pulse": "tile-pulse 2s ease-in-out infinite",

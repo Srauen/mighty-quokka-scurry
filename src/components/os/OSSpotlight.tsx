@@ -5,21 +5,23 @@ import { Input } from '@/components/ui/input';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Search, LayoutDashboard, Star, Brain, Bell, LayoutGrid, Cloud, Settings, Calculator, TrendingUp, Briefcase, Newspaper, CandlestickChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface OSSpotlightProps {
   isOpen: boolean;
   onClose: () => void;
   stocksList: string[];
-  openApp: (appId: string, stockSymbol?: string, initialSearchText?: string) => void; // Updated openApp signature
+  openApp: (appId: string, stockSymbol?: string, initialSearchText?: string) => void;
+  setIsTradingViewMode: React.Dispatch<React.SetStateAction<boolean>>; // New prop
 }
 
-const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, openApp }) => {
+const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, openApp, setIsTradingViewMode }) => {
   const [search, setSearch] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const apps = [
     { id: 'charts-app', name: 'Charts', icon: CandlestickChart },
-    { id: 'watchlist-app', name: 'Watchlist', icon: Star }, // New Watchlist app
+    { id: 'watchlist-app', name: 'Watchlist', icon: Star },
     { id: 'trading-terminal', name: 'Trading Terminal', icon: TrendingUp },
     { id: 'portfolio-manager', name: 'Portfolio Manager', icon: Briefcase },
     { id: 'news-feed', name: 'News Feed', icon: Newspaper },
@@ -27,7 +29,27 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
   ];
 
   const specialCommands = [
-    { id: 'tradingiseasy', name: 'tradingiseasy', icon: TrendingUp, type: 'command', action: () => openApp('trading-terminal', undefined, 'tradingiseasy') },
+    {
+      id: 'tradingiseasy',
+      name: 'tradingiseasy',
+      icon: TrendingUp,
+      type: 'command',
+      action: () => {
+        setIsTradingViewMode(true);
+        openApp('charts-app'); // Open charts app when activating TradingView mode
+        toast.success("TradingView Mode Activated ✅", { duration: 3000 });
+      }
+    },
+    {
+      id: 'resetcharts',
+      name: 'resetcharts',
+      icon: RotateCcw,
+      type: 'command',
+      action: () => {
+        setIsTradingViewMode(false);
+        toast.info("Charts Reset", { description: "Switched back to default charts.", duration: 3000 });
+      }
+    }
   ];
 
   const allSearchableItems = [

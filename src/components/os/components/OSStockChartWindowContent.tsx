@@ -7,6 +7,8 @@ import Chart from 'chart.js/auto'; // Import Chart.js
 import { Button } from '@/components/ui/button';
 import { Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTradingViewScript } from '@/hooks/use-tradingview-script'; // Import TradingView script hook
+import TradingViewWidget from '@/components/TradingViewWidget'; // Import TradingView widget
 
 interface OSStockChartWindowContentProps {
   stocksList: string[];
@@ -14,6 +16,7 @@ interface OSStockChartWindowContentProps {
   fullSymbol: string | null;
   closeFullChart: () => void;
   initialSelectedStock?: string;
+  isTradingViewMode: boolean; // New prop
 }
 
 const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
@@ -22,6 +25,7 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
   fullSymbol,
   closeFullChart,
   initialSelectedStock,
+  isTradingViewMode,
 }) => {
   const [selectedStock, setSelectedStock] = useState<string>(initialSelectedStock || stocksList[0] || 'AAPL');
   const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>('1D');
@@ -29,6 +33,7 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
   const { stockData } = useStockData();
+  const scriptLoaded = useTradingViewScript(); // Check if TradingView script is loaded
 
   const stockInfo = stockData[selectedStock] || {
     companyName: 'Loading...',
@@ -46,8 +51,9 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
     }
   }, [stocksList, initialSelectedStock, selectedStock]);
 
+  // Chart.js specific effect
   useEffect(() => {
-    if (chartRef.current && stockInfo.prices.length > 0) {
+    if (!isTradingViewMode && chartRef.current && stockInfo.prices.length > 0) {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
@@ -156,10 +162,48 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
         chartInstanceRef.current = null;
       }
     };
-  }, [stockInfo, selectedStock, timeframe]);
+  }, [stockInfo, selectedStock, timeframe, isTradingViewMode]);
+
+  const tradingViewWidgetOptions = useMemo(() => ({
+    width: "100%",
+    height: "100%",
+    symbol: selectedStock,
+    interval: "D",
+    timezone: "Etc/UTC",
+    theme: "dark",
+    style: "1",
+    locale: "en",
+    toolbar_bg: "#0B0B0B",
+    enable_publishing: false,
+    allow_symbol_change: true,
+    hide_side_toolbar: false,
+    hide_top_toolbar: false,
+    withdateranges: true,
+    studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
+    watchlist: true,
+    details: true,
+    hotlist: true,
+    calendar: true,
+    news: true,
+    overrides: {
+      "paneProperties.background": "#0B0B0B",
+      "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)",
+      "paneProperties.horzGridProperties.color": "rgba(156, 163, 175, 0.1)",
+      "scalesProperties.textColor": "#E5E7EB",
+      "mainSeriesProperties.candleStyle.upColor": "#00E676",
+      "mainSeriesProperties.candleStyle.downColor": "#FF3B30",
+      "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+      "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+      "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+      "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+    }
+  }), [selectedStock]);
 
   return (
-    <div className="flex flex-col h-full p-4 bg-[#1a2033] text-soft-white">
+    <div className={cn(
+      "flex flex-col h-full p-4 bg-[#1a2033] text-soft-white transition-all duration-500",
+      isTradingViewMode && "animate-glow-charts"
+    )}>
       <div className="mb-4 flex justify-between items-center">
         <div className="flex-grow mr-4">
           <label htmlFor="stock-select-os" className="block text-sm font-medium mb-1 text-body-label">Select Stock</label>
@@ -175,31 +219,39 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
           </Select>
         </div>
         <div className="flex space-x-1 bg-gray-800 border border-gray-700 rounded-lg p-1">
-          {['1D', '1W', '1M', '1Y'].map(tf => (
-            <Button
-              key={tf}
-              variant="ghost"
-              size="sm"
-              onClick={() => setTimeframe(tf as '1D' | '1W' | '1M' | '1Y')}
-              className={cn(
-                "h-7 px-3 text-xs text-gray-400 hover:text-electric-blue",
-                timeframe === tf && "bg-gray-700 text-electric-blue"
-              )}
-            >
-              {tf}
-            </Button>
-          ))}
+          {!isTradingViewMode && ( // Hide Chart.js timeframe controls in TradingView mode
+            <>
+              {['1D', '1W', '1M', '1Y'].map(tf => (
+                <Button
+                  key={tf}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setTimeframe(tf as '1D' | '1W' | '1M' | '1Y')}
+                  className={cn(
+                    "h-7 px-3 text-xs text-gray-400 hover:text-electric-blue",
+                    timeframe === tf && "bg-gray-700 text-electric-blue"
+                  )}
+                >
+                  {tf}
+                </Button>
+              ))}
+            </>
+          )}
           <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-electric-blue" onClick={() => openFullChart(selectedStock)} aria-label="Open Full Chart">
             <Maximize className="h-4 w-4" />
           </Button>
         </div>
       </div>
-      <div className="flex-grow min-h-0">
-        <canvas ref={chartRef} className="w-full h-full"></canvas>
+      <div className="flex-grow min-h-0 transition-opacity duration-500">
+        {isTradingViewMode && scriptLoaded ? (
+          <TradingViewWidget containerId={`tradingview-os-chart-${selectedStock}`} widgetOptions={tradingViewWidgetOptions} />
+        ) : (
+          <canvas ref={chartRef} className="w-full h-full"></canvas>
+        )}
       </div>
 
       {fullSymbol && (
-        <FullChartModal symbol={fullSymbol} onClose={closeFullChart} />
+        <FullChartModal symbol={fullSymbol} onClose={closeFullChart} isTradingViewMode={isTradingViewMode} />
       )}
     </div>
   );
