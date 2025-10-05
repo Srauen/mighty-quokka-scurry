@@ -55,7 +55,42 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
     // Ensure TradingView library is loaded
     if (!(window && (window as any).TradingView)) {
       console.warn("TradingView script not loaded yet.");
-      return;
+      const retryTimer = setTimeout(() => {
+        if (window && (window as any).TradingView) {
+          new (window as any).TradingView.widget({
+            container_id: widgetId,
+            width: "100%",
+            height: 260,
+            symbol: symbol,
+            interval: "60", // 60 minute default for tile
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "1", // Candlestick chart
+            locale: "en",
+            toolbar_bg: "#0B0B0B",
+            enable_publishing: false,
+            allow_symbol_change: false,
+            hide_top_toolbar: true,
+            hide_side_toolbar: true,
+            withdateranges: false,
+            studies_overrides: {},
+            overrides: {
+              "paneProperties.background": "#0B0B0B",
+              "paneProperties.vertGridProperties.color": "#121212",
+              "paneProperties.horzGridProperties.color": "#121212",
+              "scalesProperties.textColor": "#BFC7D6",
+              // Candlestick colors
+              "mainSeriesProperties.candleStyle.upColor": "#00E676", // Green for up
+              "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red for down
+              "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
+              "mainSeriesProperties.candleStyle.borderDownColor": "#FF3B30",
+              "mainSeriesProperties.candleStyle.wickUpColor": "#00E676",
+              "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
+            }
+          });
+        }
+      }, 500);
+      return () => clearTimeout(retryTimer);
     }
 
     new (window as any).TradingView.widget({
@@ -89,7 +124,7 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
         "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
       }
     });
-  }, [mounted, symbol, widgetId, stockData]); // Added stockData to dependencies to trigger re-render if needed
+  }, [mounted, symbol, widgetId]); // Removed stockData from dependencies
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${symbol.split(':')[1]}... (Feature coming soon)` });
@@ -127,14 +162,16 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
       </div>
 
       <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-800">
-        <div className="flex items-center text-sm text-body-label">
-          <span className="mr-1">📈</span> <strong>Prob:</strong> <span className="font-bold text-electric-blue">{profitProbability.toFixed(0)}%</span>
-        </div>
         <div className="flex space-x-2">
           <Button variant="ghost" size="sm" className="h-7 px-3 text-xs text-gray-400 hover:text-electric-blue" onClick={() => toast.info("Timeframe", { description: "Timeframe toggle coming soon!" })}>1D</Button>
           <Button variant="ghost" size="sm" className="h-7 px-3 text-xs text-gray-400 hover:text-electric-blue" onClick={() => toast.info("Timeframe", { description: "Timeframe toggle coming soon!" })}>1W</Button>
           <Button variant="ghost" size="sm" className="h-7 px-3 text-xs text-gray-400 hover:text-electric-blue" onClick={() => toast.info("Timeframe", { description: "Timeframe toggle coming soon!" })}>1M</Button>
           <Button variant="ghost" size="sm" className="h-7 px-3 text-xs text-gray-400 hover:text-electric-blue" onClick={() => toast.info("Timeframe", { description: "Timeframe toggle coming soon!" })}>1Y</Button>
+        </div>
+        <div className="flex space-x-2">
+          <div className="flex items-center text-sm text-body-label">
+            <span className="mr-1">📈</span> <strong>Prob:</strong> <span className="font-bold text-electric-blue">{profitProbability.toFixed(0)}%</span>
+          </div>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-electric-blue" onClick={handleSetAlert} aria-label="Set Alert">
             <Bell className="h-4 w-4" />
           </Button>

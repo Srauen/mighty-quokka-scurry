@@ -54,11 +54,12 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-center p-8 z-[1000]"
+      className="fixed inset-0 flex items-start justify-center p-8 z-[1000]
+                 bg-black/50 backdrop-blur-lg" // Added semi-transparent background and backdrop blur
       onClick={onClose}
     >
       <Command
-        className="w-full max-w-xl bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
+        className="w-full max-w-xl bg-gray-900/80 border border-gray-700 rounded-lg shadow-2xl overflow-hidden" // Slightly transparent background for Command
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             onClose();
@@ -71,7 +72,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
           placeholder="Search apps, stocks, documents..."
           value={search}
           onValueChange={setSearch}
-          className="h-12 text-lg bg-gray-800 border-b border-gray-700 text-soft-white placeholder-gray-500 focus:ring-0 focus:border-0"
+          className="h-12 text-lg bg-gray-800/70 border-b border-gray-700 text-soft-white placeholder-gray-500 focus:ring-0 focus:border-0" // Slightly transparent input
         />
         <CommandList className="max-h-[400px] overflow-y-auto custom-scrollbar">
           <CommandEmpty className="py-6 text-center text-gray-400">No results found.</CommandEmpty>
@@ -80,7 +81,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
               <CommandItem
                 key={item.type === 'app' ? `app-${item.id}` : `stock-${item.id}`}
                 onSelect={() => handleSelect(item)}
-                className="flex items-center space-x-3 px-4 py-3 cursor-pointer hover:bg-gray-800 text-soft-white"
+                className="flex items-center space-x-3 px-4 py-3 cursor-pointer hover:bg-gray-800/70 text-soft-white" // Slightly transparent hover
               >
                 <item.icon className="h-5 w-5 text-electric-blue" />
                 <span>{item.name}</span>
