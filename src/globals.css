@@ -147,7 +147,9 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    /* Apply gradient background */
+    background: linear-gradient(135deg, #0A2540 0%, #111827 100%);
+    @apply text-foreground;
   }
 
   /* Default font for landing page (sans-serif) */
