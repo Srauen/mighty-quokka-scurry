@@ -63,13 +63,16 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     hide_legend: true,
     hide_indicators: true,
     hide_timezone_footer: true,
-    withdateranges: false, // Set to false to hide the date range selector
+    withdateranges: false,
     studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"], // Still include for internal logic if needed, but hidden
     watchlist: false,
     details: false,
     hotlist: false,
     calendar: false,
     news: false,
+    left_axis_visible: false, // Added to hide the left price axis
+    right_axis_visible: false, // Added to hide the right price axis
+    hide_volume: true, // Added to hide the native volume bars
     overrides: {
       "paneProperties.background": "#0B0B0B",
       "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
