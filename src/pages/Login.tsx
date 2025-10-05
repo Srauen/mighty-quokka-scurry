@@ -4,11 +4,12 @@ import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 import { useSession } from '@/components/SessionContextProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart } from 'lucide-react';
-import { toast } from 'sonner'; // Import toast for notifications
+import { Button } from '@/components/ui/button'; // Import Button
+import { LineChart, ChevronLeft } from 'lucide-react'; // Import ChevronLeft icon
+import { toast } from 'sonner';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white p-4 font-mono">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 text-white p-4 font-mono">
       <Card className="w-full max-w-md bg-gray-900 border border-gray-700 shadow-lg">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
@@ -74,10 +75,17 @@ const Login: React.FC = () => {
               },
             }}
             theme="dark"
-            providers={[]} // No third-party providers for now
+            providers={[]}
             redirectTo={window.location.origin + '/dashboard'}
-            onAuthStateChange={(event) => handleAuthEvent(event)} // Add this handler
+            onAuthStateChange={(event) => handleAuthEvent(event)}
           />
+          <div className="mt-6 text-center">
+            <Link to="/">
+              <Button variant="ghost" className="text-gray-400 hover:text-white">
+                <ChevronLeft className="mr-2 h-4 w-4" /> Back to Home
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
