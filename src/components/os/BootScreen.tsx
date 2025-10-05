@@ -82,7 +82,7 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-electric-blue text-lg font-bold h-5 mb-2" // Styling for "Stock OS ready."
+              className="text-electric-blue text-lg font-bold mb-2 text-center" // Removed h-5, added text-center
             >
               Stock OS ready.
             </motion.p>
@@ -93,7 +93,7 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="text-gray-400 text-sm h-5 mb-2" // Styling for "Loading..."
+              className="text-gray-400 text-sm mb-2 text-center" // Removed h-5, added text-center
             >
               Loading...
             </motion.p>
@@ -103,8 +103,8 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }} // Adjusted delay to appear after initial logo animation
-          className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto" // Centered progress bar
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mx-auto" // Added mx-auto for explicit centering of the block element
         >
           <motion.div
             className="h-full bg-electric-blue"
@@ -118,7 +118,7 @@ const BootScreen: React.FC<BootScreenProps> = ({ onBootComplete }) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5, duration: 0.5 }}
-          className="text-gray-500 text-xs mt-2"
+          className="text-gray-500 text-xs mt-2 text-center" // Added text-center
         >
           Booting Stock-OS Terminal...
         </motion.p>
