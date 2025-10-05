@@ -55,19 +55,20 @@ const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, use
         onToggleInsights={toggleInsightsPanel} // Pass toggle function
         isInsightsPanelCollapsed={isInsightsPanelCollapsed} // Pass state
       />
-      <div className="flex flex-grow overflow-hidden">
+      <div className="flex flex-grow overflow-hidden"> {/* This is the main content area, takes remaining height */}
         <div className={cn(
-          "flex flex-grow overflow-hidden", // Removed p-2 gap-2
-          isInsightsPanelCollapsed ? "grid grid-cols-1" : "grid grid-cols-3" // Adjust grid columns
+          "grid h-full w-full", // Make this the grid container, ensure it takes full height/width of its flex-grow parent
+          isInsightsPanelCollapsed ? "grid-cols-1" : "grid-cols-3"
         )}>
           <div className={cn(
-            isInsightsPanelCollapsed ? "col-span-1" : "col-span-2" // Main chart takes 2/3 or full width
+            "h-full w-full", // Ensure this grid item takes full height/width of its cell
+            isInsightsPanelCollapsed ? "col-span-1" : "col-span-2"
           )}>
             <MainChartPanel selectedStock={selectedStock} />
           </div>
           <div className={cn(
-            "col-span-1",
-            isInsightsPanelCollapsed && "hidden" // Hide insights panel when collapsed
+            "h-full w-full", // Ensure this grid item takes full height/width of its cell
+            isInsightsPanelCollapsed && "hidden"
           )}>
             <AIInsightsAndNewsPanel />
           </div>
