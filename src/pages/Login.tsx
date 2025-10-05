@@ -4,10 +4,11 @@ import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 import { useSession } from '@/components/SessionContextProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart } from 'lucide-react';
+import { Button } from '@/components/ui/button'; // Import Button
+import { LineChart, ChevronLeft } from 'lucide-react'; // Import ChevronLeft icon
 import { toast } from 'sonner'; // Import toast for notifications
 
 const Login: React.FC = () => {
@@ -39,7 +40,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white p-4 font-mono">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 text-white p-4 font-mono">
+      <div className="w-full max-w-md mb-4">
+        <Link to="/">
+          <Button variant="ghost" className="text-gray-400 hover:text-white">
+            <ChevronLeft className="mr-2 h-4 w-4" /> Back to Home
+          </Button>
+        </Link>
+      </div>
       <Card className="w-full max-w-md bg-gray-900 border border-gray-700 shadow-lg">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
