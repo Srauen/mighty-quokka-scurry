@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, o
     { name: "Features", href: "#features" }, // Can serve as "About"
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },
-    { name: "Contact", href: "#footer" }, // Link to the footer for contact info
+    { name: "Contact", href: "#contact" }, // New Contact link
   ];
 
   const isDarkMode = theme === 'dark' || theme === 'os-style';

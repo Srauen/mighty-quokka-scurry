@@ -6,6 +6,7 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
+import ContactSection from "@/components/ContactSection"; // Import new ContactSection
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop"; // Keep for demo
@@ -25,6 +26,7 @@ const Index = () => {
   const featuresRef = useRef<HTMLElement | null>(null);
   const pricingRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
+  const contactRef = useRef<HTMLElement | null>(null); // New ref for ContactSection
 
   const navigate = useNavigate();
   const { session, isLoading } = useSession();
@@ -48,7 +50,7 @@ const Index = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    const sections = [heroRef, featuresRef, pricingRef, faqRef];
+    const sections = [heroRef, featuresRef, pricingRef, faqRef, contactRef]; // Include contactRef
     sections.forEach((ref) => {
       if (ref.current) {
         observer.observe(ref.current);
@@ -177,6 +179,7 @@ const Index = () => {
             <FeaturesSection sectionRef={featuresRef} features={features} />
             <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
             <FAQSection sectionRef={faqRef} />
+            <ContactSection sectionRef={contactRef} /> {/* New Contact Section */}
           </main>
           <Footer />
           <OnboardingModal
