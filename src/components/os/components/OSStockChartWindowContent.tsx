@@ -60,6 +60,7 @@ const OSStockChartWindowContent: React.FC<OSStockChartWindowContentProps> = ({
       </div>
       <div className="flex-grow min-h-0"> {/* min-h-0 to allow flex-grow to shrink */}
         <ChartTile
+          key={selectedStock} // Add key prop here
           symbol={getTradingViewSymbol(selectedStock)}
           index={0} // Only one chart tile in this window
           openFull={openFullChart}

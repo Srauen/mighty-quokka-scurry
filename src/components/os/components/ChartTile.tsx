@@ -133,7 +133,7 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
         "mainSeriesProperties.candleStyle.wickDownColor": "#FF3B30",
       }
     });
-  }, [mounted, symbol, widgetId]); // Removed stockData from dependencies
+  }, [mounted, symbol, widgetId, stockData]); // Added stockData to dependencies to trigger re-render if needed
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
