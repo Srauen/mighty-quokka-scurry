@@ -89,6 +89,9 @@ export default {
         'heatmap-cb-up': '#3B82F6',
         'heatmap-cb-neutral': '#9CA3AF',
         'heatmap-cb-down': '#FB923C',
+
+        // macOS-style menubar background
+        'mac-menubar-bg': 'rgba(0, 0, 0, 0.6)', // Dark, semi-transparent for menubar
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -125,6 +128,10 @@ export default {
           "0%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(-100%)" },
         },
+        "marquee-horizontal-slow": { // New slower marquee animation
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
         "tile-pulse": {
           "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0px rgba(0,0,0,0)" },
           "50%": { transform: "scale(1.02)", boxShadow: "0 0 10px rgba(0, 174, 239, 0.5)" },
@@ -149,6 +156,7 @@ export default {
         "glow": "glow 2s ease-in-out infinite",
         "glow-subtle": "glow 4s ease-in-out infinite",
         "marquee-horizontal": "marquee-horizontal 30s linear infinite",
+        "marquee-horizontal-slow": "marquee-horizontal-slow 60s linear infinite", // Slower duration
         "tile-pulse": "tile-pulse 2s ease-in-out infinite",
         "fade-in": "fade-in 0.5s ease-out",
         "slide-in-left": "slide-in-left 0.3s ease-out",

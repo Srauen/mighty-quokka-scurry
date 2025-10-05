@@ -9,16 +9,19 @@ import TradingTerminalApp from './apps/TradingTerminalApp';
 import PortfolioApp from './apps/PortfolioApp';
 import NewsFeedApp from './apps/NewsFeedApp';
 import ChartsApp from './apps/ChartsApp/ChartsApp'; // Import the new ChartsApp
+import WatchlistApp from './apps/WatchlistApp/WatchlistApp'; // Import new WatchlistApp
 import OnboardingOSModal from './OnboardingOSModal';
+import StockPreferenceOnboarding from './StockPreferenceOnboarding'; // Import new onboarding step
 import OnboardingModal from '@/components/OnboardingModal';
 import { Button } from '@/components/ui/button';
-import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle, TrendingDown, CandlestickChart } from 'lucide-react'; // Added CandlestickChart
+import { X, RotateCcw, Bell, Brain, TrendingUp, AlertTriangle, TrendingDown, CandlestickChart } from 'lucide-react';
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data';
 import OSStockChartWindowContent from './components/OSStockChartWindowContent';
 import FullChartModal from './components/FullChartModal';
 import OSNotification from './OSNotification';
 import OSSpotlight from './OSSpotlight';
+import OSTopBar from './OSTopBar'; // Import new OSTopBar
 
 interface WindowState {
   id: string;
@@ -92,10 +95,20 @@ const getInitialExperienceLevel = () => {
   return null;
 };
 
+const getInitialWatchlist = () => {
+  if (typeof window !== 'undefined') {
+    const savedWatchlist = localStorage.getItem('os_watchlist');
+    try { return savedWatchlist ? JSON.parse(savedWatchlist) : []; } catch (e) { console.error("Error parsing watchlist from localStorage", e); return []; }
+  }
+  return [];
+};
+
+
 const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [booted, setBooted] = useState(false);
-  const [showOnboardingOS, setShowOnboardingOS] = useState(false);
-  const [osOnboardingStep, setOsOnboardingStep] = useState(0);
+  const [showOnboardingOS, setShowOnboardingOS] = useState(false); // For initial cash selection
+  const [showStockPreferenceOnboarding, setShowStockPreferenceOnboarding] = useState(false); // For stock selection
+  const [osOnboardingStep, setOsOnboardingStep] = useState(0); // For general onboarding modal
   const [experienceLevel, setExperienceLevel] = useState<string | null>(getInitialExperienceLevel());
   const [openWindows, setOpenWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
@@ -110,6 +123,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [tradingLog, setTradingLog] = useState<string[]>(getInitialTradingLog());
   const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string; icon?: React.ReactNode }>>([]);
   const [showSpotlight, setShowSpotlight] = useState(false);
+  const [watchlist, setWatchlist] = useState<string[]>(getInitialWatchlist()); // New state for watchlist
 
   // Mock user profile for ChartsApp
   const [userName, setUserName] = useState('OS User');
@@ -117,9 +131,9 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
   // Show toast if data was loaded from local storage
   useEffect(() => {
-    if (typeof window !== 'undefined' && (getInitialCashBalance(experienceLevel) !== 10000 || Object.keys(getInitialPortfolio()).length > 0 || getInitialTradingLog().length > 0)) {
+    if (typeof window !== 'undefined' && (getInitialCashBalance(experienceLevel) !== 10000 || Object.keys(getInitialPortfolio()).length > 0 || getInitialTradingLog().length > 0 || getInitialWatchlist().length > 0)) {
       toast.info("Loaded saved trading data from previous session.", {
-        description: `Cash: $${getInitialCashBalance(experienceLevel).toFixed(2)}, Portfolio items: ${Object.keys(getInitialPortfolio()).length}`,
+        description: `Cash: $${getInitialCashBalance(experienceLevel).toFixed(2)}, Portfolio items: ${Object.keys(getInitialPortfolio()).length}, Watchlist items: ${getInitialWatchlist().length}`,
         duration: 3000,
       });
     }
@@ -152,6 +166,13 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       localStorage.setItem('os_experienceLevel', experienceLevel);
     }
   }, [experienceLevel]);
+
+  // Save watchlist to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('os_watchlist', JSON.stringify(watchlist));
+    }
+  }, [watchlist]);
 
   // Initialize news feed
   useEffect(() => {
@@ -230,20 +251,6 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           newWindow.initialSize = { width: '300px', height: '400px' };
           newWindow.initialPosition = { x: window.innerWidth / 2 - 150, y: window.innerHeight / 2 - 200 };
           break;
-        case 'stock-chart': // Old stock chart window, will be replaced by ChartsApp
-          newWindow.title = 'Stock Chart';
-          newWindow.component = (
-            <OSStockChartWindowContent
-              stocksList={stocksList}
-              openFullChart={openFullChart}
-              fullSymbol={fullSymbol}
-              closeFullChart={closeFullChart}
-              initialSelectedStock={initialStockSymbol || stocksList[0]}
-            />
-          );
-          newWindow.initialSize = { width: '70vw', height: '80vh' };
-          newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.35), y: window.innerHeight / 2 - (window.innerHeight * 0.4) };
-          break;
         case 'charts-app': // New Charts App
           newWindow.title = 'Charts';
           newWindow.component = (
@@ -255,6 +262,17 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           );
           newWindow.initialSize = { width: '90vw', height: '90vh' };
           newWindow.initialPosition = { x: window.innerWidth / 2 - (window.innerWidth * 0.45), y: window.innerHeight / 2 - (window.innerHeight * 0.45) };
+          break;
+        case 'watchlist-app': // New Watchlist App
+          newWindow.title = 'Watchlist';
+          newWindow.component = (
+            <WatchlistApp
+              initialWatchlist={watchlist}
+              onUpdateWatchlist={setWatchlist}
+            />
+          );
+          newWindow.initialSize = { width: '400px', height: '60vh' };
+          newWindow.initialPosition = { x: window.innerWidth / 2 - 200, y: window.innerHeight / 2 - (window.innerHeight * 0.3) };
           break;
         case 'trading-terminal':
           newWindow.title = 'Trading Terminal';
@@ -299,23 +317,28 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       setActiveWindowId(appId);
       return [...prevWindows, newWindow];
     });
-  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart, userName, userAvatarUrl]);
+  }, [nextZIndex, stockData, cashBalance, portfolio, tradingLog, newsFeed, stocksList, openFullChart, fullSymbol, closeFullChart, userName, userAvatarUrl, watchlist]);
 
   const nextOSOnboardingStep = useCallback(() => {
     if (osOnboardingStep < 4) {
       setOsOnboardingStep(prev => prev + 1);
     } else {
       setOsOnboardingStep(0);
-      setShowOnboardingOS(true);
+      setShowOnboardingOS(true); // Show cash selection modal
     }
   }, [osOnboardingStep]);
 
   const handleBootComplete = useCallback(() => {
     setBooted(true);
     if (!experienceLevel) {
-      setOsOnboardingStep(1);
+      setOsOnboardingStep(1); // Start general onboarding
     } else {
-      openApp('charts-app'); // Open the new Charts app by default after boot
+      // If experience level is set, check if stock preferences are set
+      if (Object.keys(getInitialPortfolio()).length === 0 && getInitialWatchlist().length === 0) {
+        setShowStockPreferenceOnboarding(true); // Go to stock preference onboarding
+      } else {
+        openApp('charts-app'); // Open Charts app if all onboarding is done
+      }
     }
   }, [experienceLevel, openApp]);
 
@@ -331,9 +354,21 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     localStorage.setItem('os_cashBalance', newCash.toString());
     localStorage.setItem('os_experienceLevel', level);
     setShowOnboardingOS(false);
-    openApp('charts-app'); // Open the new Charts app after onboarding
+    setShowStockPreferenceOnboarding(true); // Move to stock preference onboarding
     toast.success("Experience Set!", { description: `Starting with $${newCash.toFixed(2)} as a ${level} trader.` });
+  }, []);
+
+  const handleStockPreferenceComplete = useCallback((selectedPortfolio: { [key: string]: number }) => {
+    setPortfolio(selectedPortfolio);
+    // Also add these stocks to the watchlist for easy access
+    setWatchlist(Object.keys(selectedPortfolio));
+    localStorage.setItem('os_portfolio', JSON.stringify(selectedPortfolio));
+    localStorage.setItem('os_watchlist', JSON.stringify(Object.keys(selectedPortfolio)));
+    setShowStockPreferenceOnboarding(false);
+    openApp('charts-app'); // Open Charts app after stock preferences are set
+    toast.success("Portfolio Generated!", { description: "Your initial portfolio and watchlist have been set." });
   }, [openApp]);
+
 
   const closeWindow = useCallback((id: string) => {
     setOpenWindows((prevWindows) => prevWindows.filter((win) => win.id !== id));
@@ -371,6 +406,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
       localStorage.removeItem('os_portfolio');
       localStorage.removeItem('os_tradingLog');
       localStorage.removeItem('os_experienceLevel');
+      localStorage.removeItem('os_watchlist'); // Clear watchlist too
       toast.info("OS Data Reset", { description: "Your trading data has been cleared. The OS will restart." });
       window.location.reload();
     }
@@ -391,8 +427,17 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#0d0f17] bg-[radial-gradient(circle_at_center,_#1a2033_0%,_#0d0f17_100%)] text-white">
+    <div id="desktop-container" className="relative w-full h-screen overflow-hidden text-white">
       {!booted && <BootScreen onBootComplete={handleBootComplete} />}
+
+      {booted && (
+        <OSTopBar
+          onOpenSpotlight={() => setShowSpotlight(true)}
+          onOpenSettings={() => toast.info("OS Settings", { description: "OS-level settings coming soon!" })}
+          onOpenNotifications={() => toast.info("Notifications Center", { description: "Notifications center coming soon!" })}
+          onOpenHeatmap={() => openApp('charts-app')} // For now, open charts app
+        />
+      )}
 
       {booted && osOnboardingStep > 0 && (
         <OnboardingModal
@@ -405,9 +450,13 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         <OnboardingOSModal isOpen={showOnboardingOS} onSelectExperience={handleSelectExperience} />
       )}
 
-      {booted && !showOnboardingOS && osOnboardingStep === 0 && (
+      {booted && showStockPreferenceOnboarding && (
+        <StockPreferenceOnboarding isOpen={showStockPreferenceOnboarding} onComplete={handleStockPreferenceComplete} />
+      )}
+
+      {booted && !showOnboardingOS && !showStockPreferenceOnboarding && osOnboardingStep === 0 && (
         <>
-          <div className="absolute top-4 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium">
+          <div className="absolute top-10 right-4 flex items-center space-x-4 bg-gray-900 bg-opacity-75 backdrop-blur-lg px-4 py-2 rounded-lg text-sm font-medium z-[999]"> {/* Adjusted top for menubar */}
             <span>Cash Balance: <span className="text-green-400">${cashBalance.toFixed(2)}</span></span>
             <Button variant="ghost" size="icon" onClick={resetOSData} className="text-gray-400 hover:text-white" aria-label="Reset OS Data">
               <RotateCcw className="h-4 w-4" />

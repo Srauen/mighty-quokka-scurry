@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import ChartsNavbar from './ChartsNavbar';
-import WatchlistPanel from './WatchlistPanel';
+// import WatchlistPanel from './WatchlistPanel'; // Removed
 import MainChartPanel from './MainChartPanel';
 import AIInsightsAndNewsPanel from './AIInsightsAndNewsPanel';
 import ChartsBottomBar from './ChartsBottomBar';
@@ -18,7 +18,7 @@ interface ChartsAppProps {
 
 const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, userAvatarUrl }) => {
   const { stocksList } = useStockData();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar starts collapsed
   const [selectedStock, setSelectedStock] = useState<string>(initialStockSymbol || stocksList[0] || 'AAPL');
 
   useEffect(() => {
@@ -49,11 +49,7 @@ const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, use
         userAvatarUrl={userAvatarUrl}
       />
       <div className="flex flex-grow overflow-hidden">
-        <WatchlistPanel
-          isCollapsed={isSidebarCollapsed}
-          onSelectStock={setSelectedStock}
-          selectedStock={selectedStock}
-        />
+        {/* WatchlistPanel removed from here */}
         <div className="flex flex-grow overflow-hidden p-2 gap-2">
           <MainChartPanel selectedStock={selectedStock} />
           <AIInsightsAndNewsPanel />

@@ -18,7 +18,8 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const apps = [
-    { id: 'charts-app', name: 'Charts', icon: CandlestickChart }, // New Charts app
+    { id: 'charts-app', name: 'Charts', icon: CandlestickChart },
+    { id: 'watchlist-app', name: 'Watchlist', icon: Star }, // New Watchlist app
     { id: 'trading-terminal', name: 'Trading Terminal', icon: TrendingUp },
     { id: 'portfolio-manager', name: 'Portfolio Manager', icon: Briefcase },
     { id: 'news-feed', name: 'News Feed', icon: Newspaper },

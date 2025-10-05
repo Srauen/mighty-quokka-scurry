@@ -338,3 +338,20 @@ html {
 .heatmap-tile-transition {
   transition: all 300ms ease-out;
 }
+
+/* Specific animation for ChartsBottomBar ticker */
+.animate-charts-ticker-slow {
+  animation: marquee-horizontal-slow 60s linear infinite;
+  will-change: transform;
+}
+
+/* Ensure desktop background covers full screen */
+#desktop-container {
+  background: #0d0f17;
+  background-image: radial-gradient(circle at center, #1a2033 0%, #0d0f17 100%);
+  min-height: 100vh;
+  width: 100vw;
+  position: fixed; /* Ensure it covers the whole viewport */
+  top: 0;
+  left: 0;
+}

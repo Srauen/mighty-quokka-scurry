@@ -50,7 +50,7 @@ const ChartsBottomBar: React.FC = () => {
 
   return (
     <div className="relative w-full overflow-hidden bg-charts-toolbar-bg backdrop-blur-lg border-t border-charts-border py-2 flex items-center justify-between pr-4">
-      <div className="flex animate-marquee-horizontal whitespace-nowrap flex-grow">
+      <div className="flex animate-charts-ticker-slow whitespace-nowrap flex-grow"> {/* Using new slower animation */}
         {[...tickerItems, ...tickerItems].map((item, index) => (
           <div key={index} className="inline-flex items-center mx-4 text-sm font-medium flex-shrink-0">
             <span className="text-charts-text-secondary mr-2">{item.symbol}:</span>

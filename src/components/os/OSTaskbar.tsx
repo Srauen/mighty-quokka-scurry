@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { LineChart, Calculator, TrendingUp, Briefcase, Newspaper, CandlestickChart } from 'lucide-react'; // Added CandlestickChart
+import { LineChart, Calculator, TrendingUp, Briefcase, Newspaper, CandlestickChart, Star } from 'lucide-react'; // Added Star for Watchlist
 
 interface OSTaskbarProps {
   openApp: (appId: string) => void;
@@ -10,7 +10,8 @@ interface OSTaskbarProps {
 
 const OSTaskbar: React.FC<OSTaskbarProps> = ({ openApp, activeApps }) => {
   const apps = [
-    { id: 'charts-app', icon: <CandlestickChart className="w-7 h-7 text-green-400" /> }, // New Charts app
+    { id: 'charts-app', icon: <CandlestickChart className="w-7 h-7 text-green-400" /> },
+    { id: 'watchlist-app', icon: <Star className="w-7 h-7 text-electric-blue" /> }, // New Watchlist app
     { id: 'trading-terminal', icon: <TrendingUp className="w-7 h-7 text-yellow-400" /> },
     { id: 'portfolio-manager', icon: <Briefcase className="w-7 h-7 text-blue-400" /> },
     { id: 'news-feed', icon: <Newspaper className="w-7 h-7 text-purple-400" /> },
