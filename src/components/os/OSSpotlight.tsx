@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Search, LayoutDashboard, Star, Brain, Bell, LayoutGrid, Cloud, Settings, Calculator, TrendingUp, Briefcase, Newspaper, CandlestickChart } from 'lucide-react';
+import { Search, LayoutDashboard, Star, Brain, Bell, LayoutGrid, Cloud, Settings, Calculator, TrendingUp, Briefcase, Newspaper, CandlestickChart, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
