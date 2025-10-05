@@ -19,6 +19,7 @@ interface ChartsAppProps {
 const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, userAvatarUrl }) => {
   const { stocksList } = useStockData();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar starts collapsed
+  const [isInsightsPanelCollapsed, setIsInsightsPanelCollapsed] = useState(false); // New state for insights panel
   const [selectedStock, setSelectedStock] = useState<string>(initialStockSymbol || stocksList[0] || 'AAPL');
 
   useEffect(() => {
@@ -39,6 +40,10 @@ const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, use
     }
   }, [stocksList]);
 
+  const toggleInsightsPanel = useCallback(() => {
+    setIsInsightsPanelCollapsed(prev => !prev);
+  }, []);
+
   return (
     <div className="flex flex-col h-full w-full bg-charts-bg text-charts-text-primary font-sans rounded-mac-window overflow-hidden">
       <ChartsNavbar
@@ -47,12 +52,25 @@ const ChartsApp: React.FC<ChartsAppProps> = ({ initialStockSymbol, userName, use
         onSearch={handleSearch}
         userName={userName}
         userAvatarUrl={userAvatarUrl}
+        onToggleInsights={toggleInsightsPanel} // Pass toggle function
+        isInsightsPanelCollapsed={isInsightsPanelCollapsed} // Pass state
       />
       <div className="flex flex-grow overflow-hidden">
-        {/* WatchlistPanel removed from here */}
-        <div className="flex flex-grow overflow-hidden p-2 gap-2">
-          <MainChartPanel selectedStock={selectedStock} />
-          <AIInsightsAndNewsPanel />
+        <div className={cn(
+          "flex flex-grow overflow-hidden p-2 gap-2",
+          isInsightsPanelCollapsed ? "grid grid-cols-1" : "grid grid-cols-3" // Adjust grid columns
+        )}>
+          <div className={cn(
+            isInsightsPanelCollapsed ? "col-span-1" : "col-span-2" // Main chart takes 2/3 or full width
+          )}>
+            <MainChartPanel selectedStock={selectedStock} />
+          </div>
+          <div className={cn(
+            "col-span-1",
+            isInsightsPanelCollapsed && "hidden" // Hide insights panel when collapsed
+          )}>
+            <AIInsightsAndNewsPanel />
+          </div>
         </div>
       </div>
       <ChartsBottomBar />

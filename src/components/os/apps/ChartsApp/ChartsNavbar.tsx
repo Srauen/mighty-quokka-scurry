@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { Search, User, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, User, Settings, ChevronLeft, ChevronRight, Brain } from 'lucide-react'; // Added Brain icon
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,6 +15,8 @@ interface ChartsNavbarProps {
   onSearch: (symbol: string) => void;
   userName: string;
   userAvatarUrl?: string;
+  onToggleInsights: () => void; // New prop for toggling insights panel
+  isInsightsPanelCollapsed: boolean; // New prop to indicate insights panel state
 }
 
 const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
@@ -23,6 +25,8 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
   onSearch,
   userName,
   userAvatarUrl,
+  onToggleInsights, // Destructure new prop
+  isInsightsPanelCollapsed, // Destructure new prop
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,16 +56,30 @@ const ChartsNavbar: React.FC<ChartsNavbarProps> = ({
 
   return (
     <div className="flex items-center justify-between p-2 bg-charts-toolbar-bg backdrop-blur-lg border-b border-charts-border shadow-md relative z-10">
-      {/* Left: Sidebar Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onToggleSidebar}
-        className="text-charts-text-secondary hover:text-charts-accent transition-colors duration-200"
-        aria-label={isSidebarCollapsed ? "Expand Watchlist" : "Collapse Watchlist"}
-      >
-        {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-      </Button>
+      {/* Left: Sidebar Toggle and Insights Toggle */}
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSidebar}
+          className="text-charts-text-secondary hover:text-charts-accent transition-colors duration-200"
+          aria-label={isSidebarCollapsed ? "Expand Watchlist" : "Collapse Watchlist"}
+        >
+          {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleInsights}
+          className={cn(
+            "text-charts-text-secondary hover:text-charts-accent transition-colors duration-200",
+            !isInsightsPanelCollapsed && "text-charts-accent" // Highlight when insights are open
+          )}
+          aria-label={isInsightsPanelCollapsed ? "Show AI Insights" : "Hide AI Insights"}
+        >
+          <Brain className="h-5 w-5" />
+        </Button>
+      </div>
 
       {/* Center: App Title */}
       <h2 className="text-lg font-semibold text-charts-text-primary flex items-center space-x-2">
