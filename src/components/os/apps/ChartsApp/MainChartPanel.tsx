@@ -68,9 +68,9 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     news: false,
     overrides: {
       "paneProperties.background": "#0B0B0B",
-      "paneProperties.vertGridProperties.color": "#121212",
-      "paneProperties.horzGridProperties.color": "#121212",
-      "scalesProperties.textColor": "#9CA3AF", // secondary text
+      "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "paneProperties.horzGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "scalesProperties.textColor": "#E5E7EB", // charts-text-primary
       "mainSeriesProperties.candleStyle.upColor": "#00E676", // Teal
       "mainSeriesProperties.candleStyle.downColor": "#FF3B30", // Red
       "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",

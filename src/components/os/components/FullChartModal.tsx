@@ -38,7 +38,9 @@ const FullChartModal: React.FC<FullChartModalProps> = ({ symbol, onClose }) => {
     news: true,
     overrides: {
       "paneProperties.background": "#0B0B0B",
-      "scalesProperties.textColor": "#BFC7D6",
+      "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "paneProperties.horzGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "scalesProperties.textColor": "#E5E7EB", // charts-text-primary
       "mainSeriesProperties.candleStyle.upColor": "#00E676",
       "mainSeriesProperties.candleStyle.downColor": "#FF3B30",
       "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",

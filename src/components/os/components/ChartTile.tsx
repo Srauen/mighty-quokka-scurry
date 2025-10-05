@@ -53,9 +53,9 @@ const ChartTile: React.FC<ChartTileProps> = ({ symbol, index, openFull }) => {
     studies_overrides: {},
     overrides: {
       "paneProperties.background": "#0B0B0B",
-      "paneProperties.vertGridProperties.color": "#121212",
-      "paneProperties.horzGridProperties.color": "#121212",
-      "scalesProperties.textColor": "#BFC7D6",
+      "paneProperties.vertGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "paneProperties.horzGridProperties.color": "rgba(156, 163, 175, 0.1)", // Lighter grid lines
+      "scalesProperties.textColor": "#E5E7EB", // charts-text-primary
       "mainSeriesProperties.candleStyle.upColor": "#00E676",
       "mainSeriesProperties.candleStyle.downColor": "#FF3B30",
       "mainSeriesProperties.candleStyle.borderUpColor": "#00E676",
