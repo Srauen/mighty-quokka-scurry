@@ -21,7 +21,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode, activeSection, o
 
   const navItems = [
     { name: "Home", href: "#hero" },
-    { name: "Dashboard", href: "/dashboard" }, // Link to dashboard page
+    // { name: "Dashboard", href: "/dashboard" }, // Removed Dashboard link
     { name: "Features", href: "#features" }, // Can serve as "About"
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },
