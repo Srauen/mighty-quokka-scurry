@@ -245,6 +245,8 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
         component: null,
         zIndex: nextZIndex,
         minimized: false,
+        initialPosition: undefined, // Let OSWindow determine default if not specified
+        initialSize: undefined, // Let OSWindow determine default if not specified
         initialStockSymbol: initialStockSymbol, // Pass initial stock symbol
         initialSearchText: initialSearchText, // Pass initial search text
       };
@@ -329,24 +331,32 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
   const handleBootComplete = useCallback(() => {
     setBooted(true);
-    // After boot, transition to the new OnboardingScreen
-    // The OnboardingScreen will then call setOnboardingComplete when its animation finishes
   }, []);
 
   const handleOnboardingScreenComplete = useCallback(() => {
     setOnboardingComplete(true);
-    // After the welcome screen, proceed with the existing OS onboarding flow
-    if (!experienceLevel) {
-      setShowOnboardingOS(true); // Show cash selection modal
-    } else {
-      // If experience level is set, check if stock preferences are set
-      if (Object.keys(getInitialPortfolio()).length === 0 && getInitialWatchlist().length === 0) {
-        setShowStockPreferenceOnboarding(true); // Go to stock preference onboarding
+  }, []);
+
+  // New useEffect to handle post-onboarding logic
+  useEffect(() => {
+    if (booted && onboardingComplete) {
+      console.log("OSDesktop: Onboarding is complete, checking next steps.");
+      if (!experienceLevel) {
+        console.log("OSDesktop: No experience level set, showing OnboardingOSModal.");
+        setShowOnboardingOS(true);
       } else {
-        openApp('charts-app'); // Open Charts app if all onboarding is done
+        // If experience level is set, check if stock preferences are set
+        if (Object.keys(getInitialPortfolio()).length === 0 && getInitialWatchlist().length === 0) {
+          console.log("OSDesktop: Experience level set, but no portfolio/watchlist, showing StockPreferenceOnboarding.");
+          setShowStockPreferenceOnboarding(true);
+        } else {
+          console.log("OSDesktop: All onboarding done, opening Charts app.");
+          openApp('charts-app'); // Open Charts app if all onboarding is done
+        }
       }
     }
-  }, [experienceLevel, openApp]);
+  }, [booted, onboardingComplete, experienceLevel, openApp, setShowOnboardingOS, setShowStockPreferenceOnboarding]);
+
 
   const handleSelectExperience = useCallback((level: 'beginner' | 'advanced' | 'pro') => {
     setExperienceLevel(level);
