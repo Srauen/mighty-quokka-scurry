@@ -356,10 +356,10 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
   const activeAppIds = openWindows.filter(win => !win.minimized).map(win => win.id);
 
-  // Keyboard shortcut for Spotlight (Cmd+Space or Ctrl+Space)
+  // Keyboard shortcut for Spotlight (Alt + Space)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.code === 'Space') {
+      if (event.altKey && event.code === 'Space') { // Changed to Alt + Space
         event.preventDefault();
         setShowSpotlight(prev => !prev);
       }
