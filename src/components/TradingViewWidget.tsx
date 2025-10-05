@@ -19,22 +19,19 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({ containerId, widg
       const container = document.getElementById(containerId);
       if (!container) {
         console.warn(`Container element for ID ${containerId} not found in DOM.`);
-        // If container is not found, it might be unmounted. Don't retry indefinitely.
         if (retryCount < maxRetries) {
           retryCount++;
           setTimeout(createWidget, retryDelay);
         } else {
           console.error(`Failed to find container for TradingView widget ${containerId} after ${maxRetries} retries.`);
-          // Optionally display a fallback message in the container
           const fallbackDiv = document.createElement('div');
           fallbackDiv.className = 'flex items-center justify-center h-full text-gray-400';
           fallbackDiv.textContent = 'Failed to load chart. Please refresh.';
-          container?.appendChild(fallbackDiv); // Append to container if it exists
+          container?.appendChild(fallbackDiv);
         }
         return;
       }
 
-      // Clear any existing content in the container
       container.innerHTML = '';
 
       if (!(window as any).TradingView) {
@@ -49,7 +46,6 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({ containerId, widg
         return;
       }
 
-      // Destroy existing widget instance if it exists
       if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
         try {
           widgetRef.current.remove();
@@ -62,13 +58,14 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({ containerId, widg
       widgetRef.current = new (window as any).TradingView.widget({
         ...widgetOptions,
         container_id: containerId,
+        width: "100%", // Explicitly set width to 100%
+        height: "100%", // Explicitly set height to 100%
       });
     };
 
     createWidget();
 
     return () => {
-      // Cleanup function
       if (widgetRef.current && typeof widgetRef.current.remove === 'function') {
         try {
           widgetRef.current.remove();
@@ -80,6 +77,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({ containerId, widg
     };
   }, [containerId, widgetOptions]);
 
+  // The container div itself should still fill its parent
   return <div id={containerId} className="w-full h-full" />;
 };
 
