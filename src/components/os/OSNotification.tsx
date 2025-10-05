@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button'; // Added import for Button
 
 interface OSNotificationProps {
   id: string;
