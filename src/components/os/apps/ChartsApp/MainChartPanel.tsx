@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Bell, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useStockData } from '@/hooks/use-stock-data';
 import { useTradingViewScript } from '@/hooks/use-tradingview-script';
-import TradingViewWidget from '@/components/TradingViewWidget';
+import TradingViewWidget, { TradingViewWidgetRef } from '@/components/TradingViewWidget'; // Import ref type
 
 interface MainChartPanelProps {
   selectedStock: string;
@@ -33,6 +33,10 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
   const isPositiveChange = dailyChange >= 0;
   const profitProbability = stockInfo.sentiments[stockInfo.sentiments.length - 1] || 0;
   const currentVolume = stockInfo.volumes[stockInfo.volumes.length - 1] || 0;
+
+  // Refs for the chart container and the TradingView widget instance
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const tradingViewWidgetRef = useRef<TradingViewWidgetRef>(null);
 
   // Helper to prefix symbol for TradingView
   const getTradingViewSymbol = useCallback((stock: string) => {
@@ -90,6 +94,24 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
     },
     container_id: "tradingview_chart_container", // Fixed ID for the main chart
   }), [tradingViewSymbol, timeframe]);
+
+  // Use ResizeObserver to trigger widget resize when container changes size
+  useEffect(() => {
+    const chartContainer = chartContainerRef.current;
+    if (!chartContainer) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (tradingViewWidgetRef.current) {
+        tradingViewWidgetRef.current.resizeWidget();
+      }
+    });
+
+    resizeObserver.observe(chartContainer);
+
+    return () => {
+      resizeObserver.unobserve(chartContainer);
+    };
+  }, [scriptLoaded]); // Re-run if script loads/unloads
 
   const handleSetAlert = () => {
     toast.info("Set Alert", { description: `Setting alert for ${baseStockSymbol}... (Feature coming soon)` });
@@ -149,9 +171,9 @@ const MainChartPanel: React.FC<MainChartPanelProps> = ({ selectedStock }) => {
       </div>
 
       {/* TradingView Chart */}
-      <div className="flex-grow w-full"> {/* Removed 'relative' here as parent is relative */}
+      <div ref={chartContainerRef} className="flex-grow w-full">
         {scriptLoaded ? (
-          <TradingViewWidget containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
+          <TradingViewWidget ref={tradingViewWidgetRef} containerId="tradingview_chart_container" widgetOptions={widgetOptions} />
         ) : (
           <div className="flex items-center justify-center h-full text-charts-text-secondary">Loading chart script...</div>
         )}
