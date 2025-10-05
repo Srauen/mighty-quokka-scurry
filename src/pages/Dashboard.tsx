@@ -1,44 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardStats from '@/components/dashboard/DashboardStats';
-import DashboardChart from '@/components/dashboard/DashboardChart';
-import TopTradersCard from '@/components/dashboard/TopTradersCard';
-import SecurityStatusCard from '@/components/dashboard/SecurityStatusCard';
-import NotificationsCard from '@/components/dashboard/NotificationsCard';
-import MarketStatusWidget from '@/components/dashboard/MarketStatusWidget';
-import PortfolioOverviewCard from '@/components/dashboard/PortfolioOverviewCard';
+import DashboardNavbar from '@/components/dashboard/DashboardNavbar'; // New Navbar
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar'; // New Sidebar
+import StockChartPanel from '@/components/dashboard/StockChartPanel'; // New Chart Panel
 import LiveMarketTicker from '@/components/dashboard/LiveMarketTicker';
-import TopMoversPanel from '@/components/dashboard/TopMoversPanel';
-import RecentTradesFeed from '@/components/dashboard/RecentTradesFeed';
-import NewsFeedApp from '@/components/os/apps/NewsFeedApp'; // Reusing NewsFeedApp for the dashboard news panel
-import { mockStats, mockTopTraders, mockNotifications } from '@/lib/mockData';
 import { useStockData } from '@/hooks/use-stock-data';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const initialNewsHeadlines = [
-  "Market volatility expected after global events.",
-  "Tech stocks surge on strong Q3 reports.",
-  "Energy sector sees gains as oil prices stabilize.",
-  "Inflation concerns lead to interest rate hike speculation.",
-  "Analyst predicts strong year for renewable energy.",
-  "Major companies announce stock buyback programs.",
-  "New trade agreements could impact commodities.",
-  "Retail sector reports mixed holiday sales.",
-  "Cryptocurrency market shows signs of recovery.",
-  "Pharmaceutical stock rallies on new drug approval."
-];
 
 const Dashboard: React.FC = () => {
-  const { stockData, stocksList } = useStockData();
-  const [cashBalance, setCashBalance] = useState<number>(10000);
-  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({});
-  const [currentNewsItem, setCurrentNewsItem] = useState<string | null>(null); // Changed to single news item
+  const { stockData, stocksList } = useStockData(); // Keep useStockData for global stock data
+  const [cashBalance, setCashBalance] = useState<number>(10000); // Keep for potential future use or display
+  const [portfolio, setPortfolio] = useState<{ [key: string]: number }>({}); // Keep for potential future use or display
   const [userName, setUserName] = useState('Trader');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>(undefined);
+
+  // Stocks for the multi-panel chart layout
+  const mainChartStocks = ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'NVDA'];
 
   // Fetch user profile and initial data
   useEffect(() => {
@@ -101,102 +80,28 @@ const Dashboard: React.FC = () => {
         }
       }
     };
-    saveUserData();
+    // Only save if cashBalance or portfolio are actually managed/changed on this dashboard
+    // For this redesign, they are mostly read-only, but keeping the hook for completeness.
+    // saveUserData();
   }, [cashBalance, portfolio]);
 
-  // Initialize news feed and simulate updates
-  useEffect(() => {
-    // Set initial news item
-    setCurrentNewsItem(`[${new Date().toLocaleTimeString()}] ${initialNewsHeadlines[0]}`);
-
-    const newsUpdateInterval = setInterval(() => {
-      const headline = initialNewsHeadlines[Math.floor(Math.random() * initialNewsHeadlines.length)];
-      const time = new Date().toLocaleTimeString();
-      setCurrentNewsItem(`[${time}] ${headline}`);
-    }, 20000); // Update every 20 seconds
-
-    return () => clearInterval(newsUpdateInterval);
-  }, []);
-
-  // Calculate dynamic stats
-  const totalPortfolioValue = Object.keys(portfolio).reduce((sum, stock) => {
-    const quantity = portfolio[stock];
-    const lastPrice = stockData[stock] ? stockData[stock].lastPrice : 0;
-    return sum + (quantity * lastPrice);
-  }, 0);
-
-  const currentStats = [
-    {
-      title: "Cash Balance",
-      value: `$${cashBalance.toFixed(2)}`,
-      change: "", // No direct change for cash balance here
-      changeType: "neutral",
-    },
-    {
-      title: "Total Portfolio Value",
-      value: `$${totalPortfolioValue.toFixed(2)}`,
-      change: mockStats[0].change, // Using mock change for now
-      changeType: mockStats[0].changeType,
-    },
-    {
-      title: "Open Positions",
-      value: Object.keys(portfolio).filter(stock => portfolio[stock] > 0).length.toString(),
-      change: mockStats[2].change,
-      changeType: mockStats[2].changeType,
-    },
-    {
-      title: "Market Sentiment",
-      value: mockStats[3].value,
-      change: mockStats[3].change,
-      changeType: mockStats[3].changeType,
-    },
-  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-white font-mono">
-      <DashboardHeader userName={userName} userAvatarUrl={userAvatarUrl} />
+      <DashboardNavbar userName={userName} userAvatarUrl={userAvatarUrl} />
       <LiveMarketTicker /> {/* Live Market Ticker Strip */}
-      <main className="flex-grow p-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 xl:grid-cols-4">
-          {/* Row 1: Stats and Portfolio Overview */}
-          <div className="lg:col-span-3 xl:col-span-4">
-            <DashboardStats stats={currentStats} />
+
+      <div className="flex flex-grow">
+        <DashboardSidebar /> {/* Left Sidebar */}
+
+        <main className="flex-grow p-6 overflow-auto custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {mainChartStocks.map(stock => (
+              <StockChartPanel key={stock} stockSymbol={stock} />
+            ))}
           </div>
-
-          {/* Row 2: Main Chart and Portfolio Overview */}
-          <div className="lg:col-span-2 xl:col-span-3">
-            <DashboardChart initialStocks={['AAPL', 'MSFT', 'GOOGL']} /> {/* Main Stock Chart */}
-          </div>
-          <PortfolioOverviewCard cashBalance={cashBalance} portfolio={portfolio} /> {/* Portfolio Overview Card */}
-
-          {/* Row 3: Top Movers, Recent Trades, News, Market Status - now grouped and smaller */}
-          <div className="lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <TopMoversPanel /> {/* Top Movers Panel */}
-            <RecentTradesFeed /> {/* Recent Trades Feed */}
-
-            <Card className="bg-gray-800 border border-gray-700 text-white shadow-lg flex flex-col">
-              <CardHeader className="p-4 border-b border-gray-700">
-                <CardTitle className="text-lg font-semibold text-green-400">Live News Feed</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow p-4 flex items-center justify-center"> {/* Centered content */}
-                <NewsFeedApp newsFeed={currentNewsItem ? [currentNewsItem] : []} /> {/* Pass single news item as an array */}
-              </CardContent>
-            </Card>
-
-            <MarketStatusWidget
-              status="open"
-              marketIndex="S&P 500"
-              indexValue={4567.89}
-              indexChange={0.75}
-            />
-          </div>
-
-          {/* Other Widgets - these will now appear below the grouped section */}
-          <TopTradersCard traders={mockTopTraders} />
-          <SecurityStatusCard status="secure" message="All systems operational. Your account is secure." />
-          <NotificationsCard notifications={mockNotifications} />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
