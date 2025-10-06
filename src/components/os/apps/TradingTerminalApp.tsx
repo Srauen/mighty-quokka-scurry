@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { StockData } from '@/hooks/use-stock-data'; // Assuming StockData type is available
+import { StockDataItem } from '@/hooks/use-stock-data'; // Corrected import
 import { Search } from 'lucide-react'; // Import Search icon
 
 interface TradingTerminalAppProps {
   stocksList: string[];
-  stockData: { [key: string]: StockData };
+  stockData: { [key: string]: StockDataItem }; // Corrected type
   cashBalance: number;
   portfolio: { [key: string]: number };
   setCashBalance: React.Dispatch<React.SetStateAction<number>>;

@@ -64,16 +64,6 @@ const LiveMarketTicker: React.FC = () => {
           </div>
         ))}
       </div>
-      <style jsx>{`
-        @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 60s linear infinite;
-          will-change: transform;
-        }
-      `}</style>
     </div>
   );
 };

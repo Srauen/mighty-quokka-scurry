@@ -6,6 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Search, LayoutDashboard, Star, Brain, Bell, LayoutGrid, Cloud, Settings, Calculator, TrendingUp, Briefcase, Newspaper, CandlestickChart, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { LucideIcon } from 'lucide-react'; // Import LucideIcon type
 
 interface OSSpotlightProps {
   isOpen: boolean;
@@ -14,6 +15,13 @@ interface OSSpotlightProps {
   openApp: (appId: string, stockSymbol?: string, initialSearchText?: string) => void;
   setIsTradingViewMode: React.Dispatch<React.SetStateAction<boolean>>; // New prop
 }
+
+// Define a union type for searchable items
+type SearchableItem =
+  | { type: 'app'; id: string; name: string; icon: LucideIcon; keywords: string; action?: never; }
+  | { type: 'stock'; id: string; name: string; icon: LucideIcon; keywords: string; action?: never; }
+  | { type: 'command'; id: string; name: string; icon: LucideIcon; keywords: string; action: () => void; };
+
 
 const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, openApp, setIsTradingViewMode }) => {
   const [search, setSearch] = useState('');
@@ -52,7 +60,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
     }
   ];
 
-  const allSearchableItems = [
+  const allSearchableItems: SearchableItem[] = [
     ...apps.map(app => ({ type: 'app', id: app.id, name: app.name, icon: app.icon, keywords: app.name.toLowerCase() })),
     ...stocksList.map(stock => ({ type: 'stock', id: stock, name: stock, icon: CandlestickChart, keywords: stock.toLowerCase() })),
     ...specialCommands.map(cmd => ({ type: cmd.type, id: cmd.id, name: cmd.name, icon: cmd.icon, keywords: cmd.name.toLowerCase(), action: cmd.action })),
@@ -69,7 +77,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
     }
   }, [isOpen]);
 
-  const handleSelect = useCallback((item: typeof filteredItems[0]) => {
+  const handleSelect = useCallback((item: SearchableItem) => { // Use SearchableItem type
     if (item.type === 'app') {
       openApp(item.id);
     } else if (item.type === 'stock') {

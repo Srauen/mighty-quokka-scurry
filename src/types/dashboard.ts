@@ -30,4 +30,5 @@ export interface Notification {
   message: string;
   timestamp: string;
   read: boolean;
+  type: 'info' | 'positive' | 'negative'; // Added type property
 }

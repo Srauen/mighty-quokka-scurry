@@ -166,7 +166,7 @@ const MarketHeatmap: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div>
             <Label htmlFor="timeframe-select" className="text-body-label text-sm">Timeframe</Label>
-            <Select value={timeframe} onValueChange={setTimeframe}>
+            <Select value={timeframe} onValueChange={(value) => setTimeframe(value as '1D' | '1W' | '1M' | '1Y')}>
               <SelectTrigger id="timeframe-select" className="w-full bg-gray-800 border-gray-700 text-soft-white">
                 <SelectValue placeholder="Select timeframe" />
               </SelectTrigger>
@@ -181,7 +181,7 @@ const MarketHeatmap: React.FC = () => {
 
           <div>
             <Label htmlFor="size-mode-select" className="text-body-label text-sm">Size By</Label>
-            <Select value={sizeMode} onValueChange={setSizeMode}>
+            <Select value={sizeMode} onValueChange={(value) => setSizeMode(value as 'marketCap' | 'equal')}>
               <SelectTrigger id="size-mode-select" className="w-full bg-gray-800 border-gray-700 text-soft-white">
                 <SelectValue placeholder="Size mode" />
               </SelectTrigger>
@@ -194,7 +194,7 @@ const MarketHeatmap: React.FC = () => {
 
           <div>
             <Label htmlFor="sort-by-select" className="text-body-label text-sm">Sort By</Label>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'change' | 'marketCap' | 'volume' | 'aiScore')}>
               <SelectTrigger id="sort-by-select" className="w-full bg-gray-800 border-gray-700 text-soft-white">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>

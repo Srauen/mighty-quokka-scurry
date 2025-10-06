@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Bell, Filter, Star, TrendingUp, TrendingDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { useStockData } from '@/hooks/use-stock-data';
+import { useStockData, StockDataItem } from '@/hooks/use-stock-data'; // Import StockDataItem
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 
@@ -32,9 +32,9 @@ const WatchlistApp: React.FC<WatchlistAppProps> = ({ initialWatchlist = [], onUp
   }, [stockData]);
 
   const filteredWatchlistData = useMemo(() => {
-    const watchlistData = watchlist
+    const watchlistData: StockDataItem[] = watchlist
       .map(symbol => stockData[symbol])
-      .filter(Boolean); // Filter out any stocks not yet loaded
+      .filter(Boolean) as StockDataItem[]; // Filter out any stocks not yet loaded
 
     if (sectorFilter === 'All') {
       return watchlistData;

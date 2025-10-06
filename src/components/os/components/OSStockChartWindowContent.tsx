@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'; // Added useMemo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useStockData } from '@/hooks/use-stock-data';
 import Chart from 'chart.js/auto'; // Import Chart.js
@@ -9,6 +9,7 @@ import { Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTradingViewScript } from '@/hooks/use-tradingview-script'; // Import TradingView script hook
 import TradingViewWidget from '@/components/TradingViewWidget'; // Import TradingView widget
+import FullChartModal from './FullChartModal'; // Imported FullChartModal
 
 interface OSStockChartWindowContentProps {
   stocksList: string[];

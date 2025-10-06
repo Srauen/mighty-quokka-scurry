@@ -45,7 +45,8 @@ const companyDetails: { [key: string]: { name: string; sector: string } } = {
 };
 
 
-interface StockDataItem {
+export interface StockDataItem {
+  symbol: string; // Added symbol property
   companyName: string; // Added company name
   sector: string;      // Added sector
   marketCap: number;   // Added market cap
@@ -92,6 +93,7 @@ export const useStockData = () => {
       }
 
       initialData[stock] = {
+        symbol: stock, // Assign the symbol here
         companyName: detail.name,
         sector: detail.sector,
         marketCap: marketCapBase * 1_000_000_000, // Convert to actual market cap value
@@ -121,6 +123,7 @@ export const useStockData = () => {
             const marketCapBase = parseFloat((Math.random() * 500 + 50).toFixed(2));
 
             newStockData[stock] = {
+              symbol: stock, // Assign the symbol here
               companyName: detail.name,
               sector: detail.sector,
               marketCap: marketCapBase * 1_000_000_000,

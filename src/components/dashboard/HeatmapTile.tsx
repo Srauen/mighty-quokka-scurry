@@ -19,6 +19,7 @@ interface HeatmapTileProps {
   colorScheme: 'default' | 'colorblind';
   isTopMover: boolean;
   onClick: (symbol: string) => void;
+  style?: React.CSSProperties; // Added style prop
 }
 
 const HeatmapTile: React.FC<HeatmapTileProps> = ({
@@ -33,6 +34,7 @@ const HeatmapTile: React.FC<HeatmapTileProps> = ({
   colorScheme,
   isTopMover,
   onClick,
+  style, // Destructure style
 }) => {
   const [bgColor, setBgColor] = useState('bg-heatmap-neutral');
 
@@ -91,7 +93,7 @@ const HeatmapTile: React.FC<HeatmapTileProps> = ({
               isTopMover && "animate-tile-pulse"
             )}
             onClick={() => onClick(symbol)}
-            style={{ minWidth: '60px', minHeight: '60px' }} // Base size for small tiles
+            style={{ minWidth: '60px', minHeight: '60px', ...style }} // Apply style prop here
           >
             <span className="text-sm font-bold leading-none">{symbol}</span>
             <span className="text-xs leading-none mt-1">

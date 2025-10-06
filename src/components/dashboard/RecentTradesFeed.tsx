@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface Trade {
   id: string;
-  type: 'BUY' | 'SELL';
+  type: 'BUY' | 'SELL'; // Explicitly define type as 'BUY' or 'SELL'
   symbol: string;
   quantity: number;
   price: number;
@@ -21,7 +21,7 @@ const RecentTradesFeed: React.FC = () => {
 
   useEffect(() => {
     const generateRandomTrade = () => {
-      const type = Math.random() > 0.5 ? 'BUY' : 'SELL';
+      const type: 'BUY' | 'SELL' = Math.random() > 0.5 ? 'BUY' : 'SELL'; // Explicitly cast type
       const symbol = stocksList[Math.floor(Math.random() * stocksList.length)];
       const quantity = Math.floor(Math.random() * 10) + 1; // 1-10 shares
       const price = stockData[symbol]?.lastPrice || 0;

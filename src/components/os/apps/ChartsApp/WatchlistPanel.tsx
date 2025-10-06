@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Bell, Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { useStockData } from '@/hooks/use-stock-data';
+import { useStockData, StockDataItem } from '@/hooks/use-stock-data'; // Import StockDataItem
 import WatchlistItem from './components/WatchlistItem';
 import { toast } from 'sonner';
 
@@ -28,9 +28,9 @@ const WatchlistPanel: React.FC<WatchlistPanelProps> = ({ isCollapsed, onSelectSt
   }, [stockData]);
 
   const filteredWatchlist = useMemo(() => {
-    const watchlistData = mockWatchlist
+    const watchlistData: StockDataItem[] = mockWatchlist
       .map(symbol => stockData[symbol])
-      .filter(Boolean); // Filter out any stocks not yet loaded
+      .filter(Boolean) as StockDataItem[]; // Filter out any stocks not yet loaded
 
     if (sectorFilter === 'All') {
       return watchlistData;

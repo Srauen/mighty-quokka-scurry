@@ -268,7 +268,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ initialStocks }) => {
                 stroke="hsl(var(--muted-foreground))"
                 tickLine={false}
                 axisLine={false}
-                minHeight={20}
+                height={20} // Changed minHeight to height
                 tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
               />
               <YAxis

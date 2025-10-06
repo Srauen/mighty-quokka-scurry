@@ -77,7 +77,7 @@ const Login: React.FC = () => {
             theme="dark"
             providers={[]}
             redirectTo={window.location.origin + '/dashboard'}
-            onAuthStateChange={(event) => handleAuthEvent(event)}
+            // onAuthStateChange={(event) => handleAuthEvent(event)} // Removed this prop
           />
           <div className="mt-6 text-center">
             <Link to="/">

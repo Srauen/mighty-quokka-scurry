@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import Chart from 'chart.js/auto'; // Import Chart.js
 import { useStockData } from '@/hooks/use-stock-data';
+import { cn } from '@/lib/utils'; // Imported cn
 
 interface FullChartModalProps {
   symbol: string;

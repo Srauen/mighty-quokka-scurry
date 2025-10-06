@@ -8,9 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ChevronLeft, Bell, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
 import { mockNotifications } from '@/lib/mockData'; // Reusing mock notifications
 import { cn } from '@/lib/utils';
+import { Notification } from '@/types/dashboard'; // Import Notification type
 
 // Extend mockNotifications for more variety on the dedicated page
-const extendedMockAlerts = [
+const extendedMockAlerts: Notification[] = [ // Explicitly type as Notification[]
   ...mockNotifications,
   { id: "5", message: "TSLA: Price target updated to $280 by analyst.", timestamp: "1 hour ago", read: false, type: 'info' },
   { id: "6", message: "MSFT: Unusual options activity detected.", timestamp: "2 hours ago", read: true, type: 'info' },

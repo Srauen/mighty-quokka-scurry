@@ -20,6 +20,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = memo(({ containerId,
       containerRef.current.innerHTML = ''; // Clear previous widget if any
     }
 
+    // Ensure TradingView.widget is called with 'new'
     const widget = new window.TradingView.widget({
       container_id: containerId,
       ...widgetOptions,

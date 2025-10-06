@@ -1,4 +1,4 @@
-import { ChartData, StatCardProps, Trader, Notification } from '@/types/dashboard';
+import { ChartData, StatCardProps, Trader, Notification, ChartDataItem } from '@/types/dashboard'; // Added ChartDataItem
 import { format, subDays } from 'date-fns';
 
 const generateMockChartData = (days: number): ChartDataItem[] => {
@@ -69,8 +69,8 @@ export const mockTopTraders: Trader[] = [
 ];
 
 export const mockNotifications: Notification[] = [
-  { id: "1", message: "AAPL stock reached new high.", timestamp: "2 min ago", read: false },
-  { id: "2", message: "Your order #12345 was executed.", timestamp: "1 hour ago", read: false },
-  { id: "3", message: "Market volatility alert issued.", timestamp: "3 hours ago", read: true },
-  { id: "4", message: "New feature: AI predictions available!", timestamp: "1 day ago", read: true },
+  { id: "1", message: "AAPL stock reached new high.", timestamp: "2 min ago", read: false, type: 'info' },
+  { id: "2", message: "Your order #12345 was executed.", timestamp: "1 hour ago", read: false, type: 'info' },
+  { id: "3", message: "Market volatility alert issued.", timestamp: "3 hours ago", read: true, type: 'negative' },
+  { id: "4", message: "New feature: AI predictions available!", timestamp: "1 day ago", read: true, type: 'positive' },
 ];
