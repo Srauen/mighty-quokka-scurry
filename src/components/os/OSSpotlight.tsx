@@ -22,6 +22,14 @@ type SearchableItem =
   | { type: 'stock'; id: string; name: string; icon: LucideIcon; keywords: string; action?: never; }
   | { type: 'command'; id: string; name: string; icon: LucideIcon; keywords: string; action: () => void; };
 
+// Define an interface for special commands to ensure 'type' is a literal 'command'
+interface SpecialCommand {
+  id: string;
+  name: string;
+  icon: LucideIcon;
+  type: 'command';
+  action: () => void;
+}
 
 const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, openApp, setIsTradingViewMode }) => {
   const [search, setSearch] = useState('');
@@ -36,7 +44,7 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
     { id: 'calculator', name: 'Calculator', icon: Calculator },
   ];
 
-  const specialCommands = [
+  const specialCommands: SpecialCommand[] = [ // Use the new interface here
     {
       id: 'tradingiseasy',
       name: 'tradingiseasy',
