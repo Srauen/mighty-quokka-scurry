@@ -118,6 +118,7 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
   const [nextZIndex, setNextZIndex] = useState(100);
   const [fullSymbol, setFullSymbol] = useState<string | null>(null);
   const [isTradingViewMode, setIsTradingViewMode] = useState(false); // New state for TradingView mode
+  const [hasInitialChartsOpened, setHasInitialChartsOpened] = useState(false); // New state to track initial charts opening
 
   // OS Global State with localStorage persistence
   const { stockData, stocksList, initializeStockData } = useStockData();
@@ -350,12 +351,16 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
           console.log("OSDesktop: Experience level set, but no portfolio/watchlist, showing StockPreferenceOnboarding.");
           setShowStockPreferenceOnboarding(true);
         } else {
-          console.log("OSDesktop: All onboarding done, opening Charts app.");
-          openApp('charts-app'); // Open Charts app if all onboarding is done
+          // Only open charts app if it hasn't been opened initially yet
+          if (!hasInitialChartsOpened) {
+            console.log("OSDesktop: All onboarding done, opening Charts app.");
+            openApp('charts-app'); // Open Charts app if all onboarding is done
+            setHasInitialChartsOpened(true); // Mark as opened
+          }
         }
       }
     }
-  }, [booted, onboardingComplete, experienceLevel, openApp, setShowOnboardingOS, setShowStockPreferenceOnboarding]);
+  }, [booted, onboardingComplete, experienceLevel, openApp, setShowOnboardingOS, setShowStockPreferenceOnboarding, hasInitialChartsOpened, getInitialPortfolio, getInitialWatchlist]);
 
 
   const handleSelectExperience = useCallback((level: 'beginner' | 'advanced' | 'pro') => {
@@ -381,9 +386,10 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
     localStorage.setItem('os_portfolio', JSON.stringify(selectedPortfolio));
     localStorage.setItem('os_watchlist', JSON.stringify(Object.keys(selectedPortfolio)));
     setShowStockPreferenceOnboarding(false);
-    openApp('charts-app'); // Open Charts app after stock preferences are set
+    // No need to call openApp('charts-app') here, as the useEffect above will handle it
+    // once setShowStockPreferenceOnboarding becomes false and hasInitialChartsOpened is false.
     toast.success("Portfolio Generated!", { description: "Your initial portfolio and watchlist have been set." });
-  }, [openApp]);
+  }, []);
 
 
   const closeWindow = useCallback((id: string) => {
