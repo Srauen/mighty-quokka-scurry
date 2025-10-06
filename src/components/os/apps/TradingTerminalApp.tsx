@@ -39,15 +39,12 @@ const TradingTerminalApp: React.FC<TradingTerminalAppProps> = ({
     if (stocksList.length > 0 && !selectedStock) {
       setSelectedStock(stocksList[0]);
     }
-  }, [stocksList, selectedStock]);
-
-  // Update selected stock when initialSearchSymbol changes
-  useEffect(() => {
+    // If initialSearchSymbol is provided and valid, set it as selectedStock and searchTerm
     if (initialSearchSymbol && stocksList.includes(initialSearchSymbol.toUpperCase())) {
       setSelectedStock(initialSearchSymbol.toUpperCase());
       setSearchTerm(initialSearchSymbol.toUpperCase());
     }
-  }, [initialSearchSymbol, stocksList]);
+  }, [stocksList, selectedStock, initialSearchSymbol]);
 
   const currentPrice = stockData[selectedStock]?.lastPrice || 0;
 
@@ -169,6 +166,14 @@ const TradingTerminalApp: React.FC<TradingTerminalAppProps> = ({
           />
         </div>
       </div>
+
+      {selectedStock && currentPrice > 0 && (
+        <div className="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-700 flex justify-between items-center">
+          <span className="text-sm font-medium text-body-label">Current Price ({selectedStock}):</span>
+          <span className="text-lg font-bold text-green-400">${currentPrice.toFixed(2)}</span>
+        </div>
+      )}
+
       <div className="flex gap-4 mb-4">
         <Button onClick={() => executeTrade('buy')} className="flex-grow py-3 bg-green-600 hover:bg-green-700 font-bold text-white">Buy</Button>
         <Button onClick={() => executeTrade('sell')} className="flex-grow py-3 bg-red-600 hover:bg-red-700 font-bold text-white">Sell</Button>
