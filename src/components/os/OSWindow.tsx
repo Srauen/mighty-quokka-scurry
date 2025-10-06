@@ -140,7 +140,10 @@ const OSWindow: React.FC<OSWindowProps> = ({
           ></button>
           <button
             className="w-3 h-3 bg-red-500 rounded-full hover:bg-red-400"
-            onClick={() => onClose(id)}
+            onClick={() => {
+              console.log(`OSWindow: Close button clicked for id: ${id}`);
+              onClose(id);
+            }}
             aria-label="Close"
           ></button>
         </div>

@@ -387,7 +387,12 @@ const OSDesktop: React.FC<OSDesktopProps> = ({ onExit }) => {
 
 
   const closeWindow = useCallback((id: string) => {
-    setOpenWindows((prevWindows) => prevWindows.filter((win) => win.id !== id));
+    console.log(`OSDesktop: Attempting to close window with id: ${id}`);
+    setOpenWindows((prevWindows) => {
+      const newWindows = prevWindows.filter((win) => win.id !== id);
+      console.log(`OSDesktop: Windows after filter:`, newWindows.map(w => w.id));
+      return newWindows;
+    });
     if (activeWindowId === id) {
       setActiveWindowId(null);
     }
