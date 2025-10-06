@@ -61,9 +61,9 @@ const OSSpotlight: React.FC<OSSpotlightProps> = ({ isOpen, onClose, stocksList, 
   ];
 
   const allSearchableItems: SearchableItem[] = [
-    ...apps.map(app => ({ type: 'app', id: app.id, name: app.name, icon: app.icon, keywords: app.name.toLowerCase() })),
-    ...stocksList.map(stock => ({ type: 'stock', id: stock, name: stock, icon: CandlestickChart, keywords: stock.toLowerCase() })),
-    ...specialCommands.map(cmd => ({ type: cmd.type, id: cmd.id, name: cmd.name, icon: cmd.icon, keywords: cmd.name.toLowerCase(), action: cmd.action })),
+    ...apps.map((app): SearchableItem => ({ type: 'app', id: app.id, name: app.name, icon: app.icon, keywords: app.name.toLowerCase() })),
+    ...stocksList.map((stock): SearchableItem => ({ type: 'stock', id: stock, name: stock, icon: CandlestickChart, keywords: stock.toLowerCase() })),
+    ...specialCommands.map((cmd): SearchableItem => ({ type: cmd.type, id: cmd.id, name: cmd.name, icon: cmd.icon, keywords: cmd.name.toLowerCase(), action: cmd.action })),
   ];
 
   const filteredItems = allSearchableItems.filter(item =>
