@@ -22,16 +22,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, onWatchDemo,
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-green-500 to-blue-600 bg-clip-text text-transparent">
-            AI-Powered Stock Trading
+            Trade Smarter. Trade Safer.
             <span className="block text-3xl md:text-5xl text-gray-600 dark:text-gray-300 mt-2">
-              Smarter Investing Starts Here
+              Stock OS — The First OS Built for Traders.
             </span>
           </h1>
           
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Traditional trading platforms often require switching between multiple applications, leading to inefficiencies and missed opportunities. 
-            Stock OS consolidates all your trading tools into a single, seamless operating system, enhancing your trading efficiency and decision-making. 
-            Whether you're an individual trader seeking advanced tools, a student aiming to learn in a risk-free environment, or a fintech startup looking for customizable solutions, Stock OS is designed to meet your specific needs.
+            Traders often juggle multiple apps, facing distractions, slow execution, and security risks. Students and beginners lack a safe, structured environment to practice. Stock OS solves this by booting directly into a distraction-free desktop, offering real-time charts, AI-guided trading insights, and simulation/live trading modes all in one secure platform. Whether you're an individual trader seeking advanced tools, a student aiming to learn in a risk-free environment, or a fintech startup/institution looking for customizable solutions, Stock OS is designed to meet your specific needs.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
