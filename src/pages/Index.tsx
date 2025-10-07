@@ -7,6 +7,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import ContactSection from "@/components/ContactSection"; // Import new ContactSection
+import TestimonialsSection from "@/components/TestimonialsSection"; // Import new TestimonialsSection
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop"; // Keep for demo
@@ -27,6 +28,7 @@ const Index = () => {
   const pricingRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
   const contactRef = useRef<HTMLElement | null>(null); // New ref for ContactSection
+  const testimonialsRef = useRef<HTMLElement | null>(null); // New ref for TestimonialsSection
 
   const navigate = useNavigate();
   const { session, isLoading } = useSession();
@@ -50,7 +52,7 @@ const Index = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    const sections = [heroRef, featuresRef, pricingRef, faqRef, contactRef]; // Include contactRef
+    const sections = [heroRef, featuresRef, pricingRef, faqRef, contactRef, testimonialsRef]; // Include testimonialsRef
     sections.forEach((ref) => {
       if (ref.current) {
         observer.observe(ref.current);
@@ -177,6 +179,7 @@ const Index = () => {
           <main className="flex-grow">
             <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} onWatchDemo={handleWatchDemo} />
             <FeaturesSection sectionRef={featuresRef} features={features} />
+            <TestimonialsSection sectionRef={testimonialsRef} /> {/* New Testimonials Section */}
             <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
             <FAQSection sectionRef={faqRef} />
             <ContactSection sectionRef={contactRef} /> {/* New Contact Section */}

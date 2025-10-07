@@ -22,7 +22,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ features, sectionRef 
           Powerful Features for Smart Investors
         </h2>
         <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
-          Unlock your full trading potential with our comprehensive suite of tools and intelligent insights.
+          Unlock your full trading potential with our comprehensive suite of tools and intelligent insights, designed to streamline your workflow and enhance decision-making.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (

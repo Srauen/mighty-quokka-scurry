@@ -29,8 +29,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, onWatchDemo,
           </h1>
           
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Experience the future of stock trading with real-time AI insights, professional-grade analytics, 
-            and seamless portfolio management across all your devices.
+            Traditional trading platforms often require switching between multiple applications, leading to inefficiencies and missed opportunities. 
+            Stock OS consolidates all your trading tools into a single, seamless operating system, enhancing your trading efficiency and decision-making. 
+            Whether you're an individual trader seeking advanced tools, a student aiming to learn in a risk-free environment, or a fintech startup looking for customizable solutions, Stock OS is designed to meet your specific needs.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -39,7 +40,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ startOnboarding, onWatchDemo,
               size="lg" 
               className="bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white px-8 py-4 text-lg"
             >
-              Start Free Trial
+              Get Started Today
             </Button>
             <Button 
               onClick={onWatchDemo} // Trigger the demo here
