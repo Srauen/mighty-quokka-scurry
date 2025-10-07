@@ -11,7 +11,7 @@ import TestimonialsSection from "@/components/TestimonialsSection"; // Import ne
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop"; // Keep for demo
-import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap, TrendingUp, LayoutGrid, GraduationCap, Lock } from 'lucide-react'; // Added new icons
+import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap, TrendingUp, LayoutGrid, GraduationCap, Lock, Newspaper, Briefcase } from 'lucide-react'; // Added new icons
 import { useTheme } from '@/components/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/components/SessionContextProvider';
@@ -92,42 +92,112 @@ const Index = () => {
     {
       icon: <LineChart className="w-6 h-6 text-white" />,
       title: "Trading Tools & Charts",
-      description: "Real-time charts, historical data, technical indicators, and customizable layouts for comprehensive analysis."
+      description: `
+        **Real-time intraday charts** for stocks, crypto, and mutual funds.
+        **Historical data & replay mode** for strategy testing.
+        Diverse chart types: **Candlestick, line, bar, area**.
+        **20+ Technical indicators** including RSI, MACD, Bollinger Bands, SMA, EMA, Volume, Ichimoku, Fibonacci, Stochastic, ADX, ATR, VWAP.
+        **Customizable chart layouts & themes**.
+        **Multi-ticker support** with side-by-side comparisons.
+        **Drag-and-drop widgets** for a modular workspace.
+        Advanced drawing tools, timeframe flexibility, and integrated news overlays.
+      `
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-white" />,
       title: "Trading Terminal",
-      description: "Execute buy/sell orders, track PnL, set stop-loss/take-profit, and utilize simulation mode for risk-free practice."
+      description: `
+        **One-click buy/sell orders** with live PnL tracking.
+        **Advanced order types:** Stop-loss, take-profit, OCO, OTO, trailing stops, bracket orders.
+        **Real-time risk assessment & alerts**.
+        **Immutable audit history** for all trades.
+        **API integration with 50+ brokers** for seamless live trading.
+        **Simulation mode** with virtual capital for risk-free practice.
+        Multi-currency, multi-asset support, algorithmic trading, and backtesting capabilities.
+      `
     },
     {
-      icon: <BarChart3 className="w-6 h-6 text-white" />,
+      icon: <Briefcase className="w-6 h-6 text-white" />,
       title: "Portfolio Manager",
-      description: "Track holdings, balances, and profit/loss across multiple portfolios with real-time auto-updates."
+      description: `
+        **Track holdings, balances, and profit/loss** (realized/unrealized).
+        **Multi-portfolio support** for retail, institutional, and student accounts.
+        **Real-time auto-updates** of portfolio value.
+        **Custom alerts** for performance thresholds.
+        **Exportable reports** (CSV, PDF) for compliance and education.
+        Detailed asset allocation breakdown, performance benchmarking, and risk metrics (VaR, Beta, Sharpe Ratio).
+      `
+    },
+    {
+      icon: <Newspaper className="w-6 h-6 text-white" />,
+      title: "News & Insights",
+      description: `
+        **Live financial news feed** integrated via APIs (NewsAPI, Alpha Vantage, CoinGecko, proprietary sources).
+        **AI-curated headlines** based on your portfolio and watchlist.
+        Highlights for **inflation, geopolitical, and market-moving news**.
+        **Sentiment analysis** for stocks, crypto, sectors, and overall market.
+        **Push notifications** for breaking news, economic calendar, and earnings reports.
+      `
     },
     {
       icon: <Brain className="w-6 h-6 text-white" />,
       title: "AI & Notifications",
-      description: "Receive AI-driven buy/sell suggestions, trend indicators, customizable alerts, and personalized learning tips."
+      description: `
+        **AI-driven buy/sell suggestions** with probabilistic confidence scores.
+        **Indicators based on RSI, volume, price trends, candlestick patterns, and fundamental data**.
+        **Customizable notification thresholds** for price, volume, news, and sentiment.
+        **AI-driven learning tips** for students with adaptive curriculum.
+        **Simulation feedback** explaining trade outcomes and suggesting improvements.
+        Predictive analytics, anomaly detection, and personalized market summaries.
+      `
     },
     {
       icon: <LayoutGrid className="w-6 h-6 text-white" />,
       title: "Modular Dashboard & UI",
-      description: "Enjoy a distraction-free desktop with modular, draggable, and resizable windows, dark/light modes, and multi-monitor support."
+      description: `
+        **Modular, draggable, and resizable windows** with snap-to-grid functionality.
+        **Dark/light mode** with a sleek OS-style theme.
+        **Taskbar** with app shortcuts, notifications, and system tray.
+        **Multi-monitor support** for professional setups.
+        **Custom themes & layouts** (save/load presets).
+        **Quick access to all tools via Spotlight Search (Alt+Space)** and virtual desktops for different workflows.
+      `
     },
     {
       icon: <GraduationCap className="w-6 h-6 text-white" />,
       title: "Learning & Gamification",
-      description: "Engage with simulation mode, badges, leaderboards, scenario challenges, and AI-driven adaptive learning paths."
+      description: `
+        **Robust simulation mode** for risk-free practice with virtual capital.
+        **Badges, levels, and leaderboards** to track learning progress.
+        **Scenario-based trading challenges** based on historical events.
+        **Interactive tutorials** integrated directly into the OS workflow.
+        **AI-driven adaptive learning paths** and a comprehensive educational content library.
+      `
     },
     {
       icon: <Lock className="w-6 h-6 text-white" />,
       title: "Security & Compliance",
-      description: "Benefit from OS-level sandboxing, malware protection, immutable audit logs, and encrypted broker API communication."
+      description: `
+        **OS-level sandboxing** to isolate your trading environment.
+        **Advanced malware & phishing protection**.
+        **Immutable audit logs** for all trades, logins, and actions.
+        **Multi-user permissions & role-based access control** for institutions.
+        **End-to-end encrypted communication** with broker APIs.
+        **Auto-updates with verified patches** and secure boot processes.
+        **Compliance dashboards** (MiFID II, FINRA, SEC reporting) and data privacy controls (GDPR, CCPA).
+      `
     },
     {
       icon: <Zap className="w-6 h-6 text-white" />,
       title: "Integration & Customization",
-      description: "Seamless API integration with brokers, advanced analytics modules, external app support, and cloud sync options."
+      description: `
+        **Seamless API integration** with 50+ brokers and exchanges.
+        **Advanced analytics modules** for portfolio optimization and risk modeling.
+        **Premium market data feeds** (Level 2, dark pools, alternative data) as add-ons.
+        **External app integration** (Excel, Google Sheets, custom scripts).
+        **Cloud sync & backup options** (encrypted) and a third-party plugin marketplace.
+        **Custom builds** for fintech startups, educational labs, and prop trading firms.
+      `
     },
   ];
 
@@ -140,7 +210,9 @@ const Index = () => {
         "Simulation Mode",
         "Limited AI tips",
         "Basic charting tools",
-        "Community support"
+        "Community support",
+        "Risk-free learning environment",
+        "Access to educational content"
       ],
       popular: false,
     },
@@ -155,7 +227,10 @@ const Index = () => {
         "Premium Charting Tools",
         "Portfolio Management",
         "Priority Support",
-        "Flexible installment payments available"
+        "Flexible installment payments available",
+        "Multi-monitor support",
+        "Customizable layouts",
+        "Real-time risk assessment"
       ],
       popular: true,
     },
@@ -169,7 +244,10 @@ const Index = () => {
         "API Integration",
         "Dedicated Account Manager",
         "24/7 Phone Support",
-        "White-label Solutions"
+        "White-label Solutions",
+        "Role-based access control",
+        "Immutable audit logs",
+        "On-premise deployment options"
       ],
       popular: false,
     },
@@ -178,10 +256,12 @@ const Index = () => {
       price: "Varies",
       period: "",
       features: [
-        "Premium Data Feeds",
-        "Advanced Analytics Modules",
-        "Gamification Features",
-        "Custom AI Model Training"
+        "Premium Data Feeds (Level 2, Dark Pools)",
+        "Advanced Analytics Modules (Quant, Risk Modeling)",
+        "Gamification Features (Leaderboards, Challenges)",
+        "Custom AI Model Training",
+        "Dedicated Cloud Sync & Backup",
+        "Third-Party Plugin Marketplace Access"
       ],
       popular: false,
     },
@@ -193,20 +273,20 @@ const Index = () => {
         <OSDesktop onExit={handleExitOSSimulation} />
       ) : (
         <>
-          <ScrollIndicator /> {/* Moved here, only renders when OS simulation is off */}
+          <ScrollIndicator />
           <Navbar
             darkMode={theme === 'dark' || theme === 'os-style'}
             setDarkMode={(isDark) => setTheme(isDark ? 'dark' : 'light')}
             activeSection={activeSection}
-            onSignIn={() => navigate('/login')} // Pass onSignIn prop
+            onSignIn={() => navigate('/login')}
           />
           <main className="flex-grow">
             <HeroSection sectionRef={heroRef} startOnboarding={startOnboarding} onWatchDemo={handleWatchDemo} />
             <FeaturesSection sectionRef={featuresRef} features={features} />
-            <TestimonialsSection sectionRef={testimonialsRef} /> {/* New Testimonials Section */}
+            <TestimonialsSection sectionRef={testimonialsRef} />
             <PricingSection sectionRef={pricingRef} pricingPlans={pricingPlans} />
             <FAQSection sectionRef={faqRef} />
-            <ContactSection sectionRef={contactRef} /> {/* New Contact Section */}
+            <ContactSection sectionRef={contactRef} />
           </main>
           <Footer />
           <OnboardingModal
