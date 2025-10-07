@@ -11,7 +11,7 @@ import TestimonialsSection from "@/components/TestimonialsSection"; // Import ne
 import Footer from "@/components/Footer";
 import OnboardingModal from "@/components/OnboardingModal";
 import OSDesktop from "@/components/os/OSDesktop"; // Keep for demo
-import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap } from 'lucide-react';
+import { LineChart, BarChart3, Brain, Smartphone, Shield, Zap, TrendingUp, LayoutGrid, GraduationCap, Lock } from 'lucide-react'; // Added new icons
 import { useTheme } from '@/components/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/components/SessionContextProvider';
@@ -90,34 +90,44 @@ const Index = () => {
 
   const features = [
     {
-      icon: <Brain className="w-6 h-6 text-white" />,
-      title: "AI-Powered Insights",
-      description: "Leverage advanced AI algorithms to predict market trends and identify profitable opportunities."
+      icon: <LineChart className="w-6 h-6 text-white" />,
+      title: "Trading Tools & Charts",
+      description: "Real-time charts, historical data, technical indicators, and customizable layouts for comprehensive analysis."
     },
     {
-      icon: <LineChart className="w-6 h-6 text-white" />,
-      title: "Real-time Analytics",
-      description: "Access professional-grade charts, indicators, and live market data for informed decisions."
+      icon: <TrendingUp className="w-6 h-6 text-white" />,
+      title: "Trading Terminal",
+      description: "Execute buy/sell orders, track PnL, set stop-loss/take-profit, and utilize simulation mode for risk-free practice."
     },
     {
       icon: <BarChart3 className="w-6 h-6 text-white" />,
-      title: "Portfolio Management",
-      description: "Track, analyze, and optimize your investments with intuitive tools and performance reports."
+      title: "Portfolio Manager",
+      description: "Track holdings, balances, and profit/loss across multiple portfolios with real-time auto-updates."
     },
     {
-      icon: <Smartphone className="w-6 h-6 text-white" />,
-      title: "Multi-Platform Access",
-      description: "Seamlessly trade and monitor your portfolio across desktop, tablet, and mobile devices."
+      icon: <Brain className="w-6 h-6 text-white" />,
+      title: "AI & Notifications",
+      description: "Receive AI-driven buy/sell suggestions, trend indicators, customizable alerts, and personalized learning tips."
     },
     {
-      icon: <Shield className="w-6 h-6 text-white" />,
-      title: "Secure Trading",
-      description: "Your data and assets are protected with industry-leading security protocols and encryption."
+      icon: <LayoutGrid className="w-6 h-6 text-white" />,
+      title: "Modular Dashboard & UI",
+      description: "Enjoy a distraction-free desktop with modular, draggable, and resizable windows, dark/light modes, and multi-monitor support."
+    },
+    {
+      icon: <GraduationCap className="w-6 h-6 text-white" />,
+      title: "Learning & Gamification",
+      description: "Engage with simulation mode, badges, leaderboards, scenario challenges, and AI-driven adaptive learning paths."
+    },
+    {
+      icon: <Lock className="w-6 h-6 text-white" />,
+      title: "Security & Compliance",
+      description: "Benefit from OS-level sandboxing, malware protection, immutable audit logs, and encrypted broker API communication."
     },
     {
       icon: <Zap className="w-6 h-6 text-white" />,
-      title: "Blazing Fast Execution",
-      description: "Execute trades with minimal latency, ensuring you never miss a critical market move."
+      title: "Integration & Customization",
+      description: "Seamless API integration with brokers, advanced analytics modules, external app support, and cloud sync options."
     },
   ];
 
