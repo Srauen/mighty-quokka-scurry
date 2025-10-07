@@ -123,41 +123,55 @@ const Index = () => {
 
   const pricingPlans = [
     {
-      name: "Basic Trader",
+      name: "Starter (Student)",
       price: "Free",
       period: "",
       features: [
-        "Real-time market data",
-        "Basic AI insights",
-        "Standard charting tools",
-        "Email support"
+        "Simulation Mode",
+        "Limited AI tips",
+        "Basic charting tools",
+        "Community support"
       ],
       popular: false,
     },
     {
-      name: "Pro Investor",
-      price: "$25",
+      name: "Pro (Retail)",
+      price: "$29.99",
       period: "/month",
       features: [
-        "Advanced AI predictions",
-        "Premium charting tools",
-        "Portfolio optimization",
-        "Priority email & chat support",
-        "Multi-device sync",
+        "Full OS Access",
+        "Live Trading Integration",
+        "Advanced AI Insights",
+        "Premium Charting Tools",
+        "Portfolio Management",
+        "Priority Support",
         "Flexible installment payments available"
       ],
       popular: true,
     },
     {
       name: "Enterprise",
-      price: "$199",
-      period: "/month",
+      price: "Custom",
+      period: "pricing",
       features: [
-        "Custom AI models",
-        "Dedicated account manager",
-        "API access",
-        "24/7 phone support",
-        "White-label solutions"
+        "Multi-user OS",
+        "Compliance Tools",
+        "API Integration",
+        "Dedicated Account Manager",
+        "24/7 Phone Support",
+        "White-label Solutions"
+      ],
+      popular: false,
+    },
+    {
+      name: "Add-Ons",
+      price: "Varies",
+      period: "",
+      features: [
+        "Premium Data Feeds",
+        "Advanced Analytics Modules",
+        "Gamification Features",
+        "Custom AI Model Training"
       ],
       popular: false,
     },
