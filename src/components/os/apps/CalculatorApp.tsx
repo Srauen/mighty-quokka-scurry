@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { toast } from 'sonner'; // Import toast for notifications
 
 const CalculatorApp: React.FC = () => {
   const [currentInput, setCurrentInput] = useState('0');
@@ -38,7 +39,7 @@ const CalculatorApp: React.FC = () => {
       if (isNaN(prev) || isNaN(current)) return;
 
       if (current === 0 && operator === '/') {
-        alert("Error: Division by zero is not allowed."); // Using alert for simplicity, could be a custom toast
+        toast.error("Error", { description: "Division by zero is not allowed." }); // Using toast instead of alert
         setCurrentInput('0');
         setPreviousInput('');
         setOperator(null);
