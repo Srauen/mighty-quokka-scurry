@@ -19,10 +19,10 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ features, sectionRef 
     <section id="features" ref={sectionRef} className="py-20 bg-gray-50 dark:bg-gray-800">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
-          Stock OS: Your Ultimate Trading Ecosystem
+          Powerful Features for Smart Investors
         </h2>
         <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
-          Unlock your full trading potential with our comprehensive suite of tools and intelligent insights, designed to streamline your workflow and enhance decision-making. With **over 200+ features, modules, integrations, and advantages** across trading, learning, security, and analytics, Stock OS is engineered for your success.
+          Unlock your full trading potential with our comprehensive suite of tools and intelligent insights.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
@@ -36,7 +36,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ features, sectionRef 
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 pt-0">
-                <CardDescription className="text-gray-600 dark:text-gray-400 text-base text-left">
+                <CardDescription className="text-gray-600 dark:text-gray-400 text-base">
                   {feature.description}
                 </CardDescription>
               </CardContent>
